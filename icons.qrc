@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/dir.png</file>
+        <file>icons/exec.png</file>
+        <file>icons/file.png</file>
+        <file>icons/find.png</file>
+        <file>icons/home.png</file>
+        <file>icons/next.png</file>
+        <file>icons/prev.png</file>
+        <file>icons/secret.png</file>
+        <file>icons/delete.png</file>
+        <file>icons/dir_empty.png</file>
+        <file>icons/ok.png</file>
+        <file>icons/user.png</file>
+        <file>icons/user_info.png</file>
+        <file>icons/dir_delete.png</file>
+        <file>icons/secret_delete.png</file>
+        <file>icons/up.png</file>
+    </qresource>
+</RCC>
