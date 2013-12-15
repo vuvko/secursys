@@ -1,10 +1,11 @@
-#include "fileviewer.h"
+#include "fsviewer.h"
 
-FileView::FileView(QWidget *parent)
-    : QTreeView(parent)
+FileView::FileView(FSViewer *parent_)
+    : QTreeView(parent_)
 {
+    parent = parent_;
     dirModel = new QStandardItemModel(0, 4, this);
-    dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Тип"));
+    dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr(""));
     dirModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Название"));
     dirModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Дата последней модификации"));
     dirModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Размер"));
@@ -14,11 +15,6 @@ FileView::FileView(QWidget *parent)
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
     currentDir.setSorting(QDir::DirsFirst | QDir::Name);
-}
-
-FileView::~FileView()
-{
-    delete dirModel;
 }
 
 bool
@@ -94,6 +90,12 @@ FileView::rm()
 }
 
 void
+FileView::check()
+{
+    qDebug() << "Здесь должна быть проверка целостности файла.";
+}
+
+void
 FileView::update()
 {
     qDebug() << "Текущий каталог:" << currentDir.absolutePath();
@@ -120,6 +122,7 @@ FileView::update()
         ++idx;
     }
     setModel(dirModel);
+    parent->changePath(currentDir.absolutePath());
 }
 
 void
@@ -136,16 +139,21 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
         system(info.absoluteFilePath().toStdString().c_str());
     } else {
         qDebug() << "Здесь нужно проверять на доступ к файлу.";
+        emit openFile(info.absoluteFilePath());
+        /*
         if (info.suffix() == secret_suffix) {
             qDebug() << "Нужно открыть редактор с этим файлом";
-        }
+        }*/
     }
 }
 
-FileViewer::FileViewer(QWidget *parent)
+//-----------
+// FSViewer
+//-----------
+
+FSViewer::FSViewer(const QString &path, QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowIcon(QIcon(":/icons/dir.png"));
     // Creating UI
     qDebug() << "Инициализация пользовательского интерфейса.";
     // main Layout
@@ -154,8 +162,7 @@ FileViewer::FileViewer(QWidget *parent)
     mainLayout = new QGridLayout;
     centralWidget->setLayout(mainLayout);
 
-    dirView = new FileView;
-    //dirView->setRootIsDecorated(false);
+    dirView = new FileView(this);
     dirView->setAlternatingRowColors(true);
 
     driveBox = new QComboBox;
@@ -165,9 +172,14 @@ FileViewer::FileViewer(QWidget *parent)
     connect(driveBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onDriveChange(QString)));
 
     driveLabel = new QLabel(tr("Сменить диск:"));
+    pathNameLabel = new QLabel(tr("Путь:"));
+    pathLabel = new QLabel;
+
     mainLayout->addWidget(driveLabel, 0, 0);
     mainLayout->addWidget(driveBox, 0, 1);
-    mainLayout->addWidget(dirView, 1, 0, 1, 2);
+    mainLayout->addWidget(pathNameLabel, 1, 0);
+    mainLayout->addWidget(pathLabel, 1, 1);
+    mainLayout->addWidget(dirView, 2, 0, 1, 2);
     mainLayout->setColumnStretch(0, 0);
     mainLayout->setColumnStretch(1, 1);
 
@@ -175,41 +187,18 @@ FileViewer::FileViewer(QWidget *parent)
     createMenu();
     createToolBar();
 
-    resize(800, 600);
+    resize(800, 500);
+    setWindowIcon(QIcon(":/icons/dir.png"));
+    setWindowTitle(tr("Просмотр файловой системы"));
     // UI created.
     qDebug() << "Пользовательский интерфейс создан.";
+    dirView->cd(path);
     dirView->update();
-}
-
-FileViewer::~FileViewer()
-{
-    delete driveBox;
-    delete driveLabel;
-
-    delete mnuDirCreate;
-    delete mnuDirDelete;
-    delete mnuFileCreate;
-    delete mnuFileDelete;
-    delete mnuUp;
-    delete mnuExit;
-    delete fileMenu;
-
-    delete mnuAbout;
-    delete helpMenu;
-
-    delete dirView;
-    delete mainLayout;
-    delete centralWidget;
-
-    delete toolDirCreate;
-    delete toolDirDelete;
-    delete toolFileDelete;
-    delete toolFileCreate;
-    delete fileBar;
+    connect(dirView, SIGNAL(openFile(QString)), this, SLOT(onOpenFile(QString)));
 }
 
 void
-FileViewer::createActions()
+FSViewer::createActions()
 {
     mnuDirCreate = new QAction(QIcon(":/icons/dir_empty.png"), tr("Создать каталог"), this);
     connect(mnuDirCreate, SIGNAL(triggered()), this, SLOT(onDirCreate()));
@@ -222,6 +211,9 @@ FileViewer::createActions()
 
     mnuFileDelete = new QAction(QIcon(":/icons/secret_delete.png"), tr("Удалить секретный файл"), this);
     connect(mnuFileDelete, SIGNAL(triggered()), this, SLOT(onFileDelete()));
+
+    mnuCheckHash = new QAction(tr("Проверить целостность"), this);
+    connect(mnuCheckHash, SIGNAL(triggered()), this, SLOT(onCheckHash()));
 
     mnuUp = new QAction(QIcon(":/icons/up.png"), tr("Вверх"), this);
     mnuUp->setShortcut(tr("Alt+Up"));
@@ -249,13 +241,14 @@ FileViewer::createActions()
 }
 
 void
-FileViewer::createMenu()
+FSViewer::createMenu()
 {
     fileMenu = menuBar()->addMenu(tr("Файл"));
     fileMenu->addAction(mnuDirCreate);
     fileMenu->addAction(mnuDirDelete);
     fileMenu->addAction(mnuFileCreate);
     fileMenu->addAction(mnuFileDelete);
+    fileMenu->addAction(mnuCheckHash);
     fileMenu->addAction(mnuUp);
     fileMenu->addSeparator();
     fileMenu->addAction(mnuExit);
@@ -265,7 +258,7 @@ FileViewer::createMenu()
 }
 
 void
-FileViewer::createToolBar()
+FSViewer::createToolBar()
 {
     fileBar = addToolBar(tr("Файл"));
     fileBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
@@ -274,6 +267,12 @@ FileViewer::createToolBar()
     fileBar->addAction(toolDirDelete);
     fileBar->addAction(toolFileCreate);
     fileBar->addAction(toolFileDelete);
+}
+
+void
+FSViewer::changePath(const QString &path)
+{
+    pathLabel->setText(path);
 }
 
 // slots:
@@ -286,38 +285,57 @@ FileView::onUp()
 }
 
 void
-FileViewer::onAbout()
+FSViewer::onAbout()
 {
     QMessageBox::about(this, tr("О программе."),
-                       tr("Сам текст о прогамме."));
+                       tr("Учебная система защиты инфорации от несанкционированного доступа."));
 }
 
 void
-FileViewer::onDriveChange(const QString &drive)
+FSViewer::onDriveChange(const QString &drive)
 {
     dirView->cd(drive);
 }
 
 void
-FileViewer::onDirCreate()
+FSViewer::onDirCreate()
 {
     dirView->mkdir();
 }
 
 void
-FileViewer::onDirDelete()
+FSViewer::onDirDelete()
 {
     dirView->rmdir();
 }
 
 void
-FileViewer::onFileCreate()
+FSViewer::onFileCreate()
 {
     dirView->createFile();
 }
 
 void
-FileViewer::onFileDelete()
+FSViewer::onFileDelete()
 {
     dirView->rm();
+}
+
+void
+FSViewer::onCheckHash()
+{
+    dirView->check();
+}
+
+void
+FSViewer::onOpenFile(const QString &fileName)
+{
+    emit openFile(fileName);
+}
+
+void
+FSViewer::openDir()
+{
+    qDebug() << "ткрытие директории...";
+    show();
 }

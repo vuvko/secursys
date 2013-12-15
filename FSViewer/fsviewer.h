@@ -1,5 +1,5 @@
-#ifndef FILEVIEWER_H
-#define FILEVIEWER_H
+#ifndef FSViewer_H
+#define FSViewer_H
 
 #include <QMainWindow>
 #include <QMenu>
@@ -19,11 +19,14 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QInputDialog>
+#include <QStatusBar>
 
 #include <QDir>
 #include <QFile>
 
 #include <QDebug>
+
+class FSViewer;
 
 class FileView : public QTreeView
 {
@@ -32,8 +35,7 @@ class FileView : public QTreeView
 public:
     constexpr static char *secret_suffix = "sf"; // *.sf --- секретные файлы
 
-    explicit FileView(QWidget *parent = 0);
-    ~FileView();
+    explicit FileView(FSViewer *parent_);
 
     bool cd(const QString &path);
     bool cd(const QDir &dir);
@@ -42,25 +44,31 @@ public:
     bool rmdir();
     bool createFile();
     bool rm();
+    void check();
 
 public slots:
     void onUp();
+
+signals:
+    void openFile(const QString &fileName);
 
 protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
+    FSViewer *parent;
     QStandardItemModel *dirModel;
     QDir currentDir;
 };
 
-class FileViewer : public QMainWindow
+class FSViewer : public QMainWindow
 {
     Q_OBJECT
     
 public:
-    explicit FileViewer(QWidget *parent = 0);
-    ~FileViewer();
+    explicit FSViewer(const QString &path = ".", QWidget *parent = 0);
+
+    void changePath(const QString &path);
 
 private slots:
     void onAbout();
@@ -69,18 +77,29 @@ private slots:
     void onDirDelete();
     void onFileCreate();
     void onFileDelete();
+    void onCheckHash();
+    void onOpenFile(const QString &fileName);
+
+public slots:
+    void openDir();
+
+signals:
+    void openFile(const QString &fileName);
 
 private:
     QWidget *centralWidget;
     QGridLayout *mainLayout;
     QComboBox *driveBox;
     QLabel *driveLabel;
+    QLabel *pathNameLabel;
+    QLabel *pathLabel;
 
     QMenu *fileMenu;
     QAction *mnuDirCreate;
     QAction *mnuDirDelete;
     QAction *mnuFileCreate;
     QAction *mnuFileDelete;
+    QAction *mnuCheckHash;
     QAction *mnuUp;
     QAction *mnuExit;
 
@@ -100,4 +119,4 @@ private:
     void createToolBar();
 };
 
-#endif // FILEVIEWER_H
+#endif // FSViewer_H
