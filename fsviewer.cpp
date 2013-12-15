@@ -219,25 +219,13 @@ FSViewer::createActions()
     mnuUp->setShortcut(tr("Alt+Up"));
     connect(mnuUp, SIGNAL(triggered()), dirView, SLOT(onUp()));
 
-    mnuExit = new QAction(tr("Выход"), this);
+    mnuExit = new QAction(QIcon(":/icons/exit.png"), tr("Выход"), this);
     mnuExit->setShortcut(tr("Ctrl+Q"));
     connect(mnuExit, SIGNAL(triggered()), this, SLOT(close()));
 
     mnuAbout = new QAction(tr("О программе"), this);
     mnuAbout->setShortcut(tr("F1"));;
     connect(mnuAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
-
-    toolDirCreate = new QAction(QIcon(":/icons/dir_empty.png"), tr("Создать каталог"), this);
-    connect(toolDirCreate, SIGNAL(triggered()), this, SLOT(onDirCreate()));
-
-    toolDirDelete = new QAction(QIcon(":/icons/dir_delete.png"), tr("Удалить каталог"), this);
-    connect(toolDirDelete, SIGNAL(triggered()), this, SLOT(onDirDelete()));
-
-    toolFileCreate = new QAction(QIcon(":/icons/secret.png"), tr("Создать секретный файл"), this);
-    connect(toolFileCreate, SIGNAL(triggered()), this, SLOT(onFileCreate()));
-
-    toolFileDelete = new QAction(QIcon(":/icons/secret_delete.png"), tr("Удалить секретный файл"), this);
-    connect(toolFileDelete, SIGNAL(triggered()), this, SLOT(onFileDelete()));
 }
 
 void
@@ -263,10 +251,10 @@ FSViewer::createToolBar()
     fileBar = addToolBar(tr("Файл"));
     fileBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
-    fileBar->addAction(toolDirCreate);
-    fileBar->addAction(toolDirDelete);
-    fileBar->addAction(toolFileCreate);
-    fileBar->addAction(toolFileDelete);
+    fileBar->addAction(mnuDirCreate);
+    fileBar->addAction(mnuDirDelete);
+    fileBar->addAction(mnuFileCreate);
+    fileBar->addAction(mnuFileDelete);
 }
 
 void
