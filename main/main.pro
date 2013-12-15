@@ -9,8 +9,8 @@ TEMPLATE = app
 SOURCES += \
     main.cpp
 
-win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../FSViewer/release/ -lFileViewer
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../FSViewer/debug/ -lFileViewer
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../FSViewer/release/ -lFSViewer
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../FSViewer/debug/ -lFSViewer
 else:unix:!macx: LIBS += -L$$OUT_PWD/../FSViewer/ -lFSViewer
 
 INCLUDEPATH += $$PWD/../FSViewer
@@ -31,3 +31,10 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../AppHandler/ -lAppHandler
 
 INCLUDEPATH += $$PWD/../AppHandler
 DEPENDPATH += $$PWD/../AppHandler
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Login/release/ -lLogin
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Login/debug/ -lLogin
+else:unix:!macx: LIBS += -L$$OUT_PWD/../Login/ -lLogin
+
+INCLUDEPATH += $$PWD/../Login
+DEPENDPATH += $$PWD/../Login

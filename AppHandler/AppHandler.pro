@@ -25,3 +25,10 @@ else:unix:!macx: LIBS += -L$$OUT_PWD/../FileEditor/ -lFileEditor
 
 INCLUDEPATH += $$PWD/../FileEditor
 DEPENDPATH += $$PWD/../FileEditor
+
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../Login/release/ -lLogin
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../Login/debug/ -lLogin
+else:unix:!macx: LIBS += -L$$OUT_PWD/../Login/ -lLogin
+
+INCLUDEPATH += $$PWD/../Login
+DEPENDPATH += $$PWD/../Login

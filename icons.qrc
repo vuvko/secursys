@@ -8,7 +8,7 @@
         <file>icons/next.png</file>
         <file>icons/prev.png</file>
         <file>icons/secret.png</file>
-        <file>icons/delete.png</file>
+        <file alias="icons/cancel.png">icons/delete.png</file>
         <file>icons/dir_empty.png</file>
         <file>icons/ok.png</file>
         <file>icons/user.png</file>
