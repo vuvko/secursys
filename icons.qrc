@@ -16,5 +16,7 @@
         <file>icons/dir_delete.png</file>
         <file>icons/secret_delete.png</file>
         <file>icons/up.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/save.png</file>
     </qresource>
 </RCC>

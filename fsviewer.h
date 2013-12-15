@@ -107,10 +107,6 @@ private:
     QAction *mnuAbout;
 
     QToolBar *fileBar;
-    QAction *toolDirCreate;
-    QAction *toolDirDelete;
-    QAction *toolFileCreate;
-    QAction *toolFileDelete;
 
     FileView *dirView;
 
