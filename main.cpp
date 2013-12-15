@@ -1,6 +1,3 @@
-#include "fsviewer.h"
-#include "fileeditor.h"
-#include "logindialog.h"
 #include "apphandler.h"
 #include <QApplication>
 
