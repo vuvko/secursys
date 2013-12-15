@@ -6,6 +6,7 @@
 
 #include "fileeditor.h"
 #include "fsviewer.h"
+#include "logindialog.h"
 
 class AppHandler : public QObject
 {
@@ -13,13 +14,17 @@ class AppHandler : public QObject
 public:
     explicit AppHandler(QObject *parent = 0);
     void startFS(const QString &path=".");
+    void startLogin();
 
 signals:
 
 public slots:
     void openFile(const QString &fileName);
     void openFS(const QString &path = ".");
+    void openLogin();
 
+private:
+    void startInThread(QThread *thread, QWidget *widget);
 };
 
 #endif // APPHANDLER_H

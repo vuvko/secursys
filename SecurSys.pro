@@ -4,4 +4,5 @@ SUBDIRS += \
     FileEditor \
     FSViewer \
     AppHandler \
-    main
+    Login \
+    main \
