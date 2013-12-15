@@ -1,5 +1,6 @@
 #include "logger.h"
 
-Logger::Logger()
+Logger::Logger(const QString &fileName)
 {
+    file = QFile(fileName);
 }

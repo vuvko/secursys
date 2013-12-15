@@ -25,3 +25,5 @@ HEADERS += \
     fileeditor.h \
     apphandler.h
 
+#LIBS += -L$$_PRO_FILE_PWD_ -lAES256
+
