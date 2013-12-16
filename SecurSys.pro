@@ -16,14 +16,16 @@ SOURCES += \
     logger.cpp \
     fsviewer.cpp \
     fileeditor.cpp \
-    apphandler.cpp
+    apphandler.cpp \
+    crypto.cpp
 
 HEADERS += \
     logindialog.h \
     logger.h \
     fsviewer.h \
     fileeditor.h \
-    apphandler.h
+    apphandler.h \
+    crypto.h
 
 #LIBS += -L$$_PRO_FILE_PWD_ -lAES256
 
