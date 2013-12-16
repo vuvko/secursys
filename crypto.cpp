@@ -13,7 +13,9 @@ QString
 Crypto::hash_256(const QString &msg)
 {
     char *out = (char *)calloc(32, sizeof(*out));
-    hash_256_func(msg.toStdString().c_str(), msg.length(), out);
+    hash_256_func((unsigned char *)msg.toStdString().c_str(),
+                  msg.length(),
+                  (unsigned char *)out);
     return QString(out);
 }
 
@@ -21,6 +23,8 @@ QString
 Crypto::hash_512(const QString &msg)
 {
     char *out = (char *)calloc(64, sizeof(*out));
-    hash_512_func(msg.toStdString().c_str(), msg.length(), out);
+    hash_512_func((unsigned char *)msg.toStdString().c_str(),
+                  msg.length(),
+                  (unsigned char *)out);
     return QString(out);
 }

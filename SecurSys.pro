@@ -17,7 +17,8 @@ SOURCES += \
     fsviewer.cpp \
     fileeditor.cpp \
     apphandler.cpp \
-    crypto.cpp
+    crypto.cpp \
+    userprofile.cpp
 
 HEADERS += \
     logindialog.h \
@@ -25,7 +26,6 @@ HEADERS += \
     fsviewer.h \
     fileeditor.h \
     apphandler.h \
-    crypto.h
-
-#LIBS += -L$$_PRO_FILE_PWD_ -lAES256
+    crypto.h \
+    userprofile.h
 
