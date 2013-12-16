@@ -32,6 +32,10 @@ AppHandler::startLogin()
     QThread *thread = new QThread;
     LoginDialog *dialog = new LoginDialog;
     startInThread(thread, dialog);
+    // здесь надо перевести сигналы в надлежащий модуль
+    connect(dialog, SIGNAL(loginTry(QString,QString)), this, SLOT(onLoginTry(QString,QString)));
+    connect(this, SIGNAL(login(bool)), dialog, SLOT(loginResult(bool)));
+    connect(dialog, SIGNAL(login()), this, SLOT(onLogin()));
 
     thread->start();
 }
@@ -56,4 +60,16 @@ void
 AppHandler::openLogin()
 {
     startLogin();
+}
+
+void
+AppHandler::onLoginTry(const QString &user, const QString &pass)
+{
+    emit login(true);
+}
+
+void
+AppHandler::onLogin()
+{
+    startFS();
 }

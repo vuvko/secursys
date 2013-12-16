@@ -2,5 +2,5 @@
 
 Logger::Logger(const QString &fileName)
 {
-    file = QFile(fileName);
+    //file = QFile(fileName);
 }

@@ -17,11 +17,14 @@ public:
     void startLogin();
 
 signals:
+    void login(bool isCorrect);
 
 public slots:
     void openFile(const QString &fileName);
     void openFS(const QString &path = ".");
     void openLogin();
+    void onLoginTry(const QString &user, const QString &pass);
+    void onLogin();
 
 private:
     void startInThread(QThread *thread, QWidget *widget);
