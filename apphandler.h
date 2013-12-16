@@ -8,7 +8,6 @@
 #include "fileeditor.h"
 #include "fsviewer.h"
 #include "logindialog.h"
-#include "widgetwrapper.h"
 
 class AppHandler : public QObject
 {

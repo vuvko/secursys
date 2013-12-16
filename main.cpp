@@ -3,15 +3,17 @@
 #include <QApplication>
 
 #include <QDebug>
+#include <QHash>
+
+#include <typeinfo>
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     AppHandler *ah = new AppHandler();
     ah->startLogin();
-    //ah->startFS();
-    //Crypto cr("/home/andrey/QT/SecurSys/AES256.dll");
-    //qDebug() << cr.hash_256("Some text is using hash.");
+    //Crypto cr("AES256.dll");
+    //qDebug() << cr.hash_256("Some text is using hash.").toLocal8Bit().toHex();
     
     return a.exec();
 }

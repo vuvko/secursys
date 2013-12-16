@@ -13,7 +13,7 @@ public:
     QString hash_512(const QString &msg);
 
 private:
-    typedef void (*hash_func) (const char *, long long, char *);
+    typedef void (*hash_func) (const unsigned char *, unsigned long long, unsigned char *);
 
     QLibrary lib;
     hash_func hash_256_func;
