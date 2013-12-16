@@ -41,7 +41,6 @@ LoginDialog::loginResult(bool isCorrect)
         QMessageBox::information(this, tr("Вход в систему защиты информации"),
                                  tr("Вход успешен"));
         emit login();
-        close();
     } else {
         QMessageBox::information(this, tr("Вход в систему защиты информации"),
                                  tr("Вход не удался, проверьте"

@@ -1,12 +1,14 @@
 #ifndef APPHANDLER_H
 #define APPHANDLER_H
 
-#include <QObject>
+#include <QWidget>
 #include <QThread>
+#include <QList>
 
 #include "fileeditor.h"
 #include "fsviewer.h"
 #include "logindialog.h"
+#include "widgetwrapper.h"
 
 class AppHandler : public QObject
 {
@@ -18,6 +20,7 @@ public:
 
 signals:
     void login(bool isCorrect);
+    void closeLogin();
 
 public slots:
     void openFile(const QString &fileName);
@@ -25,9 +28,6 @@ public slots:
     void openLogin();
     void onLoginTry(const QString &user, const QString &pass);
     void onLogin();
-
-private:
-    void startInThread(QThread *thread, QWidget *widget);
 };
 
 #endif // APPHANDLER_H

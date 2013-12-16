@@ -3,6 +3,7 @@
 FileView::FileView(FSViewer *parent_)
     : QTreeView(parent_)
 {
+    qDebug() << "Creating FileView";
     parent = parent_;
     dirModel = new QStandardItemModel(0, 4, this);
     dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr(""));
@@ -15,6 +16,7 @@ FileView::FileView(FSViewer *parent_)
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
     currentDir.setSorting(QDir::DirsFirst | QDir::Name);
+    qDebug() << "Done with FileView";
 }
 
 bool
@@ -154,6 +156,7 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
 FSViewer::FSViewer(const QString &path, QWidget *parent)
     : QMainWindow(parent)
 {
+    qDebug() << "Creating FSViewer";
     // Creating UI
     qDebug() << "Инициализация пользовательского интерфейса.";
     // main Layout
@@ -195,6 +198,7 @@ FSViewer::FSViewer(const QString &path, QWidget *parent)
     dirView->cd(path);
     dirView->update();
     connect(dirView, SIGNAL(openFile(QString)), this, SLOT(onOpenFile(QString)));
+    qDebug() << "Done with FSViewer";
 }
 
 void
