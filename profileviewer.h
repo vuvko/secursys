@@ -14,11 +14,15 @@
 #include <QMessageBox>
 #include <QStandardItem>
 
+#include "apphandler.h"
+
+class AppHandler;
+
 class ProfileViewer : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ProfileViewer(QWidget *parent = 0);
+    explicit ProfileViewer(AppHandler *handler_ = 0, QWidget *parent = 0);
     
 signals:
     void update();
@@ -31,6 +35,8 @@ private slots:
     void onAbout();
 
 private:
+    AppHandler *handler;
+
     QMenu *fileMenu;
     QAction *updateAct;
     QAction *exitAct;

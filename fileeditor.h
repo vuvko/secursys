@@ -24,6 +24,7 @@ class FileEditor : public QMainWindow
 
 public:
     explicit FileEditor(const QString &file,
+                        const QByteArray key,
                         AppHandler *handler_ = 0,
                         QWidget *parent = 0);
 
@@ -44,6 +45,8 @@ private:
     void createToolBars();
     void createStatusBar();
 
+    bool open();
+
     bool maybeSave();
     bool saveFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
@@ -62,6 +65,7 @@ private:
     QToolBar *fileToolBar;
 
     AppHandler *handler;
+    QByteArray key;
 };
 
 #endif // FILEEDITOR_H

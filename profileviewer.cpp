@@ -1,16 +1,17 @@
 #include "profileviewer.h"
 
-ProfileViewer::ProfileViewer(QWidget *parent) :
+ProfileViewer::ProfileViewer(AppHandler *handler_, QWidget *parent) :
     QMainWindow(parent)
 {
+    handler = handler_;
     centralWidget = new QWidget;
     mainLayout = new QGridLayout;
     setCentralWidget(centralWidget);
     centralWidget->setLayout(mainLayout);
 
     userBox = new QGroupBox(tr("Информация о пользователе"));
-    userLabel = new QLabel(tr("Пользователь: "));
-    groupLabel = new QLabel(tr("Группа: "));
+    userLabel = new QLabel(tr("Пользователь: ") + handler->userName());
+    groupLabel = new QLabel(tr("Группа: ") + handler->groupName());
     userLayout = new QGridLayout;
 
     permissionBox = new QGroupBox(tr("Права на доступ"));

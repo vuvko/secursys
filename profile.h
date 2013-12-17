@@ -9,6 +9,10 @@ class Profile
 {
 public:
     Profile();
+    QString user();
+    QString group();
+    int uid();
+    int gid();
     QList<QString> filesRead();
     QList<QString> filesWrite();
     QList<QString> drivesRead();

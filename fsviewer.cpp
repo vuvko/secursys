@@ -73,6 +73,7 @@ FileView::createFile()
     bool r = false;
     if (!name.isEmpty()) {
         qDebug() << "Здесь надо вызвать редактор для создания файла с именем" << name;
+        emit openFile(currentDir.absolutePath() + QDir::separator() + name);
         update();
     }
     return r;
@@ -99,8 +100,16 @@ FileView::check()
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     qDebug() << "File: " << info.filePath().toLocal8Bit().toHex().toUpper();
-    QByteArray curHash = handler->hash_256(info.filePath().toLocal8Bit());
+    QByteArray curHash = handler->get_hash(info.filePath().toLocal8Bit());
     qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
+}
+
+void
+FileView::onUp()
+{
+    qDebug() << "Поднятие на директорию выше. Нужно проверить права доступа.";
+    currentDir.cdUp();
+    update();
 }
 
 void
@@ -153,6 +162,7 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
         /*
         if (info.suffix() == secret_suffix) {
             qDebug() << "Нужно открыть редактор с этим файлом";
+            emit openFile(info.absoluteFilePath());
         }*/
     }
 }
@@ -282,14 +292,7 @@ FSViewer::changePath(const QString &path)
     pathLabel->setText(path);
 }
 
-// slots:
-void
-FileView::onUp()
-{
-    qDebug() << "Поднятие на директорию выше.";
-    currentDir.cdUp();
-    update();
-}
+// slots
 
 void
 FSViewer::onAbout()
