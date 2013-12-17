@@ -280,7 +280,7 @@ void
 FSViewer::onAbout()
 {
     QMessageBox::about(this, tr("О программе."),
-                       tr("Учебная система защиты инфорации от несанкционированного доступа."));
+                       tr("Учебная система защиты информации от несанкционированного доступа."));
 }
 
 void
@@ -328,6 +328,6 @@ FSViewer::onOpenFile(const QString &fileName)
 void
 FSViewer::openDir()
 {
-    qDebug() << "ткрытие директории...";
+    qDebug() << "Открытие директории...";
     show();
 }
