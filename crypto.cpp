@@ -53,6 +53,7 @@ Crypto::decrypt(const QByteArray &msg, const QByteArray &key)
                  (unsigned char *)key.data(),
                  (unsigned char *)out.data(),
                  &length);
+    out.remove(length, out.size() - length);
     return out;
 }
 

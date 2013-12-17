@@ -6,6 +6,7 @@ FileEditor::FileEditor(const QString &fileN, const QByteArray key_, AppHandler *
     handler = handler_;
     key = key_;
     fileName = fileN;
+    qDebug() << fileName;
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);
 
@@ -102,16 +103,13 @@ FileEditor::open()
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    QByteArray encr = file.readAll();
-    qDebug() << "Testing...";
-    qDebug() << file.readAll();
-    qDebug() << "Error:" << file.errorString();
-    qDebug() << handler->decode(encr, key);
-    qDebug() << "This is shit!";
+    QByteArray encr = QByteArray::fromHex(file.readAll());
     textEdit->setPlainText(handler->decode(encr, key));
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
+
+    file.close();
 
     statusBar()->showMessage(tr("Файл загружен"), 2000);
 }
@@ -162,12 +160,11 @@ FileEditor::saveFile(const QString &fileName)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     QString msg = textEdit->toPlainText();
-    qDebug() << msg;
-    qDebug() << handler->encode(msg, key);
-    out << handler->encode(msg, key);
+    out << handler->encode(msg, key).toHex().toUpper();
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
+    file.close();
 
     textEdit->document()->setModified(false);
     setWindowModified(textEdit->document()->isModified());
