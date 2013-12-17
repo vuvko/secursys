@@ -79,12 +79,11 @@ private slots:
     void onFileDelete();
     void onCheckHash();
     void onOpenFile(const QString &fileName);
-
-public slots:
-    void openDir();
+    void onProfile();
 
 signals:
     void openFile(const QString &fileName);
+    void openProfile();
 
 private:
     QWidget *centralWidget;
@@ -102,6 +101,9 @@ private:
     QAction *mnuCheckHash;
     QAction *mnuUp;
     QAction *mnuExit;
+
+    QMenu *userMenu;
+    QAction *mnuUser;
 
     QMenu *helpMenu;
     QAction *mnuAbout;

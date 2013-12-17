@@ -9,6 +9,7 @@ AppHandler::startFS(const QString &path)
     FSViewer *viewer = new FSViewer(path);
 
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
+    connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
 
     viewer->show();
 }
@@ -35,6 +36,15 @@ AppHandler::openFile(const QString &fileName)
 }
 
 void
+AppHandler::openProfile()
+{
+    ProfileViewer *viewer = new ProfileViewer;
+    connect(viewer, SIGNAL(update()), this, SLOT(onProfileUpdate()));
+    connect(this, SIGNAL(updateResult(bool)), viewer, SLOT(updateResult(bool)));
+    viewer->show();
+}
+
+void
 AppHandler::openFS(const QString &path)
 {
     startFS(path);
@@ -57,4 +67,10 @@ AppHandler::onLogin()
 {
     emit closeLogin();
     startFS();
+}
+
+void
+AppHandler::onProfileUpdate()
+{
+    emit updateResult(true);
 }

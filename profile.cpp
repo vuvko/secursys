@@ -1,58 +1,51 @@
-#include "userprofile.h"
+#include "profile.h"
 
-UserProfile::UserProfile(int uid, const QString &user)
-    : _uid(uid), _user(user), _files(), _drives(), _dirs() {}
-
-QString
-UserProfile::user()
-{
-    return _user;
-}
-
-int
-UserProfile::uid()
-{
-    return _uid;
-}
+Profile::Profile() {}
 
 QList<QString>
-UserProfile::filesRead()
+Profile::filesRead()
 {
     return _files.keys(READ) + _files.keys(READ | WRITE);
 }
 
 QList<QString>
-UserProfile::filesWrite()
+Profile::filesWrite()
 {
     return _files.keys(WRITE) + _files.keys(READ | WRITE);
 }
 
 QList<QString>
-UserProfile::dirsRead()
+Profile::dirsRead()
 {
     return _dirs.keys(READ) + _dirs.keys(READ | WRITE);
 }
 
 QList<QString>
-UserProfile::dirsWrite()
+Profile::dirsWrite()
 {
     return _dirs.keys(WRITE) + _dirs.keys(READ | WRITE);
 }
 
 QList<QString>
-UserProfile::drivesRead()
+Profile::drivesRead()
 {
     return _drives.keys(READ) + _drives.keys(READ | WRITE);
 }
 
 QList<QString>
-UserProfile::drivesWrite()
+Profile::drivesWrite()
 {
     return _drives.keys(WRITE) + _drives.keys(READ | WRITE);
 }
 
+QList<QString>
+Profile::programmsExec()
+{
+    return _programms.keys(EXEC);
+}
+
 void
-UserProfile::setDirsRead(const QList<QString> &dirsRead)
+Profile::setDirsRead(const QList<QString> &dirsRead)
 {
     for (auto dir : dirsRead) {
         if (_dirs.contains(dir)) {
@@ -64,7 +57,7 @@ UserProfile::setDirsRead(const QList<QString> &dirsRead)
 }
 
 void
-UserProfile::setDirsWrite(const QList<QString> &dirsWrite)
+Profile::setDirsWrite(const QList<QString> &dirsWrite)
 {
     for (auto dir : dirsWrite) {
         if (_dirs.contains(dir)) {
@@ -76,7 +69,7 @@ UserProfile::setDirsWrite(const QList<QString> &dirsWrite)
 }
 
 void
-UserProfile::setDrivesRead(const QList<QString> &drivesRead)
+Profile::setDrivesRead(const QList<QString> &drivesRead)
 {
     for (auto drive : drivesRead) {
         if (_drives.contains(drive)) {
@@ -88,7 +81,7 @@ UserProfile::setDrivesRead(const QList<QString> &drivesRead)
 }
 
 void
-UserProfile::setDrivesWrite(const QList<QString> &drivesWrite)
+Profile::setDrivesWrite(const QList<QString> &drivesWrite)
 {
     for (auto drive : drivesWrite) {
         if (_drives.contains(drive)) {
@@ -100,7 +93,7 @@ UserProfile::setDrivesWrite(const QList<QString> &drivesWrite)
 }
 
 void
-UserProfile::setFilesRead(const QList<QString> &filesRead)
+Profile::setFilesRead(const QList<QString> &filesRead)
 {
     for (auto file : filesRead) {
         if (_files.contains(file)) {
@@ -112,7 +105,7 @@ UserProfile::setFilesRead(const QList<QString> &filesRead)
 }
 
 void
-UserProfile::setFilesWrite(const QList<QString> &filesWrite)
+Profile::setFilesWrite(const QList<QString> &filesWrite)
 {
     for (auto file : filesWrite) {
         if (_files.contains(file)) {
@@ -121,4 +114,25 @@ UserProfile::setFilesWrite(const QList<QString> &filesWrite)
             _files[file] = WRITE;
         }
     }
+}
+
+void
+Profile::setProgrammsExec(const QList<QString> &programmsExec)
+{
+    for (auto programm : programmsExec) {
+        if (_programms.contains(programm)) {
+            _programms[programm] |= EXEC;
+        } else {
+            _programms[programm] = EXEC;
+        }
+    }
+}
+
+bool
+Profile::canReadDir(const QString &path)
+{
+    if (!_dirs.contains(path)) {
+        return false;
+    }
+    return _dirs[path] & ~READ;
 }

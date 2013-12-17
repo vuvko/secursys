@@ -8,6 +8,7 @@
 #include "fileeditor.h"
 #include "fsviewer.h"
 #include "logindialog.h"
+#include "profileviewer.h"
 
 class AppHandler : public QObject
 {
@@ -20,13 +21,16 @@ public:
 signals:
     void login(bool isCorrect);
     void closeLogin();
+    void updateResult(bool isUpdated);
 
 public slots:
     void openFile(const QString &fileName);
     void openFS(const QString &path = ".");
+    void openProfile();
     void openLogin();
     void onLoginTry(const QString &user, const QString &pass);
     void onLogin();
+    void onProfileUpdate();
 };
 
 #endif // APPHANDLER_H
