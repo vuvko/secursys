@@ -1,0 +1,6 @@
+.*\.sw[a-z]
+moc_.*\.cpp
+qrc_.*\.cpp
+.*\.o
+^Makefile$
+^SecurSys$
