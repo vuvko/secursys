@@ -14,12 +14,18 @@
 
 #include <QDebug>
 
+#include "apphandler.h"
+
+class AppHandler;
+
 class FileEditor : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit FileEditor(const QString &file, QWidget *parent = 0);
+    explicit FileEditor(const QString &file,
+                        AppHandler *handler_ = 0,
+                        QWidget *parent = 0);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -54,6 +60,8 @@ private:
     QAction *aboutAct;
 
     QToolBar *fileToolBar;
+
+    AppHandler *handler;
 };
 
 #endif // FILEEDITOR_H

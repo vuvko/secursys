@@ -1,9 +1,10 @@
 #include "fsviewer.h"
 
-FileView::FileView(FSViewer *parent_)
+FileView::FileView(FSViewer *parent_, AppHandler *handler_)
     : QTreeView(parent_)
 {
     qDebug() << "Creating FileView";
+    handler = handler_;
     parent = parent_;
     dirModel = new QStandardItemModel(0, 4, this);
     dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr(""));
@@ -95,7 +96,11 @@ void
 FileView::check()
 {
     qDebug() << "Здесь должна быть проверка целостности файла.";
-    //QVector<char> curHash = hash_256();
+    int row = selectedIndexes()[0].row();
+    QFileInfo info = currentDir.entryInfoList()[row];
+    qDebug() << "File: " << info.filePath().toLocal8Bit().toHex().toUpper();
+    QByteArray curHash = handler->hash_256(info.filePath().toLocal8Bit());
+    qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
 }
 
 void
@@ -169,7 +174,7 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
     mainLayout = new QGridLayout;
     centralWidget->setLayout(mainLayout);
 
-    dirView = new FileView(this);
+    dirView = new FileView(this, handler_);
     dirView->setAlternatingRowColors(true);
 
     driveBox = new QComboBox;

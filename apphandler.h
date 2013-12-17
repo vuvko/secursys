@@ -10,6 +10,7 @@
 #include "logindialog.h"
 #include "profileviewer.h"
 #include "crypto.h"
+#include "profile.h"
 
 class AppHandler : public QObject
 {
@@ -18,6 +19,8 @@ public:
     explicit AppHandler(QObject *parent = 0);
     void startFS(const QString &path=".");
     void startLogin();
+
+    QByteArray hash_256(const QByteArray &msg);
 
 signals:
     void login(bool isCorrect);

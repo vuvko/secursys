@@ -40,7 +40,8 @@ class FileView : public QTreeView
 public:
     constexpr const static char *secret_suffix = "sf"; // *.sf --- секретные файлы
 
-    explicit FileView(FSViewer *parent_);
+    explicit FileView(FSViewer *parent_,
+                      AppHandler *handler_);
 
     bool cd(const QString &path);
     bool cd(const QDir &dir);
@@ -61,6 +62,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
+    AppHandler *handler;
     FSViewer *parent;
     QStandardItemModel *dirModel;
     QDir currentDir;
