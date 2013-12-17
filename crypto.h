@@ -8,8 +8,8 @@ class Crypto
 public:
     Crypto(const QString &dirPath);
 
-    QByteArray hash_256(const QString &msg);
-    QByteArray hash_512(const QString &msg);
+    QByteArray hash_256(const QByteArray &msg);
+    QByteArray hash_512(const QByteArray &msg);
 
     QByteArray encrypt(const QByteArray &msg, const QByteArray &key);
     QByteArray decrypt(const QByteArray &msg, const QByteArray &key);
