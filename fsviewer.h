@@ -33,13 +33,12 @@ class FileView : public QTreeView
     Q_OBJECT
 
 public:
-    constexpr static char *secret_suffix = "sf"; // *.sf --- секретные файлы
+    constexpr const static char *secret_suffix = "sf"; // *.sf --- секретные файлы
 
     explicit FileView(FSViewer *parent_);
 
     bool cd(const QString &path);
     bool cd(const QDir &dir);
-    void update();
     bool mkdir();
     bool rmdir();
     bool createFile();
@@ -48,6 +47,7 @@ public:
 
 public slots:
     void onUp();
+    void update();
 
 signals:
     void openFile(const QString &fileName);

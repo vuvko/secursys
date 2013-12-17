@@ -100,6 +100,7 @@ FileView::check()
 void
 FileView::update()
 {
+    currentDir.refresh();
     qDebug() << "Текущий каталог:" << currentDir.absolutePath();
     QFileInfoList infoList = currentDir.entryInfoList();
     int idx = 0;
@@ -125,6 +126,7 @@ FileView::update()
     }
     setModel(dirModel);
     parent->changePath(currentDir.absolutePath());
+    QTreeView::update();
 }
 
 void
