@@ -156,9 +156,10 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
 // FSViewer
 //-----------
 
-FSViewer::FSViewer(const QString &path, QWidget *parent)
+FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
     : QMainWindow(parent)
 {
+    handler = handler_;
     qDebug() << "Creating FSViewer";
     // Creating UI
     qDebug() << "Инициализация пользовательского интерфейса.";
