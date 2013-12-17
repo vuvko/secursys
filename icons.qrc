@@ -10,7 +10,7 @@
         <file>icons/secret.png</file>
         <file alias="icons/cancel.png">icons/delete.png</file>
         <file>icons/dir_empty.png</file>
-        <file>icons/ok.png</file>
+        <file alias="icons/enter.png">icons/ok.png</file>
         <file>icons/user.png</file>
         <file>icons/user_info.png</file>
         <file>icons/dir_delete.png</file>

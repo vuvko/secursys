@@ -2,6 +2,30 @@
 
 Profile::Profile() {}
 
+QString
+Profile::user()
+{
+    return _user;
+}
+
+QString
+Profile::group()
+{
+    return _group;
+}
+
+int
+Profile::uid()
+{
+    return _uid;
+}
+
+int
+Profile::gid()
+{
+    return _gid;
+}
+
 QList<QString>
 Profile::filesRead()
 {
@@ -42,6 +66,20 @@ QList<QString>
 Profile::programsExec()
 {
     return _programs.keys(EXEC);
+}
+
+void
+Profile::setUser(int uid, const QString &user)
+{
+    _uid = uid;
+    _user = user;
+}
+
+void
+Profile::setGroup(int gid, const QString &group)
+{
+    _gid = gid;
+    _group = group;
 }
 
 void

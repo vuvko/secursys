@@ -10,8 +10,8 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     AppHandler *ah = new AppHandler();
-    //ah->startLogin();
-    ah->startFS();
+    ah->startLogin();
+    //ah->startFS();
 
     //ProfileViewer *pv = new ProfileViewer;
     //pv->show();

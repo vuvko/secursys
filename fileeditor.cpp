@@ -1,9 +1,10 @@
 #include "fileeditor.h"
 
-FileEditor::FileEditor(const QString &fileN, AppHandler *handler_, QWidget *parent)
+FileEditor::FileEditor(const QString &fileN, const QByteArray key_, AppHandler *handler_, QWidget *parent)
     : QMainWindow(parent)
 {
     handler = handler_;
+    key = key_;
     fileName = fileN;
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);
@@ -20,26 +21,7 @@ FileEditor::FileEditor(const QString &fileN, AppHandler *handler_, QWidget *pare
     setWindowTitle(tr("Редактор секретного файла"));
     setWindowIcon(QIcon(":/icons/secret.png"));
 
-    qDebug() << "Здесь надо расшифровать файл";
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::warning(this, tr("Редактор секретного файла"),
-                             tr("Невозможно открыть файл %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
-        return;
-    }
-
-    QTextStream in(&file);
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-    textEdit->setPlainText(in.readAll());
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-
-    statusBar()->showMessage(tr("Файл загружен"), 2000);
+    qDebug() << open();
 }
 
 void
@@ -109,6 +91,32 @@ FileEditor::closeEvent(QCloseEvent *event)
 }
 
 bool
+FileEditor::open()
+{
+    qDebug() << "Здесь надо расшифровать файл";
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly)) {
+        return false;
+    }
+
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    QByteArray encr = file.readAll();
+    qDebug() << "Testing...";
+    qDebug() << file.readAll();
+    qDebug() << "Error:" << file.errorString();
+    qDebug() << handler->decode(encr, key);
+    qDebug() << "This is shit!";
+    textEdit->setPlainText(handler->decode(encr, key));
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    statusBar()->showMessage(tr("Файл загружен"), 2000);
+}
+
+bool
 FileEditor::save()
 {
     if (fileName.isEmpty()) {
@@ -140,7 +148,7 @@ FileEditor::saveFile(const QString &fileName)
 {
     qDebug() << "Здесь надо проверять на доступ к записи.";
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+    if (!file.open(QFile::WriteOnly)) {
         QMessageBox::warning(this, tr("Сохранение секретного файла"),
                              tr("Невозможно записать файл %1:\n%2.")
                              .arg(fileName)
@@ -149,11 +157,14 @@ FileEditor::saveFile(const QString &fileName)
     }
 
     qDebug() << "Здесь надо зашифровать информацию";
-    QTextStream out(&file);
+    QDataStream out(&file);
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-    out << textEdit->toPlainText();
+    QString msg = textEdit->toPlainText();
+    qDebug() << msg;
+    qDebug() << handler->encode(msg, key);
+    out << handler->encode(msg, key);
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
