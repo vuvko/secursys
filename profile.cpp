@@ -68,6 +68,12 @@ Profile::programsExec()
     return _programs.keys(EXEC);
 }
 
+bool
+Profile::isRoot()
+{
+    return _uid == ROOT_ID;
+}
+
 void
 Profile::setUser(int uid, const QString &user)
 {

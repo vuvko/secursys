@@ -1,10 +1,7 @@
 #include "apphandler.h"
 
 AppHandler::AppHandler(QObject *parent) :
-    QObject(parent), _crypto("AES256.dll"), _profile()
-{
-    key = _crypto.generate_next();
-}
+    QObject(parent), _crypto("AES256.dll"), _profile() {}
 
 void
 AppHandler::startFS(const QString &path)
@@ -61,6 +58,7 @@ AppHandler::onLoginTry(const QString &user, const QString &pass)
 {
     _profile.setUser(100, user); // TODO: заглушка
     _profile.setGroup(100, "Гости"); // TODO: заглушка
+    key = _crypto.hash_256(pass.toLocal8Bit());
     emit login(true); // TODO: заглушка
 }
 
@@ -80,7 +78,6 @@ AppHandler::onProfileUpdate()
 QByteArray
 AppHandler::get_hash(const QByteArray &msg)
 {
-    qDebug() << "На входе: " << msg.toHex().toUpper();
     return _crypto.hash_256(msg);
 }
 

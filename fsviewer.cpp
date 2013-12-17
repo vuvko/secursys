@@ -3,27 +3,26 @@
 FileView::FileView(FSViewer *parent_, AppHandler *handler_)
     : QTreeView(parent_)
 {
-    qDebug() << "Creating FileView";
     handler = handler_;
     parent = parent_;
-    dirModel = new QStandardItemModel(0, 4, this);
+    dirModel = new QStandardItemModel(0, 5, this);
     dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr(""));
     dirModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Название"));
     dirModel->setHeaderData(2, Qt::Horizontal, QObject::tr("Дата последней модификации"));
-    dirModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Размер"));
+    dirModel->setHeaderData(3, Qt::Horizontal, QObject::tr("Гриф"));
+    dirModel->setHeaderData(4, Qt::Horizontal, QObject::tr("Размер"));
     setModel(dirModel);
     setColumnWidth(0, 50);
     setColumnWidth(1, 250);
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
     currentDir.setSorting(QDir::DirsFirst | QDir::Name);
-    qDebug() << "Done with FileView";
 }
 
 bool
 FileView::cd(const QString &path)
 {
-    qDebug() << "Здесь надо проверять на доступ к каталогу.";
+    qDebug() << "Здесь надо проверять на доступ к каталогу."; // TODO: заглушка
     bool r = currentDir.cd(path);
     update();
     return r;
@@ -32,7 +31,7 @@ FileView::cd(const QString &path)
 bool
 FileView::cd(const QDir &dir)
 {
-    qDebug() << "Здесь надо проверять на доступ к каталогу.";
+    qDebug() << "Здесь надо проверять на доступ к каталогу."; // TODO: заглушка
     bool r = currentDir.cd(dir.absolutePath());
     update();
     return r;
@@ -41,7 +40,7 @@ FileView::cd(const QDir &dir)
 bool
 FileView::mkdir()
 {
-    qDebug() << "Здесь надо проверить на доступ к созданию каталогов.";
+    qDebug() << "Здесь надо проверить на доступ к созданию каталогов."; // TODO: заглушка
     QString name = QInputDialog::getText(this, tr("Создание каталога"), tr("Название нового каталога:"));
     bool r = false;
     if (!name.isEmpty()) {
@@ -54,7 +53,7 @@ FileView::mkdir()
 bool
 FileView::rmdir()
 {
-    qDebug() << "Здесь надо проверить право на удаление каталога.";
+    qDebug() << "Здесь надо проверить право на удаление каталога."; // TODO: заглушка
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     if (!info.isDir()) {
@@ -68,11 +67,10 @@ FileView::rmdir()
 bool
 FileView::createFile()
 {
-    qDebug() << "Здесь надо проверить на доступ к созданию файлов.";
+    qDebug() << "Здесь надо проверить на доступ к созданию файлов."; // TODO: заглушка
     QString name = QInputDialog::getText(this, tr("Создание секретного файла"), tr("Название нового файла:"));
     bool r = false;
     if (!name.isEmpty()) {
-        qDebug() << "Здесь надо вызвать редактор для создания файла с именем" << name;
         emit openFile(currentDir.absolutePath() + QDir::separator() + name);
         update();
     }
@@ -82,7 +80,7 @@ FileView::createFile()
 bool
 FileView::rm()
 {
-    qDebug() << "Здесь надо проверить право на удаление файлов.";
+    qDebug() << "Здесь надо проверить право на удаление файлов."; // TODO: заглушка
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     if (!info.isFile() || info.suffix() != secret_suffix) {
@@ -96,18 +94,19 @@ FileView::rm()
 void
 FileView::check()
 {
-    qDebug() << "Здесь должна быть проверка целостности файла.";
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
-    qDebug() << "File: " << info.filePath().toLocal8Bit().toHex().toUpper();
-    QByteArray curHash = handler->get_hash(info.filePath().toLocal8Bit());
+    qDebug() << "Проверка целостности файла" << info.filePath();
+    QFile file(info.filePath());
+    file.open(QFile::ReadOnly);
+    QByteArray curHash = handler->get_hash(file.readAll()); // TODO: заглушка
     qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
 }
 
 void
 FileView::onUp()
 {
-    qDebug() << "Поднятие на директорию выше. Нужно проверить права доступа.";
+    qDebug() << "Поднятие на директорию выше. Нужно проверить права доступа."; // TODO: заглушка
     currentDir.cdUp();
     update();
 }
@@ -136,7 +135,8 @@ FileView::update()
         dirModel->setData(dirModel->index(idx, 0), type, Qt::DecorationRole);
         dirModel->setData(dirModel->index(idx, 1), info.fileName());
         dirModel->setData(dirModel->index(idx, 2), info.lastModified());
-        dirModel->setData(dirModel->index(idx, 3), info.size());
+        dirModel->setData(dirModel->index(idx, 3), "Не секретно"); // TODO: заглушка
+        dirModel->setData(dirModel->index(idx, 4), info.size());
         ++idx;
     }
     setModel(dirModel);
@@ -150,20 +150,17 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     if (info.isDir()) {
-        qDebug() << "Здесь нужно проверять доступ к каталогу.";
+        qDebug() << "Здесь нужно проверять доступ к каталогу."; // TODO: заглушка
         currentDir.cd(info.fileName());
         update();
     } else if (info.isExecutable()) {
-        qDebug() << "Здесь нужно проверить на право запуска файла.";
+        qDebug() << "Здесь нужно проверить на право запуска файла."; // TODO: заглушка
         system(info.absoluteFilePath().toStdString().c_str());
     } else {
-        qDebug() << "Здесь нужно проверять на доступ к файлу.";
-        emit openFile(info.absoluteFilePath());
-        /*
+        qDebug() << "Здесь нужно проверять на доступ к файлу."; // TODO: заглушка
         if (info.suffix() == secret_suffix) {
-            qDebug() << "Нужно открыть редактор с этим файлом";
             emit openFile(info.absoluteFilePath());
-        }*/
+        }
     }
 }
 
@@ -175,7 +172,6 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
     : QMainWindow(parent)
 {
     handler = handler_;
-    qDebug() << "Creating FSViewer";
     // Creating UI
     qDebug() << "Инициализация пользовательского интерфейса.";
     // main Layout
@@ -215,9 +211,7 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
     // UI created.
     qDebug() << "Пользовательский интерфейс создан.";
     dirView->cd(path);
-    dirView->update();
     connect(dirView, SIGNAL(openFile(QString)), this, SLOT(onOpenFile(QString)));
-    qDebug() << "Done with FSViewer";
 }
 
 void

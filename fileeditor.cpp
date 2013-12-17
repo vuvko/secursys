@@ -6,7 +6,6 @@ FileEditor::FileEditor(const QString &fileN, const QByteArray key_, AppHandler *
     handler = handler_;
     key = key_;
     fileName = fileN;
-    qDebug() << fileName;
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);
 
@@ -94,7 +93,7 @@ FileEditor::closeEvent(QCloseEvent *event)
 bool
 FileEditor::open()
 {
-    qDebug() << "Здесь надо расшифровать файл";
+    qDebug() << "Открытие файла" << fileName;
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly)) {
         return false;
@@ -145,8 +144,10 @@ bool
 FileEditor::saveFile(const QString &fileName)
 {
     qDebug() << "Здесь надо проверять на доступ к записи.";
+    qDebug() << "Сохранение файла" << fileName;
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly)) {
+        qDebug() << "Ошибка при записи файла" << fileName << ":" << file.errorString();
         QMessageBox::warning(this, tr("Сохранение секретного файла"),
                              tr("Невозможно записать файл %1:\n%2.")
                              .arg(fileName)
@@ -154,7 +155,6 @@ FileEditor::saveFile(const QString &fileName)
         return false;
     }
 
-    qDebug() << "Здесь надо зашифровать информацию";
     QDataStream out(&file);
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -176,11 +176,4 @@ QString
 FileEditor::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
-}
-
-void
-FileEditor::openFile()
-{
-    qDebug() << fileName;
-    show();
 }

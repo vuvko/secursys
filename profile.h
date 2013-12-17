@@ -46,12 +46,16 @@ public:
     bool canReadDrive(const QString &path);
     bool canWriteDrive(const QString &path);
 
+    bool isRoot();
+
     enum {
         NOTHING = 0x0,
         READ = 0x1,
         WRITE = 0x2,
         EXEC = 0x4
     };
+
+    constexpr static const int ROOT_ID = 0;
 
 private:
     int _uid;
