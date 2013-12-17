@@ -31,9 +31,6 @@ public:
 protected:
     void closeEvent(QCloseEvent *event);
 
-public slots:
-    void openFile();
-
 private slots:
     bool save();
     void about();
