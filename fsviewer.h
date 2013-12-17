@@ -29,6 +29,8 @@
 #include "apphandler.h"
 #include "crypto.h"
 
+class AppHandler;
+
 class FSViewer;
 
 class FileView : public QTreeView
@@ -69,7 +71,9 @@ class FSViewer : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit FSViewer(const QString &path = ".", QWidget *parent = 0);
+    explicit FSViewer(const QString &path = ".",
+                      AppHandler *handler_ = 0,
+                      QWidget *parent = 0);
 
     void changePath(const QString &path);
 
@@ -89,6 +93,8 @@ signals:
     void openProfile();
 
 private:
+    AppHandler *handler;
+
     QWidget *centralWidget;
     QGridLayout *mainLayout;
     QComboBox *driveBox;

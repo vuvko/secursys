@@ -12,30 +12,30 @@ Crypto::Crypto(const QString &dirPath)
     gen_func = (gen_func_t)lib.resolve("PRGB");
 }
 
-QVector<char>
+QByteArray
 Crypto::hash_256(const QString &msg)
 {
-    QVector<char> out(32);
+    QByteArray out(32, 0);
     hash_256_func((unsigned char *)msg.data(),
                   msg.length(),
                   (unsigned char *)out.data());
     return out;
 }
 
-QVector<char>
+QByteArray
 Crypto::hash_512(const QString &msg)
 {
-    QVector<char> out(32);
+    QByteArray out(64, 0);
     hash_512_func((unsigned char *)msg.data(),
                   msg.length(),
                   (unsigned char *)out.data());
     return out;
 }
 
-QVector<char>
-Crypto::encrypt(const QString &msg, const QVector<char> &key)
+QByteArray
+Crypto::encrypt(const QByteArray &msg, const QByteArray &key)
 {
-    QVector<char> out(msg.size() - msg.size() % 16 + 16);
+    QByteArray out(msg.size() - msg.size() % 16 + 16, 0);
     encrypt_func((unsigned char *)msg.data(),
                  msg.size(),
                  (unsigned char *)key.data(),
@@ -43,26 +43,23 @@ Crypto::encrypt(const QString &msg, const QVector<char> &key)
     return out;
 }
 
-QString
-Crypto::decrypt(const QVector<char> &msg, const QVector<char> &key)
+QByteArray
+Crypto::decrypt(const QByteArray &msg, const QByteArray &key)
 {
     unsigned long long length = msg.size();
-    char *out = (char *)calloc(length, sizeof(*out));
+    QByteArray out(msg.size(), 0);
     decrypt_func((unsigned char *)msg.data(),
                  msg.size(),
                  (unsigned char *)key.data(),
-                 (unsigned char *)out,
+                 (unsigned char *)out.data(),
                  &length);
-    out = (char *)realloc(out, length);
-    QString r(out);
-    free(out);
-    return r;
+    return out;
 }
 
-QVector<char>
+QByteArray
 Crypto::generate_next()
 {
-    QVector<char> key(32);
+    QByteArray key(32, 0);
     gen_func((unsigned char *)key.data(), key.size());
     return key;
 }
