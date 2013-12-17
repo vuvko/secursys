@@ -95,6 +95,7 @@ void
 FileView::check()
 {
     qDebug() << "Здесь должна быть проверка целостности файла.";
+    //QVector<char> curHash = hash_256();
 }
 
 void

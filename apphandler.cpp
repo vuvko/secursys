@@ -1,7 +1,7 @@
 #include "apphandler.h"
 
 AppHandler::AppHandler(QObject *parent) :
-    QObject(parent) {}
+    QObject(parent), _crypto("AES256.dll") {}
 
 void
 AppHandler::startFS(const QString &path)
