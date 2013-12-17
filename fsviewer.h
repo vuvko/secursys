@@ -26,6 +26,9 @@
 
 #include <QDebug>
 
+#include "apphandler.h"
+#include "crypto.h"
+
 class FSViewer;
 
 class FileView : public QTreeView

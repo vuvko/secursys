@@ -9,6 +9,7 @@
 #include "fsviewer.h"
 #include "logindialog.h"
 #include "profileviewer.h"
+#include "crypto.h"
 
 class AppHandler : public QObject
 {
@@ -31,6 +32,9 @@ public slots:
     void onLoginTry(const QString &user, const QString &pass);
     void onLogin();
     void onProfileUpdate();
+
+private:
+    Crypto _crypto;
 };
 
 #endif // APPHANDLER_H

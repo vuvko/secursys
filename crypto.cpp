@@ -12,37 +12,57 @@ Crypto::Crypto(const QString &dirPath)
     gen_func = (gen_func_t)lib.resolve("PRGB");
 }
 
-QString
+QVector<char>
 Crypto::hash_256(const QString &msg)
 {
-    char *out = (char *)calloc(32, sizeof(*out));
-    hash_256_func((unsigned char *)msg.toStdString().c_str(),
+    QVector<char> out(32);
+    hash_256_func((unsigned char *)msg.data(),
                   msg.length(),
-                  (unsigned char *)out);
-    return QString(out);
+                  (unsigned char *)out.data());
+    return out;
 }
 
-QString
+QVector<char>
 Crypto::hash_512(const QString &msg)
 {
-    char *out = (char *)calloc(64, sizeof(*out));
-    hash_512_func((unsigned char *)msg.toStdString().c_str(),
+    QVector<char> out(32);
+    hash_512_func((unsigned char *)msg.data(),
                   msg.length(),
-                  (unsigned char *)out);
-    return QString(out);
+                  (unsigned char *)out.data());
+    return out;
+}
+
+QVector<char>
+Crypto::encrypt(const QString &msg, const QVector<char> &key)
+{
+    QVector<char> out(msg.size() - msg.size() % 16 + 16);
+    encrypt_func((unsigned char *)msg.data(),
+                 msg.size(),
+                 (unsigned char *)key.data(),
+                 (unsigned char *)out.data());
+    return out;
 }
 
 QString
-Crypto::encrypt(const QString &msg, const QList<char> &key) {}
+Crypto::decrypt(const QVector<char> &msg, const QVector<char> &key)
+{
+    unsigned long long length = msg.size();
+    char *out = (char *)calloc(length, sizeof(*out));
+    decrypt_func((unsigned char *)msg.data(),
+                 msg.size(),
+                 (unsigned char *)key.data(),
+                 (unsigned char *)out,
+                 &length);
+    out = (char *)realloc(out, length);
+    QString r(out);
+    free(out);
+    return r;
+}
 
-QString
-Crypto::decrypt(const QString &msg, const QList<char> &key) {}
-
-QList<char>
+QVector<char>
 Crypto::generate_next()
 {
-    int length = 32;
-    char *out = (char *)calloc(length, sizeof(*out));
-    gen_func((unsigned char *)out, length);
-    return QList<char>();
+    QVector<char> key(32);
+    gen_func((unsigned char *)key.data(), key.size());
+    return key;
 }
