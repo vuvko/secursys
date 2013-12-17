@@ -1,8 +1,9 @@
 #include "fileeditor.h"
 
-FileEditor::FileEditor(const QString &fileN, QWidget *parent)
+FileEditor::FileEditor(const QString &fileN, AppHandler *handler_, QWidget *parent)
     : QMainWindow(parent)
 {
+    handler = handler_;
     fileName = fileN;
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);

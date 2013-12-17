@@ -74,3 +74,10 @@ AppHandler::onProfileUpdate()
 {
     emit updateResult(true);
 }
+
+QByteArray
+AppHandler::hash_256(const QByteArray &msg)
+{
+    qDebug() << "На входе: " << msg.toHex().toUpper();
+    return _crypto.hash_256(msg);
+}

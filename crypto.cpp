@@ -35,42 +35,18 @@ Crypto::hash_512(const QByteArray &msg)
 QByteArray
 Crypto::encrypt(const QByteArray &msg, const QByteArray &key)
 {
-    QByteArray out(((msg.size() + 1) / 16) * 16 + 1000, 0);
-    /*
+    QByteArray out(((msg.size() + 15) / 16) * 16, 0);
     encrypt_func((unsigned char *)msg.data(),
-                 msg.size(),
-                 (unsigned char *)key.data(),
-                 (unsigned char *)out.data());*/
-
-    unsigned char str[11];
-    for (int i = 0; i < 9; ++i) {
-        str[i] = 'a';
-    }
-    str[9] = '\0';
-    str[10] = '\0';
-    unsigned char keyc[33];
-    for (int i = 0; i < 31; ++i) {
-        keyc[i] = 'A';
-    }
-    keyc[31] = '\0';
-    keyc[32] = '\0';
-    unsigned char *outc = (unsigned char *)calloc(1025, sizeof(*outc));
-    for (int i = 0; i < 1024; ++i) {
-        outc[i] = '_';
-    }
-    outc[1023] = '\0';
-    outc[1024] = '\0';
-    encrypt_func((unsigned char *)str,
-                 10,
-                 (unsigned char *)keyc,
-                 (unsigned char *)outc);
+                       msg.size(),
+                       (unsigned char *)key.data(),
+                       (unsigned char *)out.data());
     return out;
 }
 
 QByteArray
 Crypto::decrypt(const QByteArray &msg, const QByteArray &key)
 {
-    unsigned long long length = msg.size();
+    unsigned long length = msg.size();
     QByteArray out(msg.size(), 0);
     decrypt_func((unsigned char *)msg.data(),
                  msg.size(),

@@ -17,9 +17,9 @@ public:
 
 private:
     typedef void (*hash_func_t) (const unsigned char *, unsigned long long, unsigned char *);
-    typedef int (*encrypt_func_t) (unsigned char *, unsigned long long, unsigned char *, unsigned char *);
-    typedef int (*decrypt_func_t) (unsigned char *, unsigned long long, unsigned char *, unsigned char *, unsigned long long *);
-    typedef int (*gen_func_t) (unsigned char *, unsigned long long);
+    typedef int (*encrypt_func_t) (unsigned char *, unsigned long, unsigned char *, unsigned char *);
+    typedef int (*decrypt_func_t) (unsigned char *, unsigned long, unsigned char *, unsigned char *, unsigned long *);
+    typedef int (*gen_func_t) (unsigned char *, unsigned long);
 
     QLibrary lib;
     hash_func_t hash_256_func;
