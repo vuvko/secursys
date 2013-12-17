@@ -230,6 +230,9 @@ FSViewer::createActions()
     mnuAbout = new QAction(tr("О программе"), this);
     mnuAbout->setShortcut(tr("F1"));;
     connect(mnuAbout, SIGNAL(triggered()), this, SLOT(onAbout()));
+
+    mnuUser = new QAction(QIcon(":/icons/user.png"), tr("Профиль"), this);
+    connect(mnuUser, SIGNAL(triggered()), this, SLOT(onProfile()));
 }
 
 void
@@ -244,6 +247,9 @@ FSViewer::createMenu()
     fileMenu->addAction(mnuUp);
     fileMenu->addSeparator();
     fileMenu->addAction(mnuExit);
+
+    userMenu = menuBar()->addMenu(tr("Пользователь"));
+    userMenu->addAction(mnuUser);
 
     helpMenu = menuBar()->addMenu(tr("Помощь"));
     helpMenu->addAction(mnuAbout);
@@ -326,8 +332,7 @@ FSViewer::onOpenFile(const QString &fileName)
 }
 
 void
-FSViewer::openDir()
+FSViewer::onProfile()
 {
-    qDebug() << "ткрытие директории...";
-    show();
+    emit openProfile();
 }
