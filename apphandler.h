@@ -20,7 +20,15 @@ public:
     void startFS(const QString &path=".");
     void startLogin();
 
-    QByteArray hash_256(const QByteArray &msg);
+    QByteArray get_hash(const QByteArray &msg);
+    QByteArray get_key(const QString &path);
+    QString decode(const QByteArray &msg, const QByteArray &key);
+    QByteArray encode(const QString &msg, const QByteArray &key);
+
+    QString userName();
+    QString groupName();
+    int userId();
+    int groupId();
 
 signals:
     void login(bool isCorrect);
@@ -38,6 +46,8 @@ public slots:
 
 private:
     Crypto _crypto;
+    Profile _profile;
+    QByteArray key;
 };
 
 #endif // APPHANDLER_H
