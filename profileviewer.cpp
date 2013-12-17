@@ -20,14 +20,14 @@ ProfileViewer::ProfileViewer(QWidget *parent) :
     dirsList = new QTreeView;
     drivesLabel = new QLabel(tr("Диски:"));
     drivesList = new QTreeView;
-    programmsLabel = new QLabel(tr("Программы:"));
-    programmsList = new QTreeView;
+    programsLabel = new QLabel(tr("Программы:"));
+    programsList = new QTreeView;
     permissionLayout = new QGridLayout;
 
     loadFiles();
     loadDrives();
     loadDirs();
-    loadProgramms();
+    loadPrograms();
 
     userLayout->addWidget(userLabel);
     userLayout->addWidget(groupLabel);
@@ -39,8 +39,8 @@ ProfileViewer::ProfileViewer(QWidget *parent) :
     permissionLayout->addWidget(drivesList);
     permissionLayout->addWidget(dirsLabel);
     permissionLayout->addWidget(dirsList);
-    permissionLayout->addWidget(programmsLabel);
-    permissionLayout->addWidget(programmsList);
+    permissionLayout->addWidget(programsLabel);
+    permissionLayout->addWidget(programsList);
     permissionBox->setLayout(permissionLayout);
     mainLayout->addWidget(permissionBox);
 
@@ -139,13 +139,13 @@ ProfileViewer::loadDirs()
 }
 
 void
-ProfileViewer::loadProgramms()
+ProfileViewer::loadPrograms()
 {
-    programmsModel = new QStandardItemModel(0, 2, this);
-    programmsModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    programmsModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
-    programmsList->setModel(programmsModel);
-    programmsList->setColumnWidth(0, 500);
+    programsModel = new QStandardItemModel(0, 2, this);
+    programsModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
+    programsModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    programsList->setModel(programsModel);
+    programsList->setColumnWidth(0, 500);
 }
 
 void

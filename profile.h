@@ -15,11 +15,11 @@ public:
     QList<QString> drivesWrite();
     QList<QString> dirsRead();
     QList<QString> dirsWrite();
-    QList<QString> programmsExec();
+    QList<QString> programsExec();
     QHash<QString, int> files();
     QHash<QString, int> drives();
     QHash<QString, int> dirs();
-    QHash<QString, int> programms();
+    QHash<QString, int> programs();
 
     void setUser(int uid, const QString &user);
     void setGroup(int gid, const QString &group);
@@ -29,11 +29,11 @@ public:
     void setDrivesWrite(const QList<QString> &drivesWrite);
     void setDirsRead(const QList<QString> &dirsRead);
     void setDirsWrite(const QList<QString> &dirsWrite);
-    void setProgrammsExec(const QList<QString> &programmsExec);
+    void setProgramsExec(const QList<QString> &programsExec);
     void setFiles(const QHash<QString, int> &files);
     void setDrives(const QHash<QString, int> &drives);
     void setDirs(const QHash<QString, int> &dirs);
-    void setProgramms(const QHash<QString, int> &programms);
+    void setPrograms(const QHash<QString, int> &programs);
 
     bool canReadFile(const QString &path);
     bool canWriteFile(const QString &path);
@@ -57,7 +57,7 @@ private:
     QHash<QString, int> _files; // хэш-таблица с путями до файлов и правами доступа к ним
     QHash<QString, int> _drives;
     QHash<QString, int> _dirs;
-    QHash<QString, int> _programms;
+    QHash<QString, int> _programs;
 };
 
 #endif // ROFILE_H

@@ -54,13 +54,13 @@ private:
     QTreeView *drivesList;
     QLabel *dirsLabel;
     QTreeView *dirsList;
-    QLabel *programmsLabel;
-    QTreeView *programmsList;
+    QLabel *programsLabel;
+    QTreeView *programsList;
 
     QStandardItemModel *drivesModel;
     QStandardItemModel *filesModel;
     QStandardItemModel *dirsModel;
-    QStandardItemModel *programmsModel;
+    QStandardItemModel *programsModel;
 
     void createActions();
     void createMenus();
@@ -70,7 +70,7 @@ private:
     void loadFiles();
     void loadDrives();
     void loadDirs();
-    void loadProgramms();
+    void loadPrograms();
 };
 
 #endif // PROFILEVIEWER_H
