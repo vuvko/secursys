@@ -1,7 +1,11 @@
 #include "apphandler.h"
 
+#define CRYPTO_PATH "AES256.dll"
+
 AppHandler::AppHandler(QObject *parent) :
-    QObject(parent), _crypto("AES256.dll"), _profile() {}
+    QObject(parent), _crypto(CRYPTO_PATH), _profile()
+{
+}
 
 void
 AppHandler::startFS(const QString &path)
@@ -16,6 +20,14 @@ void
 AppHandler::startLogin()
 {
     LoginDialog *dialog = new LoginDialog;
+
+    if (!_crypto.isReady()) {
+        QMessageBox::critical(dialog, tr("Critical error"),
+            tr("Cannot find %1. Quitting...").arg(CRYPTO_PATH));
+        delete dialog;
+        exit(EXIT_FAILURE);
+    }
+
     // здесь надо перевести сигналы в надлежащий модуль
      // TODO: заглушка
     connect(dialog, SIGNAL(loginTry(QString,QString)), this, SLOT(onLoginTry(QString,QString)));

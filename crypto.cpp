@@ -10,6 +10,17 @@ Crypto::Crypto(const QString &dirPath)
     encrypt_func = (encrypt_func_t)lib.resolve("encrypt_aes256_ecb");
     decrypt_func = (decrypt_func_t)lib.resolve("decrypt_aes256_ecb");
     gen_func = (gen_func_t)lib.resolve("PRGB");
+
+    ready = hash_256_func != 0 &&
+        hash_512_func != 0 &&
+        encrypt_func != 0 &&
+        decrypt_func != 0 &&
+        gen_func;
+}
+
+bool Crypto::isReady() const
+{
+    return ready;
 }
 
 QByteArray
