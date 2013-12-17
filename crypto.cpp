@@ -13,7 +13,7 @@ Crypto::Crypto(const QString &dirPath)
 }
 
 QByteArray
-Crypto::hash_256(const QString &msg)
+Crypto::hash_256(const QByteArray &msg)
 {
     QByteArray out(32, 0);
     hash_256_func((unsigned char *)msg.data(),
@@ -23,7 +23,7 @@ Crypto::hash_256(const QString &msg)
 }
 
 QByteArray
-Crypto::hash_512(const QString &msg)
+Crypto::hash_512(const QByteArray &msg)
 {
     QByteArray out(64, 0);
     hash_512_func((unsigned char *)msg.data(),
@@ -35,11 +35,35 @@ Crypto::hash_512(const QString &msg)
 QByteArray
 Crypto::encrypt(const QByteArray &msg, const QByteArray &key)
 {
-    QByteArray out(msg.size() - msg.size() % 16 + 16, 0);
+    QByteArray out(((msg.size() + 1) / 16) * 16 + 1000, 0);
+    /*
     encrypt_func((unsigned char *)msg.data(),
                  msg.size(),
                  (unsigned char *)key.data(),
-                 (unsigned char *)out.data());
+                 (unsigned char *)out.data());*/
+
+    unsigned char str[11];
+    for (int i = 0; i < 9; ++i) {
+        str[i] = 'a';
+    }
+    str[9] = '\0';
+    str[10] = '\0';
+    unsigned char keyc[33];
+    for (int i = 0; i < 31; ++i) {
+        keyc[i] = 'A';
+    }
+    keyc[31] = '\0';
+    keyc[32] = '\0';
+    unsigned char *outc = (unsigned char *)calloc(1025, sizeof(*outc));
+    for (int i = 0; i < 1024; ++i) {
+        outc[i] = '_';
+    }
+    outc[1023] = '\0';
+    outc[1024] = '\0';
+    encrypt_func((unsigned char *)str,
+                 10,
+                 (unsigned char *)keyc,
+                 (unsigned char *)outc);
     return out;
 }
 
