@@ -2,7 +2,6 @@
 #define CRYPTO_H
 
 #include <QLibrary>
-#include <QFunctionPointer>
 
 class Crypto
 {

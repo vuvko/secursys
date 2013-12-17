@@ -11,6 +11,7 @@
 class LoginDialog : public QMainWindow
 {
     Q_OBJECT
+
 public:
     explicit LoginDialog(QWidget *parent = 0);
     
