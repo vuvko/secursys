@@ -8,12 +8,12 @@ class Crypto
 public:
     Crypto(const QString &dirPath);
 
-    QVector<char> hash_256(const QString &msg);
-    QVector<char> hash_512(const QString &msg);
+    QByteArray hash_256(const QString &msg);
+    QByteArray hash_512(const QString &msg);
 
-    QVector<char> encrypt(const QString &msg, const QVector<char> &key);
-    QString decrypt(const QVector<char> &msg, const QVector<char> &key);
-    QVector<char> generate_next();
+    QByteArray encrypt(const QByteArray &msg, const QByteArray &key);
+    QByteArray decrypt(const QByteArray &msg, const QByteArray &key);
+    QByteArray generate_next();
 
 private:
     typedef void (*hash_func_t) (const unsigned char *, unsigned long long, unsigned char *);
