@@ -39,9 +39,9 @@ Profile::drivesWrite()
 }
 
 QList<QString>
-Profile::programmsExec()
+Profile::programsExec()
 {
-    return _programms.keys(EXEC);
+    return _programs.keys(EXEC);
 }
 
 void
@@ -117,13 +117,13 @@ Profile::setFilesWrite(const QList<QString> &filesWrite)
 }
 
 void
-Profile::setProgrammsExec(const QList<QString> &programmsExec)
+Profile::setProgramsExec(const QList<QString> &programsExec)
 {
-    for (auto programm : programmsExec) {
-        if (_programms.contains(programm)) {
-            _programms[programm] |= EXEC;
+    for (auto program : programsExec) {
+        if (_programs.contains(program)) {
+            _programs[program] |= EXEC;
         } else {
-            _programms[programm] = EXEC;
+            _programs[program] = EXEC;
         }
     }
 }
