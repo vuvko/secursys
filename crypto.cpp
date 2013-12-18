@@ -15,7 +15,7 @@ Crypto::Crypto(const QString &dirPath)
         hash_512_func != 0 &&
         encrypt_func != 0 &&
         decrypt_func != 0 &&
-        gen_func;
+        gen_func != 0;
 }
 
 bool Crypto::isReady() const
