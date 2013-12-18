@@ -178,5 +178,5 @@ Profile::canReadDir(const QString &path)
     if (!_dirs.contains(path)) {
         return false;
     }
-    return _dirs[path] & ~READ;
+    return _dirs[path] & READ;
 }

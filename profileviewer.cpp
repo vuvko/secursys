@@ -1,17 +1,18 @@
 #include "profileviewer.h"
 
-ProfileViewer::ProfileViewer(AppHandler *handler_, QWidget *parent) :
+ProfileViewer::ProfileViewer(const Profile &profile_, AppHandler *handler_, QWidget *parent) :
     QMainWindow(parent)
 {
     handler = handler_;
+    profile = profile_;
     centralWidget = new QWidget;
     mainLayout = new QGridLayout;
     setCentralWidget(centralWidget);
     centralWidget->setLayout(mainLayout);
 
     userBox = new QGroupBox(tr("Информация о пользователе"));
-    userLabel = new QLabel(tr("Пользователь: ") + handler->userName());
-    groupLabel = new QLabel(tr("Группа: ") + handler->groupName());
+    userLabel = new QLabel(tr("Пользователь: ") + profile.userName());
+    groupLabel = new QLabel(tr("Группа: ") + profile.groupName());
     userLayout = new QGridLayout;
 
     permissionBox = new QGroupBox(tr("Права на доступ"));
@@ -109,12 +110,49 @@ ProfileViewer::createStatusBar()
     statusBar()->showMessage(tr("Готово."));
 }
 
+QString
+ProfileViewer::modeToStr(int mode)
+{
+    QString strMode;
+    switch (mode) {
+    case Profile::READ:
+        strMode = tr("Чтение");
+        break;
+    case Profile::WRITE:
+        strMode = tr("Запись");
+        break;
+    case Profile::EXEC:
+        strMode = tr("Выполнение");
+        break;
+    case Profile::READ | Profile::WRITE:
+        strMode = tr("Полный доступ");
+        break;
+    default:
+        strMode = tr("Нет доступа");
+        break;
+    }
+    return strMode;
+}
+
+void
+ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &data)
+{
+    model = new QStandardItemModel(0, 2, this);
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    model->setRowCount(data.size());
+    int idx = 0;
+    for (auto it = data.begin(); it != data.end(); ++it) {
+        model->setData(model->index(idx, 0), it.key());
+        model->setData(model->index(idx, 1), modeToStr(it.value()));
+        ++idx;
+    }
+}
+
 void
 ProfileViewer::loadFiles()
 {
-    filesModel = new QStandardItemModel(0, 2, this);
-    filesModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    filesModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    loadModel(filesList, profile.files());
     filesList->setModel(filesModel);
     filesList->setColumnWidth(0, 500);
 }
@@ -122,9 +160,7 @@ ProfileViewer::loadFiles()
 void
 ProfileViewer::loadDrives()
 {
-    drivesModel = new QStandardItemModel(0, 2, this);
-    drivesModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    drivesModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    loadModel(drivesList, profile.drives());
     drivesList->setModel(drivesModel);
     drivesList->setColumnWidth(0, 500);
 }
@@ -132,9 +168,7 @@ ProfileViewer::loadDrives()
 void
 ProfileViewer::loadDirs()
 {
-    dirsModel = new QStandardItemModel(0, 2, this);
-    dirsModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    dirsModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    loadModel(dirsList, profile.dirs());
     dirsList->setModel(dirsModel);
     dirsList->setColumnWidth(0, 500);
 }
@@ -142,9 +176,7 @@ ProfileViewer::loadDirs()
 void
 ProfileViewer::loadPrograms()
 {
-    programsModel = new QStandardItemModel(0, 2, this);
-    programsModel->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    programsModel->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
+    loadModel(programsList, profile.programs());
     programsList->setModel(programsModel);
     programsList->setColumnWidth(0, 500);
 }

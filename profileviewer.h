@@ -15,6 +15,7 @@
 #include <QStandardItem>
 
 #include "apphandler.h"
+#include "profile.h"
 
 class AppHandler;
 
@@ -22,7 +23,7 @@ class ProfileViewer : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ProfileViewer(AppHandler *handler_ = 0, QWidget *parent = 0);
+    explicit ProfileViewer(const Profile &profile_, AppHandler *handler_ = 0, QWidget *parent = 0);
     
 signals:
     void update();
@@ -35,6 +36,7 @@ private slots:
     void onAbout();
 
 private:
+    Profile profile;
     AppHandler *handler;
 
     QMenu *fileMenu;
@@ -73,6 +75,8 @@ private:
     void createToolBars();
     void createStatusBar();
 
+    QString modeToStr(int mode);
+    void loadModel(QStandardItemModel *model, const QHash<QString, int> &data);
     void loadFiles();
     void loadDrives();
     void loadDirs();
