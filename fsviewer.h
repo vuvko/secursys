@@ -98,6 +98,7 @@ private slots:
     void onCheckHash();
     void onOpenFile(const QString &fileName);
     void onProfile();
+    void onPathChange();
 
 signals:
     void openFile(const QString &fileName);
@@ -113,7 +114,7 @@ private:
     QComboBox *driveBox;
     QLabel *driveLabel;
     QLabel *pathNameLabel;
-    QLabel *pathLabel;
+    QLineEdit *pathEdit;
 
     QMenu *fileMenu;
     QAction *mnuDirCreate;

@@ -256,12 +256,13 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
 
     driveLabel = new QLabel(tr("Сменить диск:"));
     pathNameLabel = new QLabel(tr("Путь:"));
-    pathLabel = new QLabel;
+    pathEdit = new QLineEdit;
+    connect(pathEdit, SIGNAL(returnPressed()), this, SLOT(onPathChange()));
 
     mainLayout->addWidget(driveLabel, 0, 0);
     mainLayout->addWidget(driveBox, 0, 1);
     mainLayout->addWidget(pathNameLabel, 1, 0);
-    mainLayout->addWidget(pathLabel, 1, 1);
+    mainLayout->addWidget(pathEdit, 1, 1);
     mainLayout->addWidget(dirView, 2, 0, 1, 2);
     mainLayout->setColumnStretch(0, 0);
     mainLayout->setColumnStretch(1, 1);
@@ -348,7 +349,7 @@ FSViewer::createToolBar()
 void
 FSViewer::changePath(const QString &path)
 {
-    pathLabel->setText(path);
+    pathEdit->setText(path);
 }
 
 // slots
@@ -410,4 +411,16 @@ void
 FSViewer::onProfile()
 {
     emit openProfile();
+}
+
+void
+FSViewer::onPathChange()
+{
+    QDir dir;
+    QString path = pathEdit->text();
+    if (dir.exists(path)) {
+        dirView->cd(path);
+    } else {
+        QMessageBox::warning(this, tr("Ошибка перехода в каталог"), tr("Не существует каталога ") + path);
+    }
 }
