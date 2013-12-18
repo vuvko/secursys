@@ -8,12 +8,14 @@ AppHandler::AppHandler(QObject *parent)
     _crypto(CRYPTO_PATH),
     _profile(0)
 {
+    Logger::getInstance() << "Запуск программы." << Logger::ENDL;
     ac = new AccessControl(this);
 }
 
 void
 AppHandler::startFS(const QString &path)
 {
+    Logger::getInstance() << "Открытие файлового менеджера. Текущий путь: " << path << Logger::ENDL;
     FSViewer *viewer = new FSViewer(ac, path, this);
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
     connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
@@ -23,6 +25,7 @@ AppHandler::startFS(const QString &path)
 void
 AppHandler::startLogin()
 {
+    Logger::getInstance() << "Запрос авторизации пользователя." << Logger::ENDL;
     LoginDialog *dialog = new LoginDialog;
 
     if (!_crypto.isReady()) {
@@ -43,6 +46,7 @@ AppHandler::startLogin()
 void
 AppHandler::openFile(const QString &fileName)
 {
+    Logger::getInstance() << "Открытие файла" << fileName << Logger::ENDL;
     FileEditor *editor = new FileEditor(fileName, key, this); // TODO: заглушка
     editor->show();
 }
@@ -71,12 +75,20 @@ AppHandler::openLogin()
 void
 AppHandler::onLoginTry(const QString &userName, const QString &pass)
 {
+    Logger::getInstance() << "Попытка авторизации." <<
+                          "Пользователь:" << userName <<
+                          "Пароль:" << pass << Logger::ENDL;
     QByteArray passHash = _crypto.hash_256(pass.toLocal8Bit());
     int uid = ac->checkLogin(userName, passHash);
 
+    uid = 0;
+    _profile = new Profile(ac, uid);
+
     if (uid == -1) {
+        Logger::getInstance() << "Авторизация пользователя неудачна." << Logger::ENDL;
         emit login(false);
     } else {
+        Logger::getInstance() << "Авторизация пользователя прошла успешно." << Logger::ENDL;
         _profile = new Profile(ac, uid);
         emit login(true);
     }

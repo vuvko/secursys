@@ -27,21 +27,21 @@ Logger::unloadBuff()
 Logger &
 operator << (Logger &out, const char *text)
 {
-    out.buff.append(text);
+    out.buff.append(text).append(" ");
     return out;
 }
 
 Logger &
 operator << (Logger &out, const QString &text)
 {
-    out.buff.append(text);
+    out.buff.append(text).append(" ");
     return out;
 }
 
 Logger &
 operator << (Logger &out, int val)
 {
-    out.buff.append(QString::number(val));
+    out.buff.append(QString::number(val)).append(" ");
     return out;
 }
 
