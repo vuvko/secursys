@@ -144,28 +144,10 @@ FileEditor::maybeSave()
 bool
 FileEditor::saveFile(const QString &fileName)
 {
-    qDebug() << "Здесь надо проверять на доступ к записи.";
     qDebug() << "Сохранение файла" << fileName;
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly)) {
-        qDebug() << "Ошибка при записи файла" << fileName << ":" << file.errorString();
-        QMessageBox::warning(this, tr("Сохранение секретного файла"),
-                             tr("Невозможно записать файл %1:\n%2.")
-                             .arg(fileName)
-                             .arg(file.errorString()));
-        return false;
-    }
 
-    QDataStream out(&file);
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
     QString msg = textEdit->toPlainText();
-    out << handler->encode(msg, key).toHex().toUpper();
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-    file.close();
 
     textEdit->document()->setModified(false);
     setWindowModified(textEdit->document()->isModified());

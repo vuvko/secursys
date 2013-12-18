@@ -1,10 +1,16 @@
 #include "crypto.h"
 
-#include <QDebug>
+#define CRYPTO_PATH "AES256.dll"
 
-Crypto::Crypto(const QString &dirPath)
+Crypto &getInstance()
 {
-    lib.setFileName(dirPath);
+    static Crypto instance;
+    return instance;
+}
+
+Crypto::Crypto()
+{
+    lib.setFileName(CRYPTO_PATH);
     hash_256_func = (hash_func_t)lib.resolve("hash_256");
     hash_512_func = (hash_func_t)lib.resolve("hash_512");
     encrypt_func = (encrypt_func_t)lib.resolve("encrypt_aes256_ecb");
