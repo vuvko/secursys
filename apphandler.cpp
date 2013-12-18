@@ -25,7 +25,6 @@ AppHandler::startLogin()
     if (!_crypto.isReady()) {
         QMessageBox::critical(dialog, tr("Critical error"),
             tr("Cannot find %1. Quitting...").arg(CRYPTO_PATH));
-        delete dialog;
         exit(EXIT_FAILURE);
     }
 
