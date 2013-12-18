@@ -1,8 +1,9 @@
 #include "fsviewer.h"
 #include "accesscontrol.h"
 
-FileView::FileView(FSViewer *parent_, AppHandler *handler_)
-    : QTreeView(parent_)
+FileView::FileView(FSViewer *parent_, AppHandler *handler_, AccessControl *accessControl)
+    : QTreeView(parent_),
+    ac(accessControl)
 {
     handler = handler_;
     parent = parent_;
@@ -18,7 +19,6 @@ FileView::FileView(FSViewer *parent_, AppHandler *handler_)
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
     currentDir.setSorting(QDir::DirsFirst | QDir::Name);
-    ac = new AccessControl(handler);
 }
 
 FileView::~FileView()
@@ -233,7 +233,8 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
 // FSViewer
 //-----------
 
-FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
+FSViewer::FSViewer(AccessControl *accessControl, const QString &path,
+    AppHandler *handler_, QWidget *parent)
     : QMainWindow(parent)
 {
     handler = handler_;
@@ -245,7 +246,7 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
     mainLayout = new QGridLayout;
     centralWidget->setLayout(mainLayout);
 
-    dirView = new FileView(this, handler_);
+    dirView = new FileView(this, handler_, accessControl);
     dirView->setAlternatingRowColors(true);
 
     driveBox = new QComboBox;

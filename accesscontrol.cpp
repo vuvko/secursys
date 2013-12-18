@@ -42,15 +42,15 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
 
     bool ok = true;
 
-    if (obj.uid == handler->userId()) {
+    if (obj.uid == handler->getProfile()->getUID()) {
         ok = ok && (obj.userMode & mode) != 0;
-    } else if (obj.gid == handler->groupId()) {
+    } else if (obj.gid == handler->getProfile()->getGID()) {
         ok = ok && (obj.groupMode & mode) != 0;
     } else {
         ok = ok && (obj.othersMode & mode) != 0;
     }
 
-    ok = ok && obj.role == handler->roleId();
+    ok = ok && obj.role == ROLE_NOTHING; // TODO
 
     return ok;
 }
@@ -115,4 +115,14 @@ void AccessControl::setDefaultModeDir(QString path)
 void AccessControl::setDefaultModeFile(QString path)
 {
     //setAccessFile(...); // TODO
+}
+
+int AccessControl::checkLogin(QString userName, QString passHash) const
+{
+    for (auto u : allUsers) {
+        if (u.name == userName && u.passHash == passHash)
+            return u.uid;
+    }
+
+    return -1;
 }

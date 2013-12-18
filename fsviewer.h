@@ -43,7 +43,7 @@ public:
     constexpr const static char *secret_suffix = "sf"; // *.sf --- секретные файлы
 
     explicit FileView(FSViewer *parent_,
-                      AppHandler *handler_);
+        AppHandler *handler_, AccessControl *accessControl);
     ~FileView();
 
     bool cd(const QString &path);
@@ -82,7 +82,8 @@ class FSViewer : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit FSViewer(const QString &path = ".",
+    explicit FSViewer(AccessControl *accessControl,
+                      const QString &path = ".",
                       AppHandler *handler_ = 0,
                       QWidget *parent = 0);
 
