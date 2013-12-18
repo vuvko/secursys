@@ -1,11 +1,15 @@
 #include "logger.h"
 
+Logger &Logger::getInstance()
+{
+    static Logger instance;
+    return instance;
+}
+
 Logger::Logger()
 {
     log = "[" + QDateTime::currentDateTime().toString(Qt::TextDate) + "] Новая сессия.\n";
 }
-
-Logger::~Logger() {}
 
 QString
 Logger::unload()
@@ -42,7 +46,7 @@ operator << (Logger &out, int val)
 }
 
 Logger &
-operator << (Logger &out, Logger::ComandSymbol sym)
+operator << (Logger &out, Logger::CommandSymbol sym)
 {
     switch (sym) {
     case Logger::ENDL:
