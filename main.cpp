@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
     ah->startLogin();
     //ah->startFS();
 
-    Logger log;
+    Logger &log = Logger::getInstance();
     log << "New item added to list." << Logger::ENDL;
     log << "With\nMore\nLines" << Logger::ENDL;
 

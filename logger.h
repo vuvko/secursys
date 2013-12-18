@@ -14,10 +14,9 @@
 class Logger
 {
 public:
-    Logger();
-    ~Logger();
+    static Logger &getInstance();
 
-    enum ComandSymbol {
+    enum CommandSymbol {
         ENDL,
         TIMESTAMP,
         DATESTAMP
@@ -28,9 +27,15 @@ public:
     friend Logger &operator << (Logger &out, const char *text);
     friend Logger &operator << (Logger &out, const QString &text);
     friend Logger &operator << (Logger &out, int val);
-    friend Logger &operator << (Logger &out, ComandSymbol sym);
+    friend Logger &operator << (Logger &out, CommandSymbol sym);
 
 private:
+    Logger();
+
+    // Not implement, forbid usage.
+    Logger(Logger &);
+    void operator=(Logger &);
+
     void unloadBuff();
 
     QString log;
