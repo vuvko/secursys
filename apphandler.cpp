@@ -47,7 +47,7 @@ AppHandler::openFile(const QString &fileName)
 void
 AppHandler::openProfile()
 {
-    ProfileViewer *viewer = new ProfileViewer(this);
+    ProfileViewer *viewer = new ProfileViewer(_profile, this);
     connect(viewer, SIGNAL(update()), this, SLOT(onProfileUpdate()));
     connect(this, SIGNAL(updateResult(bool)), viewer, SLOT(updateResult(bool)));
     viewer->show();
