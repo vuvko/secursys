@@ -33,8 +33,8 @@ private:
     Logger();
 
     // Not implement, forbid usage.
-    Logger(Logger &);
-    void operator=(Logger &);
+    Logger(const Logger &);
+    void operator=(const Logger &);
 
     void unloadBuff();
 

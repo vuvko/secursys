@@ -4,13 +4,21 @@
 #include <QString>
 #include <QList>
 #include <QHash>
+#include <QDir>
 
 #include "accesscontrol.h"
 
 class Profile
 {
+    friend class AccessControl;
+
 public:
-    Profile(AccessControl *accessControl, int aUID);
+    static Profile &getInstance();
+    void initialize(int uid, QString pwd = QString("."));
+
+    // Canonical path.
+    QString getPWD();
+
     int getUID() const;
     int getGID() const;
     QString userName() const;
@@ -25,14 +33,19 @@ public:
     bool isRoot() const;
 
 private:
+    Profile();
+
+    // Not implement, forbid usage.
+    Profile(const Profile &);
+    void operator=(const Profile &);
+
     const User *getUser() const;
     const Group *getGroup() const;
     QHash<QString, int> accessibleObjects(QList<AccessObject> *collection) const;
 
-    AccessControl *ac;
-
     // My little runtime information :-)
     int uid;
+    QDir pwd;
 };
 
 #endif // PROFILE_H

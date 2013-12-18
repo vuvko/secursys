@@ -1,11 +1,10 @@
 #include "fsviewer.h"
+#include "profile.h"
 #include "accesscontrol.h"
 
-FileView::FileView(FSViewer *parent_, AppHandler *handler_, AccessControl *accessControl)
-    : QTreeView(parent_),
-    ac(accessControl)
+FileView::FileView(FSViewer *parent_)
+    : QTreeView(parent_)
 {
-    handler = handler_;
     parent = parent_;
     dirModel = new QStandardItemModel(0, 5, this);
     dirModel->setHeaderData(0, Qt::Horizontal, QObject::tr(""));
@@ -18,65 +17,13 @@ FileView::FileView(FSViewer *parent_, AppHandler *handler_, AccessControl *acces
     setColumnWidth(1, 250);
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
-    currentDir.setSorting(QDir::DirsFirst | QDir::Name);
 }
 
 FileView::~FileView()
-{
-    delete ac;
-}
+{}
 
-bool FileView::tryAccessDir(const QDir &dir, int mode) const
-{
-    QString cpath = dir.canonicalPath();
-    if (ac->checkAccessDir(cpath, mode)) {
-        return true;
-    }
-
-    // QMessageDialog access denied message for cpath;
-    return false;
-}
-
-bool FileView::tryAccessDir(int mode) const
-{
-    return tryAccessDir(currentDir, mode);
-}
-
-bool
-FileView::cd(const QString &path)
-{
-    return cd(QDir(path));
-}
-
-bool
-FileView::cd(const QDir &dir)
-{
-    qDebug() << "Здесь надо проверять на доступ к каталогу."; // TODO: log
-
-    if (!tryAccessDir(dir, ACCESS_READ) || !currentDir.cd(dir.canonicalPath()))
-        return false;
-
-    update();
-    return true;
-}
-
-bool
-FileView::mkdir()
-{
-    qDebug() << "Здесь надо проверить на доступ к созданию каталогов."; // TODO: log
-
-    if (!tryAccessDir(ACCESS_READ))
-        return false;
-
-    QString name = QInputDialog::getText(this, tr("Создание каталога"), tr("Название нового каталога:"));
-    if (name.isEmpty() || !currentDir.mkdir(name))
-        return false;
-
-    QString newDirPath = currentDir.canonicalPath() + QDir::separator() + name;
-    ac->setDefaultModeDir(newDirPath);
-    update();
-    return true;
-}
+//////// /from /////
+#if 0
 
 bool
 FileView::rmdir()
@@ -175,19 +122,24 @@ FileView::exec(const QString &cpath)
     return system(cpath.toStdString().c_str()) != -1;
 }
 
+#endif
+////// to //////
+
 void
 FileView::onUp()
 {
-    cd("..");
+    AccessControl::getInstance().cd("..");
     update();
 }
 
 void
 FileView::update()
 {
-    currentDir.refresh();
-    qDebug() << "Текущий каталог:" << currentDir.canonicalPath();
-    QFileInfoList infoList = currentDir.entryInfoList();
+    QDir pwd(Profile::getInstance().getPWD());
+    pwd.setSorting(QDir::DirsFirst | QDir::Name);
+    pwd.refresh();
+    qDebug() << "Текущий каталог:" << pwd.canonicalPath();
+    QFileInfoList infoList = pwd.entryInfoList();
     int idx = 0;
     dirModel->setRowCount(infoList.size());
     for (auto info : infoList) {
@@ -211,19 +163,23 @@ FileView::update()
         ++idx;
     }
     setModel(dirModel);
-    parent->changePath(currentDir.canonicalPath());
+    parent->changePath(pwd.canonicalPath());
     QTreeView::update();
 }
 
 void
 FileView::mouseDoubleClickEvent(QMouseEvent *)
 {
+    QDir pwd(Profile::getInstance().getPWD());
+    pwd.setSorting(QDir::DirsFirst | QDir::Name);
+    pwd.refresh();
+
     int row = selectedIndexes()[0].row();
-    QFileInfo info = currentDir.entryInfoList()[row];
+    QFileInfo info = pwd.entryInfoList()[row];
     if (info.isDir()) {
-        cd(info.fileName());
+        AccessControl::getInstance().cd(info.fileName());
     } else if (info.isExecutable()) {
-        exec(info.canonicalFilePath());
+        AccessControl::getInstance().exec(info.canonicalFilePath());
     } else {
         editFile(info.canonicalFilePath());
     }
@@ -233,11 +189,9 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
 // FSViewer
 //-----------
 
-FSViewer::FSViewer(AccessControl *accessControl, const QString &path,
-    AppHandler *handler_, QWidget *parent)
+FSViewer::FSViewer(QWidget *parent)
     : QMainWindow(parent)
 {
-    handler = handler_;
     // Creating UI
     qDebug() << "Инициализация пользовательского интерфейса.";
     // main Layout
@@ -246,7 +200,7 @@ FSViewer::FSViewer(AccessControl *accessControl, const QString &path,
     mainLayout = new QGridLayout;
     centralWidget->setLayout(mainLayout);
 
-    dirView = new FileView(this, handler_, accessControl);
+    dirView = new FileView(this);
     dirView->setAlternatingRowColors(true);
 
     driveBox = new QComboBox;
@@ -277,7 +231,7 @@ FSViewer::FSViewer(AccessControl *accessControl, const QString &path,
     setWindowTitle(tr("Просмотр файловой системы"));
     // UI created.
     qDebug() << "Пользовательский интерфейс создан.";
-    dirView->cd(path);
+    AccessControl::getInstance().cd(Profile::getInstance().getPWD());
     connect(dirView, SIGNAL(openFile(QString)), this, SLOT(onOpenFile(QString)));
 }
 
@@ -365,19 +319,34 @@ FSViewer::onAbout()
 void
 FSViewer::onDriveChange(const QString &drive)
 {
-    dirView->cd(drive);
+    AccessControl::getInstance().cd(drive);
+    update();
 }
 
 void
 FSViewer::onDirCreate()
 {
-    dirView->mkdir();
+    QString name = QInputDialog::getText(this, tr("Создание каталога"), tr("Название нового каталога:"));
+    if (name.isEmpty())
+        return;
+
+    AccessControl::getInstance().mkdir(name);
+    update();
 }
 
 void
 FSViewer::onDirDelete()
 {
-    dirView->rmdir();
+    QDir pwd(Profile::getInstance().getPWD());
+    pwd.setSorting(QDir::DirsFirst | QDir::Name);
+    pwd.refresh();
+
+    int row = dirView->selectedIndexes()[0].row();
+    QFileInfo dirInfo = pwd.entryInfoList()[row];
+    QString path = dirInfo.canonicalPath();
+
+    AccessControl::getInstance().rmdir(path);
+    update();
 }
 
 void
@@ -389,13 +358,23 @@ FSViewer::onFileCreate()
 void
 FSViewer::onFileDelete()
 {
-    dirView->rm();
+    QDir pwd(Profile::getInstance().getPWD());
+    pwd.setSorting(QDir::DirsFirst | QDir::Name);
+    pwd.refresh();
+
+    int row = dirView->selectedIndexes()[0].row();
+    QFileInfo fileInfo = currentDir.entryInfoList()[row];
+    if (fileInfo.suffix() != secret_suffix)
+        return;
+    QString path = dirInfo.canonicalPath();
+
+    AccessControl::getInstance().rm(path);
 }
 
 void
 FSViewer::onCheckHash()
 {
-    if (dirView->check()) {
+    if (AccessControl::getInstance().check()) {
         // TODO
     } else {
         // TODO
@@ -420,7 +399,7 @@ FSViewer::onPathChange()
     QDir dir;
     QString path = pathEdit->text();
     if (dir.exists(path)) {
-        dirView->cd(path);
+        AccessControl::getInstance().cd(path);
     } else {
         QMessageBox::warning(this, tr("Ошибка перехода в каталог"), tr("Не существует каталога ") + path);
     }

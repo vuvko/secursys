@@ -26,9 +26,6 @@
 
 #include <QDebug>
 
-#include "apphandler.h"
-#include "crypto.h"
-
 class AccessControl;
 
 class AppHandler;
@@ -42,18 +39,10 @@ class FileView : public QTreeView
 public:
     constexpr const static char *secret_suffix = "sf"; // *.sf --- секретные файлы
 
-    explicit FileView(FSViewer *parent_,
-        AppHandler *handler_, AccessControl *accessControl);
+    explicit FileView(FSViewer *parent_);
     ~FileView();
 
-    bool cd(const QString &path);
-    bool cd(const QDir &dir);
-    bool mkdir();
-    bool rmdir();
     bool editFile(const QString &name = QString());
-    bool rm();
-    bool check();
-    bool exec(const QString &cpath);
 
 public slots:
     void onUp();
@@ -66,15 +55,8 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
-    bool tryAccessDir(const QDir &dir, int mode) const;
-    bool tryAccessDir(int mode) const;
-
-    AppHandler *handler;
     FSViewer *parent;
     QStandardItemModel *dirModel;
-    QDir currentDir;
-
-    AccessControl *ac;
 };
 
 class FSViewer : public QMainWindow
@@ -82,10 +64,7 @@ class FSViewer : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit FSViewer(AccessControl *accessControl,
-                      const QString &path = ".",
-                      AppHandler *handler_ = 0,
-                      QWidget *parent = 0);
+    explicit FSViewer(QWidget *parent = 0);
 
     void changePath(const QString &path);
 
@@ -107,8 +86,6 @@ signals:
 
 private:
     void accessDeniedMessage(const QString path) const;
-
-    AppHandler *handler;
 
     QWidget *centralWidget;
     QGridLayout *mainLayout;
