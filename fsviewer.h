@@ -65,6 +65,9 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
+    bool tryAccessDir(const QDir &dir, int mode) const;
+    bool tryAccessDir(int mode) const;
+
     AppHandler *handler;
     FSViewer *parent;
     QStandardItemModel *dirModel;
@@ -100,6 +103,8 @@ signals:
     void openProfile();
 
 private:
+    void accessDeniedMessage(const QString path) const;
+
     AppHandler *handler;
 
     QWidget *centralWidget;
