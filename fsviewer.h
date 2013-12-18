@@ -50,9 +50,10 @@ public:
     bool cd(const QDir &dir);
     bool mkdir();
     bool rmdir();
-    bool createFile();
+    bool editFile(const QString &name = QString());
     bool rm();
     bool check();
+    bool exec(const QString &cpath);
 
 public slots:
     void onUp();
