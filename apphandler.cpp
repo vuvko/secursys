@@ -26,8 +26,8 @@ AppHandler::startLogin()
     LoginDialog *dialog = new LoginDialog;
 
     if (!_crypto.isReady()) {
-        QMessageBox::critical(dialog, tr("Critical error"),
-            tr("Cannot find %1. Quitting...").arg(CRYPTO_PATH));
+        QMessageBox::critical(dialog, tr("Критическая ошибка"),
+            tr("Не удалось найти %1. Завершение работы...").arg(CRYPTO_PATH));
         exit(EXIT_FAILURE);
     }
 
@@ -78,7 +78,7 @@ AppHandler::onLoginTry(const QString &userName, const QString &pass)
         emit login(false);
     } else {
         _profile = new Profile(ac, uid);
-        emit login(false);
+        emit login(true);
     }
 }
 
@@ -130,7 +130,8 @@ AppHandler::encode(const QString &msg, const QByteArray &key_)
     return _crypto.encrypt(msg.toLocal8Bit(), key);
 }
 
-const Profile *AppHandler::getProfile() const
+const Profile *
+AppHandler::getProfile() const
 {
     return _profile;
 }

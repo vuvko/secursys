@@ -6,23 +6,35 @@
 #include <QTime>
 #include <QDateTime>
 
+/*
+ * При использовании следует всегда посылать Logger::ENDL,
+ * чтобы добавить запись в лог (к ней приписывается время в начале).
+ */
+
 class Logger
 {
 public:
-    Logger(const QString &fileName);
-    Logger(QTextStream &stream);
+    Logger();
     ~Logger();
 
-    QDateTime datestamp(const QDateTime &dateTime = QDateTime::currentDateTime());
-    QTime timestamp(const QTime &time = QTime::currentTime());
+    enum ComandSymbol {
+        ENDL,
+        TIMESTAMP,
+        DATESTAMP
+    };
 
-    friend Logger operator << (Logger &out, const QString &text);
-    friend Logger operator << (Logger &out, int val);
+    QString unload();
+
+    friend Logger &operator << (Logger &out, const char *text);
+    friend Logger &operator << (Logger &out, const QString &text);
+    friend Logger &operator << (Logger &out, int val);
+    friend Logger &operator << (Logger &out, ComandSymbol sym);
 
 private:
-    QFile logFile;
-    QTextStream log;
-    bool closeAfter;
+    void unloadBuff();
+
+    QString log;
+    QString buff;
 };
 
 #endif // LOGGER_H
