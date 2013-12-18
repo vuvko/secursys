@@ -11,6 +11,7 @@
 #include "profileviewer.h"
 #include "crypto.h"
 #include "profile.h"
+#include "logger.h"
 
 class AppHandler : public QObject
 {
