@@ -1,71 +1,38 @@
-#ifndef ROFILE_H
-#define ROFILE_H
+#ifndef PROFILE_H
+#define PROFILE_H
 
 #include <QString>
 #include <QList>
 #include <QHash>
 
+#include "accesscontrol.h"
+
 class Profile
 {
 public:
-    Profile();
-    QString user();
-    QString group();
-    int uid();
-    int gid();
-    QList<QString> filesRead();
-    QList<QString> filesWrite();
-    QList<QString> drivesRead();
-    QList<QString> drivesWrite();
-    QList<QString> dirsRead();
-    QList<QString> dirsWrite();
-    QList<QString> programsExec();
-    QHash<QString, int> files();
-    QHash<QString, int> drives();
-    QHash<QString, int> dirs();
-    QHash<QString, int> programs();
+    Profile(AccessControl *accessControl, int aUID);
+    int getUID() const;
+    int getGID() const;
+    QString userName() const;
+    QString groupName() const;
 
-    void setUser(int uid, const QString &user);
-    void setGroup(int gid, const QString &group);
-    void setFilesRead(const QList<QString> &filesRead);
-    void setFilesWrite(const QList<QString> &filesWrite);
-    void setDrivesRead(const QList<QString> &drivesRead);
-    void setDrivesWrite(const QList<QString> &drivesWrite);
-    void setDirsRead(const QList<QString> &dirsRead);
-    void setDirsWrite(const QList<QString> &dirsWrite);
-    void setProgramsExec(const QList<QString> &programsExec);
-    void setFiles(const QHash<QString, int> &files);
-    void setDrives(const QHash<QString, int> &drives);
-    void setDirs(const QHash<QString, int> &dirs);
-    void setPrograms(const QHash<QString, int> &programs);
+    // File canonical path, access mode.
+    QHash<QString, int> files() const;
+    QHash<QString, int> drives() const;
+    QHash<QString, int> dirs() const;
+    QHash<QString, int> programs() const;
 
-    bool canReadFile(const QString &path);
-    bool canWriteFile(const QString &path);
-    bool canReadDir(const QString &path);
-    bool canWriteDir(const QString &path);
-    bool canReadDrive(const QString &path);
-    bool canWriteDrive(const QString &path);
-
-    bool isRoot();
-
-    enum {
-        NOTHING = 0x0,
-        READ = 0x1,
-        WRITE = 0x2,
-        EXEC = 0x4
-    };
-
-    constexpr static const int ROOT_ID = 0;
+    bool isRoot() const;
 
 private:
-    int _uid;
-    int _gid;
-    QString _user;
-    QString _group;
-    QHash<QString, int> _files; // хэш-таблица с путями до файлов и правами доступа к ним
-    QHash<QString, int> _drives;
-    QHash<QString, int> _dirs;
-    QHash<QString, int> _programs;
+    const User *getUser() const;
+    const Group *getGroup() const;
+    QHash<QString, int> accessibleObjects(QList<AccessObject> *collection) const;
+
+    AccessControl *ac;
+
+    // My little runtime information :-)
+    int uid;
 };
 
-#endif // ROFILE_H
+#endif // PROFILE_H

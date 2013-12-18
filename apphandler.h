@@ -26,11 +26,7 @@ public:
     QString decode(const QByteArray &msg, const QByteArray &key);
     QByteArray encode(const QString &msg, const QByteArray &key);
 
-    QString userName();
-    QString groupName();
-    int userId();
-    int groupId();
-    int roleId(); // Access level.
+    const Profile *getProfile() const;
 
 signals:
     void login(bool isCorrect);
@@ -42,13 +38,14 @@ public slots:
     void openFS(const QString &path = ".");
     void openProfile();
     void openLogin();
-    void onLoginTry(const QString &user, const QString &pass);
+    void onLoginTry(const QString &userName, const QString &pass);
     void onLogin();
     void onProfileUpdate();
 
 private:
+    AccessControl *ac;
     Crypto _crypto;
-    Profile _profile;
+    Profile *_profile;
     QByteArray key;
 };
 

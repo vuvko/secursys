@@ -1,6 +1,6 @@
 #include "profileviewer.h"
 
-ProfileViewer::ProfileViewer(const Profile &profile_, AppHandler *handler_, QWidget *parent) :
+ProfileViewer::ProfileViewer(const Profile *profile_, AppHandler *handler_, QWidget *parent) :
     QMainWindow(parent)
 {
     handler = handler_;
@@ -11,8 +11,8 @@ ProfileViewer::ProfileViewer(const Profile &profile_, AppHandler *handler_, QWid
     centralWidget->setLayout(mainLayout);
 
     userBox = new QGroupBox(tr("Информация о пользователе"));
-    userLabel = new QLabel(tr("Пользователь: ") + profile.userName());
-    groupLabel = new QLabel(tr("Группа: ") + profile.groupName());
+    userLabel = new QLabel(tr("Пользователь: ") + profile->userName());
+    groupLabel = new QLabel(tr("Группа: ") + profile->groupName());
     userLayout = new QGridLayout;
 
     permissionBox = new QGroupBox(tr("Права на доступ"));
@@ -115,21 +115,23 @@ ProfileViewer::modeToStr(int mode)
 {
     QString strMode;
     switch (mode) {
-    case Profile::READ:
-        strMode = tr("Чтение");
-        break;
-    case Profile::WRITE:
-        strMode = tr("Запись");
-        break;
-    case Profile::EXEC:
-        strMode = tr("Выполнение");
-        break;
-    case Profile::READ | Profile::WRITE:
-        strMode = tr("Полный доступ");
-        break;
-    default:
+    case 0:
         strMode = tr("Нет доступа");
         break;
+    case ACCESS_READ:
+        strMode = tr("Чтение");
+        break;
+    case ACCESS_WRITE:
+        strMode = tr("Запись");
+        break;
+    case ACCESS_EXEC:
+        strMode = tr("Выполнение");
+        break;
+    case ACCESS_READ | ACCESS_WRITE:
+        strMode = tr("Полный доступ (rw)");
+        break;
+    default:
+        strMode = tr("Битые права доступа");
     }
     return strMode;
 }
@@ -152,7 +154,7 @@ ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &d
 void
 ProfileViewer::loadFiles()
 {
-    loadModel(filesList, profile.files());
+    loadModel(filesModel, profile->files());
     filesList->setModel(filesModel);
     filesList->setColumnWidth(0, 500);
 }
@@ -160,7 +162,7 @@ ProfileViewer::loadFiles()
 void
 ProfileViewer::loadDrives()
 {
-    loadModel(drivesList, profile.drives());
+    loadModel(drivesModel, profile->drives());
     drivesList->setModel(drivesModel);
     drivesList->setColumnWidth(0, 500);
 }
@@ -168,7 +170,7 @@ ProfileViewer::loadDrives()
 void
 ProfileViewer::loadDirs()
 {
-    loadModel(dirsList, profile.dirs());
+    loadModel(dirsModel, profile->dirs());
     dirsList->setModel(dirsModel);
     dirsList->setColumnWidth(0, 500);
 }
@@ -176,7 +178,7 @@ ProfileViewer::loadDirs()
 void
 ProfileViewer::loadPrograms()
 {
-    loadModel(programsList, profile.programs());
+    loadModel(programsModel, profile->programs());
     programsList->setModel(programsModel);
     programsList->setColumnWidth(0, 500);
 }

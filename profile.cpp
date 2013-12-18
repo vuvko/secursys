@@ -1,182 +1,112 @@
 #include "profile.h"
+#include "accesscontrol.h"
 
-Profile::Profile() {}
+Profile::Profile(AccessControl *accessControl, int aUID)
+    : ac(accessControl), uid(aUID)
+{}
 
-QString
-Profile::user()
+const User *Profile::getUser() const
 {
-    return _user;
+    QListIterator<User> i(ac->allUsers);
+    while (i.hasNext()) {
+        const User &u = i.next();
+        if (u.uid == uid)
+            return &u;
+    }
+
+    return 0;
 }
 
-QString
-Profile::group()
+const Group *Profile::getGroup() const
 {
-    return _group;
+    const User *u = getUser();
+
+    QListIterator<Group> i(ac->allGroups);
+    while (i.hasNext()) {
+        const Group &g = i.next();
+        if (g.gid == u->gid)
+            return &g;
+    }
+
+    return 0;
 }
 
-int
-Profile::uid()
+int Profile::getUID() const
 {
-    return _uid;
+    return uid;
 }
 
-int
-Profile::gid()
+int Profile::getGID() const
 {
-    return _gid;
+    const Group *g = getGroup();
+
+    if (g)
+        return g->gid;
+    else
+        return -1;
 }
 
-QList<QString>
-Profile::filesRead()
+QString Profile::userName() const
 {
-    return _files.keys(READ) + _files.keys(READ | WRITE);
+    const User *u = getUser();
+
+    if (u)
+        return u->name;
+    else
+        return QString();
 }
 
-QList<QString>
-Profile::filesWrite()
+QString Profile::groupName() const
 {
-    return _files.keys(WRITE) + _files.keys(READ | WRITE);
+    const Group *g = getGroup();
+
+    if (g)
+        return g->name;
+    else
+        return QString();
 }
 
-QList<QString>
-Profile::dirsRead()
+QHash<QString, int> Profile::accessibleObjects(QList<AccessObject> *collection) const
 {
-    return _dirs.keys(READ) + _dirs.keys(READ | WRITE);
-}
+    QHash<QString, int> res;
 
-QList<QString>
-Profile::dirsWrite()
-{
-    return _dirs.keys(WRITE) + _dirs.keys(READ | WRITE);
-}
-
-QList<QString>
-Profile::drivesRead()
-{
-    return _drives.keys(READ) + _drives.keys(READ | WRITE);
-}
-
-QList<QString>
-Profile::drivesWrite()
-{
-    return _drives.keys(WRITE) + _drives.keys(READ | WRITE);
-}
-
-QList<QString>
-Profile::programsExec()
-{
-    return _programs.keys(EXEC);
-}
-
-bool
-Profile::isRoot()
-{
-    return _uid == ROOT_ID;
-}
-
-void
-Profile::setUser(int uid, const QString &user)
-{
-    _uid = uid;
-    _user = user;
-}
-
-void
-Profile::setGroup(int gid, const QString &group)
-{
-    _gid = gid;
-    _group = group;
-}
-
-void
-Profile::setDirsRead(const QList<QString> &dirsRead)
-{
-    for (auto dir : dirsRead) {
-        if (_dirs.contains(dir)) {
-            _dirs[dir] |= READ;
+    for (auto obj : *collection) {
+        if (obj.uid == uid) {
+            if (obj.userMode)
+                res.insert(obj.path, obj.userMode);
+        } else if (obj.gid == getGroup()->gid) {
+            if (obj.groupMode)
+                res.insert(obj.path, obj.groupMode);
         } else {
-            _dirs[dir] = READ;
+            if (obj.othersMode)
+                res.insert(obj.path, obj.othersMode);
         }
     }
+
+    return res;
 }
 
-void
-Profile::setDirsWrite(const QList<QString> &dirsWrite)
+QHash<QString, int> Profile::files() const
 {
-    for (auto dir : dirsWrite) {
-        if (_dirs.contains(dir)) {
-            _dirs[dir] |= WRITE;
-        } else {
-            _dirs[dir] = WRITE;
-        }
-    }
+    return accessibleObjects(&ac->allFiles);
 }
 
-void
-Profile::setDrivesRead(const QList<QString> &drivesRead)
+QHash<QString, int> Profile::drives() const
 {
-    for (auto drive : drivesRead) {
-        if (_drives.contains(drive)) {
-            _drives[drive] |= READ;
-        } else {
-            _drives[drive] = READ;
-        }
-    }
+    return accessibleObjects(&ac->allDrives);
 }
 
-void
-Profile::setDrivesWrite(const QList<QString> &drivesWrite)
+QHash<QString, int> Profile::dirs() const
 {
-    for (auto drive : drivesWrite) {
-        if (_drives.contains(drive)) {
-            _drives[drive] |= WRITE;
-        } else {
-            _drives[drive] = WRITE;
-        }
-    }
+    return accessibleObjects(&ac->allDirs);
 }
 
-void
-Profile::setFilesRead(const QList<QString> &filesRead)
+QHash<QString, int> Profile::programs() const
 {
-    for (auto file : filesRead) {
-        if (_files.contains(file)) {
-            _files[file] |= READ;
-        } else {
-            _files[file] = READ;
-        }
-    }
+    return accessibleObjects(&ac->allPrograms);
 }
 
-void
-Profile::setFilesWrite(const QList<QString> &filesWrite)
+bool Profile::isRoot() const
 {
-    for (auto file : filesWrite) {
-        if (_files.contains(file)) {
-            _files[file] |= WRITE;
-        } else {
-            _files[file] = WRITE;
-        }
-    }
-}
-
-void
-Profile::setProgramsExec(const QList<QString> &programsExec)
-{
-    for (auto program : programsExec) {
-        if (_programs.contains(program)) {
-            _programs[program] |= EXEC;
-        } else {
-            _programs[program] = EXEC;
-        }
-    }
-}
-
-bool
-Profile::canReadDir(const QString &path)
-{
-    if (!_dirs.contains(path)) {
-        return false;
-    }
-    return _dirs[path] & READ;
+    return uid == ROOT_UID;
 }

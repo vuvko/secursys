@@ -5,6 +5,10 @@
 #include <QList>
 #include <QHash>
 
+class Profile;
+
+#define ROOT_UID 0
+
 typedef enum {
     ACCESS_NOTHING = 0x0,
     ACCESS_READ    = 0x1,
@@ -60,10 +64,26 @@ struct AccessObject
     }
 };
 
+struct User
+{
+    int uid;
+    int gid;
+    QString name;
+    QByteArray passHash;
+};
+
+struct Group
+{
+    int gid;
+    QString name;
+};
+
 class AppHandler;
 
 class AccessControl
 {
+    friend class Profile;
+
 public:
     AccessControl(AppHandler *appHandler);
     ~AccessControl();
@@ -95,6 +115,9 @@ public:
     void setDefaultModeDir(QString path);
     void setDefaultModeFile(QString path);
 
+    // Return uid on success, -1 on failure.
+    int checkLogin(QString userName, QString passHash) const;
+
 private:
     bool dbRead();
     bool dbWrite();
@@ -109,7 +132,7 @@ private:
 
     AppHandler *handler;
 
-    // Access objects
+    // Access objects.
     QList<AccessObject> allFiles;
     QList<AccessObject> allDrives;
     QList<AccessObject> allDirs;
@@ -117,6 +140,10 @@ private:
 
     // File hashes.
     QHash<QString, QByteArray> allHashes;
+
+    // Users and groups.
+    QList<User> allUsers;
+    QList<Group> allGroups;
 };
 
 #endif // AccessControl_H

@@ -3,15 +3,18 @@
 
 #define CRYPTO_PATH "AES256.dll"
 
-AppHandler::AppHandler(QObject *parent) :
-    QObject(parent), _crypto(CRYPTO_PATH), _profile()
+AppHandler::AppHandler(QObject *parent)
+    : QObject(parent),
+    _crypto(CRYPTO_PATH),
+    _profile(0)
 {
+    ac = new AccessControl(this);
 }
 
 void
 AppHandler::startFS(const QString &path)
 {
-    FSViewer *viewer = new FSViewer(path, this);
+    FSViewer *viewer = new FSViewer(ac, path, this);
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
     connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
     viewer->show();
@@ -66,12 +69,17 @@ AppHandler::openLogin()
 }
 
 void
-AppHandler::onLoginTry(const QString &user, const QString &pass)
+AppHandler::onLoginTry(const QString &userName, const QString &pass)
 {
-    _profile.setUser(100, user); // TODO: заглушка
-    _profile.setGroup(100, "Гости"); // TODO: заглушка
-    key = _crypto.hash_256(pass.toLocal8Bit());
-    emit login(true); // TODO: заглушка
+    QByteArray passHash = _crypto.hash_256(pass.toLocal8Bit());
+    int uid = ac->checkLogin(userName, passHash);
+
+    if (uid == -1) {
+        emit login(false);
+    } else {
+        _profile = new Profile(ac, uid);
+        emit login(false);
+    }
 }
 
 void
@@ -122,33 +130,7 @@ AppHandler::encode(const QString &msg, const QByteArray &key_)
     return _crypto.encrypt(msg.toLocal8Bit(), key);
 }
 
-QString
-AppHandler::userName()
+const Profile *AppHandler::getProfile() const
 {
-    return _profile.user();
-}
-
-QString
-AppHandler::groupName()
-{
-    return _profile.group();
-}
-
-int
-AppHandler::userId()
-{
-    return _profile.uid();
-}
-
-int
-AppHandler::groupId()
-{
-    return _profile.gid();
-}
-
-int
-AppHandler::roleId()
-{
-    // TODO
-    return ROLE_NOTHING;
+    return _profile;
 }
