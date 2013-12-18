@@ -1,14 +1,15 @@
 #include "apphandler.h"
 #include "accesscontrol.h"
-
-#define CRYPTO_PATH "AES256.dll"
+#include "profile.h"
 
 AppHandler::AppHandler(QObject *parent)
-    : QObject(parent),
-    _crypto(CRYPTO_PATH),
-    _profile(0)
+    : QObject(parent)
 {
-    ac = new AccessControl(this);
+}
+
+AppHandler::~AppHandler()
+{
+    delete ac;
 }
 
 void
@@ -25,6 +26,7 @@ AppHandler::startLogin()
 {
     LoginDialog *dialog = new LoginDialog;
 
+    // TODO: move this to ???
     if (!_crypto.isReady()) {
         QMessageBox::critical(dialog, tr("Критическая ошибка"),
             tr("Не удалось найти %1. Завершение работы...").arg(CRYPTO_PATH));
@@ -69,15 +71,14 @@ AppHandler::openLogin()
 }
 
 void
-AppHandler::onLoginTry(const QString &userName, const QString &pass)
+AppHandler::onLoginTry(const QString &userName, const QString &userPass)
 {
-    QByteArray passHash = _crypto.hash_256(pass.toLocal8Bit());
-    int uid = ac->checkLogin(userName, passHash);
+    int uid = AccessControl::getInstance().checkLogin(userName, userPass);
 
     if (uid == -1) {
         emit login(false);
     } else {
-        _profile = new Profile(ac, uid);
+        Profile::getInstance().initialize(uid);
         emit login(true);
     }
 }
@@ -94,6 +95,8 @@ AppHandler::onProfileUpdate()
 {
     emit updateResult(true);
 }
+
+////////////////////////////////////////////
 
 QByteArray
 AppHandler::get_hash(const QByteArray &msg)
@@ -128,10 +131,4 @@ QByteArray
 AppHandler::encode(const QString &msg, const QByteArray &key_)
 {
     return _crypto.encrypt(msg.toLocal8Bit(), key);
-}
-
-const Profile *
-AppHandler::getProfile() const
-{
-    return _profile;
 }

@@ -1,14 +1,30 @@
 #include "profile.h"
-#include "accesscontrol.h"
 
-Profile::Profile(AccessControl *accessControl, int aUID)
-    : ac(accessControl), uid(aUID)
+Profile &Profile::getInstance()
+{
+    static Profile instance;
+    return instance;
+}
+
+void initialize(int uid, QString pwd)
+{
+    this->uid = uid;
+    this->pwd(pwd);
+}
+
+Profile::Profile()
+    : uid(-1), pwd(".")
 {}
+
+QString Profile::getPWD()
+{
+    return pwd.canonicalPath();
+}
 
 const User *
 Profile::getUser() const
 {
-    QListIterator<User> i(ac->allUsers);
+    QListIterator<User> i(AccessControl::getInstance().allUsers);
     while (i.hasNext()) {
         const User &u = i.next();
         if (u.uid == uid)
@@ -23,7 +39,7 @@ Profile::getGroup() const
 {
     const User *u = getUser();
 
-    QListIterator<Group> i(ac->allGroups);
+    QListIterator<Group> i(AccessControl::getInstance().allGroups);
     while (i.hasNext()) {
         const Group &g = i.next();
         if (g.gid == u->gid)
@@ -90,22 +106,22 @@ QHash<QString, int> Profile::accessibleObjects(QList<AccessObject> *collection) 
 
 QHash<QString, int> Profile::files() const
 {
-    return accessibleObjects(&ac->allFiles);
+    return accessibleObjects(&AccessControl::getInstance().allFiles);
 }
 
 QHash<QString, int> Profile::drives() const
 {
-    return accessibleObjects(&ac->allDrives);
+    return accessibleObjects(&AccessControl::getInstance().allDrives);
 }
 
 QHash<QString, int> Profile::dirs() const
 {
-    return accessibleObjects(&ac->allDirs);
+    return accessibleObjects(&AccessControl::getInstance().allDirs);
 }
 
 QHash<QString, int> Profile::programs() const
 {
-    return accessibleObjects(&ac->allPrograms);
+    return accessibleObjects(&AccessControl::getInstance().allPrograms);
 }
 
 bool Profile::isRoot() const

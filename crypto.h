@@ -6,7 +6,7 @@
 class Crypto
 {
 public:
-    Crypto(const QString &dirPath);
+    static Crypto &getInstance();
 
     QByteArray hash_256(const QByteArray &msg);
     QByteArray hash_512(const QByteArray &msg);
@@ -18,6 +18,12 @@ public:
     bool isReady() const;
 
 private:
+    Crypto();
+
+    // Not implement, forbid usage.
+    Crypto(const Crypto &);
+    void operator=(const Crypto &);
+
     typedef void (*hash_func_t) (const unsigned char *, unsigned long long, unsigned char *);
     typedef int (*encrypt_func_t) (unsigned char *, unsigned long, unsigned char *, unsigned char *);
     typedef int (*decrypt_func_t) (unsigned char *, unsigned long, unsigned char *, unsigned char *, unsigned long *);

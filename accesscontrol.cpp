@@ -4,24 +4,131 @@
 
 #define DB_FILE "admin.db"
 
-AccessControl::AccessControl(AppHandler * appHandler)
-    : handler(appHandler)
+AccessControl &AccessControl::getInstance()
 {
-    // TODO: read DB_FILE
+    static AccessControl instance;
+    return instance;
 }
 
-AccessControl::~AccessControl()
+AccessControl::AccessControl()
+{
+    dbRead();
+}
+
+int AccessControl::checkLogin(QString userName, QString userPass) const
+{
+    QByteArray passHash = Crypto::getInstance().hash_256(userPass.toUtf8());
+
+    for (auto u : allUsers) {
+        if (u.name == userName && u.passHash == passHash)
+            return u.uid;
+    }
+
+    return -1;
+}
+
+QString AccessControl::readFile(QString path)
+{
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cpath = info.canonicalFilePath();
+
+    bool ok = true;
+    ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessFile(cpath, ACCESS_READ);
+
+    if (!ok) {
+        // TODO AccessDenied message
+        return QString();
+    }
+
+    return readFileInt(cpath);
+}
+
+void AccessControl::writeFile(QString path, QString data)
+{
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cpath = info.canonicalFilePath();
+
+    bool ok = true;
+    ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+
+    bool newFile = info.exists();
+
+    if (!newFile)
+        ok = ok && checkAccessFile(cpath, ACCESS_WRITE);
+    else
+        ok = ok && checkAccessDir(info.canonicalPath(), ACCESS_WRITE);
+
+    if (!ok) {
+        // TODO AccessDenied message
+        return;
+    }
+
+    writeFileInt(cpath, data);
+
+    if (newFile)
+        setDefaultModeFile(cpath);
+}
+
+void AccessControl::cd(QString path)
+{
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cpath = info.canonicalPath();
+
+    bool ok = true;
+    ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessDir(cpath, ACCESS_READ);
+
+    if (!ok) {
+        // TODO AccessDenied message
+        return;
+    }
+
+    if (!info.isDir())
+        return;
+
+    Profile::getInstance().pwd.cd(cpath);
+}
+
+void AccessControl::mkdir(QString path)
+{
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cpath = info.canonicalPath();
+
+    bool ok = true;
+    ok = ok && checkAccessDrive(); // TODO
+    ok = ok && checkAccessDir(cpath, ACCESS_READ);
+
+
+    /////// TODO!!!
+}
+
+void AccessControl::rmdir(QString path)
 {
 }
 
-void AccessControl::setAccess(QList<AccessObject> *collection, QString path,
+void AccessControl::rm(QString path)
+{
+}
+
+void AccessControl::exec(QString path)
+{
+}
+
+////////////////
+
+void AccessControl::setAccess(QList<AccessObject> *collection, QString cpath,
     int uid, int gid,
     int userMode, int groupMode, int othersMode,
     Role role)
 {
-    AccessObject newObj(path, uid, gid, userMode, groupMode, othersMode, role);
+    AccessObject newObj(cpath, uid, gid, userMode, groupMode, othersMode, role);
 
-    int idx = collection->indexOf(path);
+    int idx = collection->indexOf(cpath);
 
     if (idx < 0) {
         collection->replace(idx, newObj);
@@ -31,9 +138,9 @@ void AccessControl::setAccess(QList<AccessObject> *collection, QString path,
 }
 
 bool AccessControl::checkAccess(const QList<AccessObject> *collection,
-    QString path, int mode) const
+    QString cpath, int mode) const
 {
-    int idx = collection->indexOf(path);
+    int idx = collection->indexOf(cpath);
 
     if (idx < 0)
         return false;
@@ -42,9 +149,9 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
 
     bool ok = true;
 
-    if (obj.uid == handler->getProfile()->getUID()) {
+    if (obj.uid == Profile::getInstance()->getUID()) {
         ok = ok && (obj.userMode & mode) != 0;
-    } else if (obj.gid == handler->getProfile()->getGID()) {
+    } else if (obj.gid == Profile::getInstance()->getGID()) {
         ok = ok && (obj.groupMode & mode) != 0;
     } else {
         ok = ok && (obj.othersMode & mode) != 0;
@@ -55,74 +162,109 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
     return ok;
 }
 
-void AccessControl::setAccessFile(QString path, int mode)
+void AccessControl::setAccessFile(QString cpath, int mode)
 {
-    //setAccess(&allFiles, path, ); // TODO
+    //setAccess(&allFiles, cpath, ); // TODO
 }
 
-void AccessControl::setAccessDrive(QString path, int mode)
-{
-    // TODO
-}
-
-void AccessControl::setAccessDir(QString path, int mode)
+void AccessControl::setAccessDrive(QString cpath, int mode)
 {
     // TODO
 }
 
-void AccessControl::setAccessProgramExec(QString path)
+void AccessControl::setAccessDir(QString cpath, int mode)
 {
     // TODO
 }
 
-bool AccessControl::checkAccessFile(QString path, int mode) const
+void AccessControl::setAccessProgramExec(QString cpath)
 {
-    return checkAccess(&allFiles, path, mode);
+    // TODO
 }
 
-bool AccessControl::checkAccessDrive(QString path, int mode) const
+bool AccessControl::checkAccessFile(QString cpath, int mode) const
 {
-    return checkAccess(&allDrives, path, mode);
+    return checkAccess(&allFiles, cpath, mode);
 }
 
-bool AccessControl::checkAccessDir(QString path, int mode) const
+bool AccessControl::checkAccessDrive(QString cpath, int mode) const
 {
-    return checkAccess(&allDirs, path, mode);
+    return checkAccess(&allDrives, cpath, mode);
 }
 
-bool AccessControl::checkAccessProgramExec(QString path) const
+bool AccessControl::checkAccessDir(QString cpath, int mode) const
 {
-    return checkAccess(&allPrograms, path, ACCESS_EXEC);
+    return checkAccess(&allDirs, cpath, mode);
 }
 
-void AccessControl::setHashFile(QString path)
+bool AccessControl::checkAccessProgramExec(QString cpath) const
 {
-    QByteArray hash = handler->get_hash_file(path);
-    allHashes.insert(path, hash);
+    return checkAccess(&allPrograms, cpath, ACCESS_EXEC);
 }
 
-bool AccessControl::checkHashFile(QString path) const
+void AccessControl::setHashFile(QString cpath)
 {
-    QByteArray hash = handler->get_hash_file(path);
-    return allHashes.value(path) == hash;
+    QByteArray hash = Crypto::getInstance().get_hash_file(cpath);
+    allHashes.insert(cpath, hash);
 }
 
-void AccessControl::setDefaultModeDir(QString path)
+bool AccessControl::check(QString cpath) const
+{
+    QByteArray hash = handler->get_hash_file(cpath);
+    return allHashes.value(cpath) == hash;
+}
+
+void AccessControl::setDefaultModeDir(QString cpath)
 {
     //setAccessDir(...); // TODO
 }
 
-void AccessControl::setDefaultModeFile(QString path)
+void AccessControl::setDefaultModeFile(QString cpath)
 {
     //setAccessFile(...); // TODO
 }
 
-int AccessControl::checkLogin(QString userName, QString passHash) const
+QByteArray getUserKey()
 {
-    for (auto u : allUsers) {
-        if (u.name == userName && u.passHash == passHash)
-            return u.uid;
+    return Profile::getInstance().getUser()->passHash;
+}
+
+QString AccessControl::readFileInt(QString cpath)
+{
+    QFile file(cpath);
+    if (!file.open(QFile::ReadOnly)) {
+        return QString();
     }
 
-    return -1;
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+//    QByteArray encr = QByteArray::fromHex(file.readAll());
+    QByteArray encr(file.readAll());
+    QByteArray data = Crypto::getInstance().decode(encr, getUserKey());
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+
+    file.close();
+    return QString::fromUtf8(data, data.size());
+}
+
+void AccessControl::writeFileInt(QString cpath, QString data)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly)) {
+        return;
+    }
+
+    QDataStream out(&file);
+#ifndef QT_NO_CURSOR
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+#endif
+    QByteArray outData(data.toUtf8());
+    out << Crypto::getInstance().encode(outData, getUserKey());//.toHex().toUpper();
+#ifndef QT_NO_CURSOR
+    QApplication::restoreOverrideCursor();
+#endif
+    file.close();
 }
