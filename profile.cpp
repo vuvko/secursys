@@ -5,7 +5,8 @@ Profile::Profile(AccessControl *accessControl, int aUID)
     : ac(accessControl), uid(aUID)
 {}
 
-const User *Profile::getUser() const
+const User *
+Profile::getUser() const
 {
     QListIterator<User> i(ac->allUsers);
     while (i.hasNext()) {
@@ -17,7 +18,8 @@ const User *Profile::getUser() const
     return 0;
 }
 
-const Group *Profile::getGroup() const
+const Group *
+Profile::getGroup() const
 {
     const User *u = getUser();
 

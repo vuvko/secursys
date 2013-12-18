@@ -43,7 +43,7 @@ LoginDialog::loginResult(bool isCorrect)
         emit login();
     } else {
         QMessageBox::information(this, tr("Вход в систему защиты информации"),
-                                 tr("Вход не удался, проверьте"
+                                 tr("Вход не удался, проверьте "
                                     "корректность введённых данных"));
     }
 }
