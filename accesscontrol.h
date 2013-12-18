@@ -85,8 +85,45 @@ class AccessControl
     friend class Profile;
 
 public:
-    AccessControl(AppHandler *appHandler);
-    ~AccessControl();
+    static AccessControl &getInstance();
+
+    // Return uid on success, -1 on failure.
+    int checkLogin(QString userName, QString userPass) const;
+
+    // path can be relative with respect Profile::getPWD().
+    QString readFile(QString path);
+    void writeFile(QString path, QString data);
+
+    // path can be relative with respect Profile::getPWD().
+    void cd(QString path);
+    void mkdir(QString path);
+    void rmdir(QString path);
+    void rm(QString path);
+    void exec(QString path);
+
+    // Root only.
+    // path can be relative with respect Profile::getPWD().
+    bool check(QString path) const;
+
+private:
+    AccessControl();
+
+    // Not implement, forbid usage.
+    AccessControl(const AccessControl &);
+    void operator=(const AccessControl &);
+
+    bool dbRead();
+    bool dbWrite();
+
+    QByteArray getUserKey();
+
+    void setAccess(QList<AccessObject> *collection, QString cpath,
+        int uid, int gid,
+        int userMode, int groupMode, int othersMode,
+        Role role);
+
+    bool checkAccess(const QList<AccessObject> *collection,
+        QString cpath, int mode) const;
 
     // For admin or for newly created files.
     // path -- canonical path to file.
@@ -97,40 +134,22 @@ public:
 
     // Check access for current user.
     // path -- canonical path to file.
-    bool checkAccessFile(QString path, int mode) const;
-    bool checkAccessDrive(QString path, int mode) const;
-    bool checkAccessDir(QString path, int mode) const;
-    bool checkAccessProgramExec(QString path) const;
+    bool checkAccessFile(QString cpath, int mode) const;
+    bool checkAccessDrive(QString cpath, int mode) const;
+    bool checkAccessDir(QString cpath, int mode) const;
+    bool checkAccessProgramExec(QString cpath) const;
 
     // For admin only.
     // path -- canonical path to file.
-    void setHashFile(QString path);
-
-    // Check hash for file.
-    // path -- canonical path to file.
-    bool checkHashFile(QString path) const;
+    void setHashFile(QString cpath);
 
     // For admin or for newly created directories.
     // path -- canonical path to file.
-    void setDefaultModeDir(QString path);
-    void setDefaultModeFile(QString path);
+    void setDefaultModeFile(QString cpath);
+    void setDefaultModeDir(QString cpath);
 
-    // Return uid on success, -1 on failure.
-    int checkLogin(QString userName, QString passHash) const;
-
-private:
-    bool dbRead();
-    bool dbWrite();
-
-    void setAccess(QList<AccessObject> *collection, QString path,
-        int uid, int gid,
-        int userMode, int groupMode, int othersMode,
-        Role role);
-
-    bool checkAccess(const QList<AccessObject> *collection,
-        QString path, int mode) const;
-
-    AppHandler *handler;
+    QString readFileInt(QString cpath);
+    void writeFileInt(QString cpath, QString data);
 
     // Access objects.
     QList<AccessObject> allFiles;

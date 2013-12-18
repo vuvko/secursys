@@ -9,8 +9,6 @@
 #include "fsviewer.h"
 #include "logindialog.h"
 #include "profileviewer.h"
-#include "crypto.h"
-#include "profile.h"
 #include "logger.h"
 
 class AppHandler : public QObject
@@ -18,16 +16,10 @@ class AppHandler : public QObject
     Q_OBJECT
 public:
     explicit AppHandler(QObject *parent = 0);
+    ~AppHandler();
+
     void startFS(const QString &path=".");
     void startLogin();
-
-    QByteArray get_hash(const QByteArray &msg);
-    QByteArray get_hash_file(const QString path);
-    QByteArray get_key(const QString &path);
-    QString decode(const QByteArray &msg, const QByteArray &key);
-    QByteArray encode(const QString &msg, const QByteArray &key);
-
-    const Profile *getProfile() const;
 
 signals:
     void login(bool isCorrect);
@@ -44,9 +36,6 @@ public slots:
     void onProfileUpdate();
 
 private:
-    AccessControl *ac;
-    Crypto _crypto;
-    Profile *_profile;
     QByteArray key;
 };
 
