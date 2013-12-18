@@ -111,6 +111,7 @@ FileEditor::open()
     file.close();
 
     statusBar()->showMessage(tr("Файл загружен"), 2000);
+    return true;
 }
 
 bool

@@ -69,14 +69,14 @@ public:
     ~AccessControl();
 
     // For admin or for newly created files.
-    // path -- canonical pth to file.
+    // path -- canonical path to file.
     void setAccessFile(QString path, int mode);
     void setAccessDrive(QString path, int mode);
     void setAccessDir(QString path, int mode);
     void setAccessProgramExec(QString path);
 
     // Check access for current user.
-    // path -- canonical pth to file.
+    // path -- canonical path to file.
     bool checkAccessFile(QString path, int mode) const;
     bool checkAccessDrive(QString path, int mode) const;
     bool checkAccessDir(QString path, int mode) const;
@@ -89,6 +89,11 @@ public:
     // Check hash for file.
     // path -- canonical path to file.
     bool checkHashFile(QString path) const;
+
+    // For admin or for newly created directories.
+    // path -- canonical path to file.
+    void setDefaultModeDir(QString path);
+    void setDefaultModeFile(QString path);
 
 private:
     bool dbRead();

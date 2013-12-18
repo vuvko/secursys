@@ -29,7 +29,7 @@ FileView::~FileView()
 bool FileView::tryAccessDir(const QDir &dir, int mode) const
 {
     QString cpath = dir.canonicalPath();
-    if (ac->checkAccessDir(cpath, MODE_READ)) {
+    if (ac->checkAccessDir(cpath, mode)) {
         return true;
     }
 
@@ -53,7 +53,7 @@ FileView::cd(const QDir &dir)
 {
     qDebug() << "Здесь надо проверять на доступ к каталогу."; // TODO: log
 
-    if (!tryAccessDir(dir, MODE_READ) || !currentDir.cd(cpath))
+    if (!tryAccessDir(dir, ACCESS_READ) || !currentDir.cd(dir.canonicalPath()))
         return false;
 
     update();
@@ -65,14 +65,15 @@ FileView::mkdir()
 {
     qDebug() << "Здесь надо проверить на доступ к созданию каталогов."; // TODO: log
 
-    if (!tryAccessDir(MODE_READ))
+    if (!tryAccessDir(ACCESS_READ))
         return false;
 
     QString name = QInputDialog::getText(this, tr("Создание каталога"), tr("Название нового каталога:"));
     if (name.isEmpty() || !currentDir.mkdir(name))
         return false;
 
-    setDefaultModeDir(currentDir.canonicalPath() + QDir::separator() + name);
+    QString newDirPath = currentDir.canonicalPath() + QDir::separator() + name;
+    ac->setDefaultModeDir(newDirPath);
     update();
     return true;
 }
@@ -83,21 +84,21 @@ FileView::rmdir()
     qDebug() << "Здесь надо проверить право на удаление каталога."; // TODO: log
 
     int row = selectedIndexes()[0].row();
-    QFileInfo info = currentDir.entryInfoList()[row];
-    if (!info.isDir()) {
+    QFileInfo dirInfo = currentDir.entryInfoList()[row];
+    if (!dirInfo.isDir()) {
         return false;
     }
 
-    QString cpath = info.canonicalPath();
-    if (!tryAccessDir(MODE_WRITE) || !tryAccessDir(cpath, MODE_WRITE))
+    QDir dir = dirInfo.dir();
+    QString dirCPath = dir.canonicalPath();
+
+    if (!tryAccessDir(ACCESS_WRITE) || !tryAccessDir(dir, ACCESS_READ | ACCESS_WRITE))
         return false;
 
-    // TODO: deep check:
-    // 1. write access to all inner files;
-    // 2. write access to all inner catalogs;
-    // 3. no inner programs.
+    if (!dir.entryList().isEmpty())
+        return false;
 
-    if (!currentDir.rmdir(cpath)
+    if (!currentDir.rmdir(dirCPath))
         return false;
 
     update();
@@ -105,42 +106,53 @@ FileView::rmdir()
 }
 
 bool
-FileView::createFile()
+FileView::editFile(const QString &nameArg)
 {
     qDebug() << "Здесь надо проверить на доступ к созданию файлов."; // TODO: log
 
-    QString cpath = currentDir.canonicalPath();
-    if (!ac->checkAccessDir(cpath, MODE_WRITE)) {
-        accessDeniedMessage(cpath);
+    if (!tryAccessDir(ACCESS_WRITE))
         return false;
-    }
 
-    QString name = QInputDialog::getText(this, tr("Создание секретного файла"), tr("Название нового файла:"));
+    QString name = nameArg;
+
+    if (name.isEmpty()) {
+        name = QInputDialog::getText(this, tr("Создание секретного файла"),
+            tr("Название нового файла:"));
+    } /*else if (info.suffix() != secret_suffix) {
+        return false;
+    }*/
+
     if (name.isEmpty())
         return false;
-
     
-    {
-        emit openFile(currentDir.absolutePath() + QDir::separator() + name);
-        update();
-        return;
-    }
-
-    return false;
+    QString newFilePath = currentDir.canonicalPath() + QDir::separator() + name;
+    ac->setDefaultModeFile(newFilePath);
+    emit openFile(newFilePath);
+    update();
+    return true;
 }
 
 bool
 FileView::rm()
 {
-    qDebug() << "Здесь надо проверить право на удаление файлов."; // TODO: заглушка
+    qDebug() << "Здесь надо проверить право на удаление файлов."; // TODO: log
+
+    if (!tryAccessDir(ACCESS_WRITE))
+        return false;
+
     int row = selectedIndexes()[0].row();
-    QFileInfo info = currentDir.entryInfoList()[row];
-    if (!info.isFile() || info.suffix() != secret_suffix) {
+    QFileInfo fileInfo = currentDir.entryInfoList()[row];
+    if (!fileInfo.isFile() || fileInfo.suffix() != secret_suffix) {
         return false;
     }
-    bool r = QFile::remove(info.fileName());
+
+    QString fileCPath = fileInfo.canonicalPath();
+
+    if (!QFile::remove(fileCPath))
+        return false;
+
     update();
-    return r;
+    return true;
 }
 
 bool
@@ -148,16 +160,25 @@ FileView::check()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
-    qDebug() << "Проверка целостности файла" << info.filePath();
-    return ac->checkHashFile(info.canonicalPath());
+    qDebug() << "Проверка целостности файла" << info.filePath(); // TODO: log
 //    qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
+    return ac->checkHashFile(info.canonicalPath());
+}
+
+bool
+FileView::exec(const QString &cpath)
+{
+    qDebug() << "Здесь нужно проверить на право запуска файла."; // TODO: log
+    if (!ac->checkAccessProgramExec(cpath))
+        return false;
+
+    return system(cpath.toStdString().c_str()) != -1;
 }
 
 void
 FileView::onUp()
 {
-    qDebug() << "Поднятие на директорию выше. Нужно проверить права доступа."; // TODO: заглушка
-    currentDir.cdUp();
+    cd("..");
     update();
 }
 
@@ -165,7 +186,7 @@ void
 FileView::update()
 {
     currentDir.refresh();
-    qDebug() << "Текущий каталог:" << currentDir.absolutePath();
+    qDebug() << "Текущий каталог:" << currentDir.canonicalPath();
     QFileInfoList infoList = currentDir.entryInfoList();
     int idx = 0;
     dirModel->setRowCount(infoList.size());
@@ -190,7 +211,7 @@ FileView::update()
         ++idx;
     }
     setModel(dirModel);
-    parent->changePath(currentDir.absolutePath());
+    parent->changePath(currentDir.canonicalPath());
     QTreeView::update();
 }
 
@@ -200,17 +221,11 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     if (info.isDir()) {
-        qDebug() << "Здесь нужно проверять доступ к каталогу."; // TODO: заглушка
-        currentDir.cd(info.fileName());
-        update();
+        cd(info.fileName());
     } else if (info.isExecutable()) {
-        qDebug() << "Здесь нужно проверить на право запуска файла."; // TODO: заглушка
-        system(info.absoluteFilePath().toStdString().c_str());
+        exec(info.canonicalFilePath());
     } else {
-        qDebug() << "Здесь нужно проверять на доступ к файлу."; // TODO: заглушка
-        if (info.suffix() == secret_suffix) {
-            emit openFile(info.absoluteFilePath());
-        }
+        editFile(info.canonicalFilePath());
     }
 }
 
@@ -235,7 +250,7 @@ FSViewer::FSViewer(const QString &path, AppHandler *handler_, QWidget *parent)
 
     driveBox = new QComboBox;
     for(auto info : QDir::drives()) {
-        driveBox->addItem(info.absolutePath());
+        driveBox->addItem(info.canonicalPath());
     }
     connect(driveBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onDriveChange(QString)));
 
@@ -366,7 +381,7 @@ FSViewer::onDirDelete()
 void
 FSViewer::onFileCreate()
 {
-    dirView->createFile();
+    dirView->editFile();
 }
 
 void

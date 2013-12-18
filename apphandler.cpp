@@ -1,4 +1,5 @@
 #include "apphandler.h"
+#include "accesscontrol.h"
 
 #define CRYPTO_PATH "AES256.dll"
 
@@ -100,6 +101,7 @@ AppHandler::get_hash_file(const QString path)
     file.open(QFile::ReadOnly);
     QByteArray hash = get_hash(file.readAll());
     file.close();
+    return hash;
 }
 
 QByteArray
@@ -149,4 +151,5 @@ int
 AppHandler::roleId()
 {
     // TODO
+    return ROLE_NOTHING;
 }

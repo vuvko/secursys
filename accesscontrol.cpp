@@ -106,3 +106,13 @@ bool AccessControl::checkHashFile(QString path) const
     QByteArray hash = handler->get_hash_file(path);
     return allHashes.value(path) == hash;
 }
+
+void AccessControl::setDefaultModeDir(QString path)
+{
+    //setAccessDir(...); // TODO
+}
+
+void AccessControl::setDefaultModeFile(QString path)
+{
+    //setAccessFile(...); // TODO
+}
