@@ -94,6 +94,15 @@ AppHandler::get_hash(const QByteArray &msg)
 }
 
 QByteArray
+AppHandler::get_hash_file(const QString path)
+{
+    QFile file(path);
+    file.open(QFile::ReadOnly);
+    QByteArray hash = get_hash(file.readAll());
+    file.close();
+}
+
+QByteArray
 AppHandler::get_key(const QString &path)
 {
     qDebug() << "Запрос ключа шифрования файла" << path;
@@ -134,4 +143,10 @@ int
 AppHandler::groupId()
 {
     return _profile.gid();
+}
+
+int
+AppHandler::roleId()
+{
+    // TODO
 }

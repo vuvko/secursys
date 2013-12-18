@@ -29,6 +29,8 @@
 #include "apphandler.h"
 #include "crypto.h"
 
+class AccessControl;
+
 class AppHandler;
 
 class FSViewer;
@@ -42,6 +44,7 @@ public:
 
     explicit FileView(FSViewer *parent_,
                       AppHandler *handler_);
+    ~FileView();
 
     bool cd(const QString &path);
     bool cd(const QDir &dir);
@@ -49,7 +52,7 @@ public:
     bool rmdir();
     bool createFile();
     bool rm();
-    void check();
+    bool check();
 
 public slots:
     void onUp();
@@ -66,6 +69,8 @@ private:
     FSViewer *parent;
     QStandardItemModel *dirModel;
     QDir currentDir;
+
+    AccessControl *ac;
 };
 
 class FSViewer : public QMainWindow

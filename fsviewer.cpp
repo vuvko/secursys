@@ -1,4 +1,5 @@
 #include "fsviewer.h"
+#include "accesscontrol.h"
 
 FileView::FileView(FSViewer *parent_, AppHandler *handler_)
     : QTreeView(parent_)
@@ -17,6 +18,12 @@ FileView::FileView(FSViewer *parent_, AppHandler *handler_)
     setColumnWidth(2, 200);
     setColumnWidth(3, 100);
     currentDir.setSorting(QDir::DirsFirst | QDir::Name);
+    ac = new AccessControl(handler);
+}
+
+FileView::~FileView()
+{
+    delete ac;
 }
 
 bool
@@ -91,16 +98,15 @@ FileView::rm()
     return r;
 }
 
-void
+bool
 FileView::check()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = currentDir.entryInfoList()[row];
     qDebug() << "Проверка целостности файла" << info.filePath();
-    QFile file(info.filePath());
-    file.open(QFile::ReadOnly);
-    QByteArray curHash = handler->get_hash(file.readAll()); // TODO: заглушка
-    qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
+    QString path = info.canonicalPath();
+    return ac->checkHashFile(path);
+//    qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
 }
 
 void
@@ -328,7 +334,11 @@ FSViewer::onFileDelete()
 void
 FSViewer::onCheckHash()
 {
-    dirView->check();
+    if (dirView->check()) {
+        // TODO
+    } else {
+        // TODO
+    }
 }
 
 void

@@ -21,6 +21,7 @@ public:
     void startLogin();
 
     QByteArray get_hash(const QByteArray &msg);
+    QByteArray get_hash_file(const QString path);
     QByteArray get_key(const QString &path);
     QString decode(const QByteArray &msg, const QByteArray &key);
     QByteArray encode(const QString &msg, const QByteArray &key);
@@ -29,6 +30,7 @@ public:
     QString groupName();
     int userId();
     int groupId();
+    int roleId(); // Access level.
 
 signals:
     void login(bool isCorrect);
