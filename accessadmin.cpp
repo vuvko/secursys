@@ -78,6 +78,15 @@ void AccessAdmin::setUser(const User &u)
         AccessControl::getInstance().dbWrite();
 }
 
+QString AccessAdmin::getUserName(int uid)
+{
+    for (auto au : AccessControl::getInstance().allUsers) {
+        if (au.uid == uid) {
+            return au.name;
+        }
+    }
+}
+
 void AccessAdmin::setGroup(const Group &g)
 {
     bool found = false;
