@@ -249,7 +249,7 @@ ControlPanel::roleToStr(int role)
         str = "Строго конфиденциально";
         break;
     default:
-        str = "Что-то не так";
+        str = "Битая метка конфиденциальности";
         break;
     }
 
