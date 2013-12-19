@@ -11,18 +11,22 @@
  * чтобы добавить запись в лог (к ней приписывается время в начале).
  */
 
+// Some useful macro.
+#define LOG  Logger::getInstance()
+#define ENDL Logger::LOG_ENDL
+
 class Logger
 {
 public:
     static Logger &getInstance();
 
     enum CommandSymbol {
-        ENDL,
-        TIMESTAMP,
-        DATESTAMP
+        LOG_ENDL,
+        LOG_TIMESTAMP,
+        LOG_DATESTAMP
     };
 
-    QString unload();
+    QString read();
 
     friend Logger &operator << (Logger &out, const char *text);
     friend Logger &operator << (Logger &out, const QString &text);

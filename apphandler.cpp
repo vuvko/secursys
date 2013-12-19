@@ -6,13 +6,13 @@
 AppHandler::AppHandler(QObject *parent)
     : QObject(parent)
 {
-    Logger::getInstance() << "Запуск программы." << Logger::ENDL;
+    LOG << "Запуск программы." << ENDL;
 }
 
 void
 AppHandler::startFS(const QString &path)
 {
-    Logger::getInstance() << "Открытие файлового менеджера. Текущий путь: " << path << Logger::ENDL;
+    LOG << "Открытие файлового менеджера. Текущий путь: " << path << ENDL;
     FSViewer *viewer = new FSViewer();
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
     connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
@@ -22,7 +22,7 @@ AppHandler::startFS(const QString &path)
 void
 AppHandler::startLogin()
 {
-    Logger::getInstance() << "Запрос авторизации пользователя." << Logger::ENDL;
+    LOG << "Запрос авторизации пользователя." << ENDL;
     LoginDialog *dialog = new LoginDialog;
 
     if (!Crypto::getInstance().isReady()) {
@@ -43,7 +43,7 @@ AppHandler::startLogin()
 void
 AppHandler::openFile(const QString &fileName)
 {
-    Logger::getInstance() << "Открытие файла" << fileName << Logger::ENDL;
+    LOG << "Открытие файла" << fileName << ENDL;
     FileEditor *editor = new FileEditor(fileName);
     editor->show();
 }
@@ -72,16 +72,16 @@ AppHandler::openLogin()
 void
 AppHandler::onLoginTry(const QString &userName, const QString &userPass)
 {
-    Logger::getInstance() << "Попытка авторизации." <<
+    LOG << "Попытка авторизации." <<
                           "Пользователь:" << userName <<
-                          "Пароль:" << userPass << Logger::ENDL;
+                          "Пароль:" << userPass << ENDL;
     int uid = AccessControl::getInstance().checkLogin(userName, userPass);
 
     if (uid == -1) {
-        Logger::getInstance() << "Авторизация пользователя неудачна." << Logger::ENDL;
+        LOG << "Авторизация пользователя неудачна." << ENDL;
         emit login(false);
     } else {
-        Logger::getInstance() << "Авторизация пользователя прошла успешно." << Logger::ENDL;
+        LOG << "Авторизация пользователя прошла успешно." << ENDL;
         Profile::getInstance().initialize(uid);
         emit login(true);
     }

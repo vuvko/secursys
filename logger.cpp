@@ -12,7 +12,7 @@ Logger::Logger()
 }
 
 QString
-Logger::unload()
+Logger::read()
 {
     return log;
 }
@@ -49,14 +49,14 @@ Logger &
 operator << (Logger &out, Logger::CommandSymbol sym)
 {
     switch (sym) {
-    case Logger::ENDL:
+    case Logger::LOG_ENDL:
         out.buff.append('\n');
         out.unloadBuff();
         break;
-    case Logger::DATESTAMP:
+    case Logger::LOG_DATESTAMP:
         out.buff.append(QDateTime::currentDateTime().toString(Qt::TextDate));
         break;
-    case Logger::TIMESTAMP:
+    case Logger::LOG_TIMESTAMP:
         out.buff.append(QTime::currentTime().toString(Qt::TextDate));
         break;
     default:
