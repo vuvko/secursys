@@ -19,9 +19,6 @@ FileEditor::FileEditor(const QString &fileN, QWidget *parent)
     resize(640, 480);
     setWindowTitle(tr("[*] Редактор секретного файла"));
     setWindowIcon(QIcon(":/icons/secret.png"));
-
-    if (!open())
-        close();
 }
 
 void

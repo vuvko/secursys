@@ -10,7 +10,7 @@ LoginDialog::LoginDialog(QWidget *parent) :
 
     userLabel = new QLabel(tr("Имя пользователя:"));
     passLabel = new QLabel(tr("Пароль:"));
-    userEdit = new QLineEdit(tr("Гость"));
+    userEdit = new QLineEdit(tr("root"));
     passEdit = new QLineEdit(tr("password"));
     passEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
     tryButton = new QPushButton(QIcon(":/icons/enter.png"), tr("Войти"), this);

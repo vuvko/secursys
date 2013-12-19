@@ -63,6 +63,8 @@ bool AccessControl::readFile(QString path, QByteArray &to)
     ok = ok && checkAccessFile(apath, ACCESS_READ);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка открытия файла",
+                             QString("Не достаточно прав для открытия файла \"%1\".").arg(apath));
         LOG << tr("Access denied at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -70,6 +72,8 @@ bool AccessControl::readFile(QString path, QByteArray &to)
     ok = ok && readFileInt(apath, to);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка открытия файла",
+                             QString("Не удалось открыть файл \"%1\"").arg(apath));
         LOG << tr("Something went wrong at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -96,6 +100,8 @@ bool AccessControl::writeFile(QString path, QByteArray &data)
         ok = ok && checkAccessFile(apath, ACCESS_WRITE);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка записи файла",
+                             QString("Не достаточно прав для записи файла \"%1\".").arg(apath));
         LOG << tr("Access denied at writing file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -103,6 +109,8 @@ bool AccessControl::writeFile(QString path, QByteArray &data)
     ok = ok && writeFileInt(apath, data);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка записи файла",
+                             QString("Не удалось записать файл \"%1\"").arg(apath));
         LOG << tr("Something went wrong at writing file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -123,11 +131,15 @@ bool AccessControl::cd(QString path)
     ok = ok && checkAccessDir(apath, ACCESS_READ);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка сменить каталог",
+                             QString("Не достаточно прав для перехода в каталог \"%1\".").arg(apath));
         LOG << tr("Access denied at cd \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     if (!info.isDir()) {
+        QMessageBox::warning(NULL, "Попытка сменить каталог",
+                             QString("Не удалось перейти в каталог \"%1\".").arg(apath));
         LOG << tr("Something went wrong at cd \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -149,11 +161,15 @@ bool AccessControl::mkdir(QString path)
     ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка создания каталога",
+                             QString("Не достаточно прав для создания каталога \"%1\".").arg(apath));
         LOG << tr("Access denied at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     if (!QDir(adir).mkdir(name)) {
+        QMessageBox::warning(NULL, "Попытка создания каталога",
+                             QString("Не удалось создать каталог \"%1\".").arg(apath));
         LOG << tr("Something went wrong at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -175,6 +191,8 @@ bool AccessControl::rmdir(QString path)
     ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка удаления каталога",
+                             QString("Не достаточно прав для удаления каталога \"%1\".").arg(apath));
         LOG << tr("Access denied at rmdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -184,6 +202,8 @@ bool AccessControl::rmdir(QString path)
     ok = ok && QDir(adir).rmdir(name);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка удаления каталога",
+                             QString("Не удалось удалить каталог \"%1\".").arg(apath));
         LOG << tr("Something went wrong at rmdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -202,8 +222,11 @@ bool AccessControl::rm(QString path)
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
     ok = ok && checkAccessDir(adir, ACCESS_WRITE);
+    ok = ok && checkAccessFile(apath, ACCESS_WRITE);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка удаления файла",
+                             QString("Не достаточно прав для удаления файла \"%1\".").arg(apath));
         LOG << tr("Access denied at rm \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -212,6 +235,8 @@ bool AccessControl::rm(QString path)
     ok = ok && QDir(adir).remove(name);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка удаления файла",
+                             QString("Не удалось удалить файл \"%1\".").arg(apath));
         LOG << tr("Something went wrong at rm \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -230,6 +255,8 @@ bool AccessControl::exec(QString path)
     ok = ok && checkAccessProgramExec(apath);
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка запуска программы",
+                             QString("Не достаточно прав для запуска программы \"%1\".").arg(apath));
         LOG << tr("Access denied at exec \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -239,6 +266,8 @@ bool AccessControl::exec(QString path)
     ok = ok && system(apath.toStdString().c_str()) != -1;
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка запуска программы",
+                             QString("Не удалось запустить программу \"%1\".").arg(apath));
         LOG << tr("Something went wrong at exec \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -319,6 +348,8 @@ void AccessControl::dbWrite()
     bool ok = writeFileInt(DB_FILE, data, getRootKey());
 
     if (!ok) {
+        QMessageBox::warning(NULL, "Попытка сохранения информации",
+                             QString("Не удалось сохранить в \"%1\".").arg(DB_FILE));
         LOG << tr("Something went wrong at db write to \"%1\".").arg(DB_FILE) << ENDL;
         return;
     }

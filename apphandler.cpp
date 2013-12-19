@@ -27,7 +27,7 @@ AppHandler::startLogin()
 
     if (!Crypto::getInstance().isReady()) {
         QMessageBox::critical(dialog, tr("Критическая ошибка"),
-            tr("Не удалось найти %1. Завершение работы...").arg(CRYPTO_PATH));
+                              tr("Не удалось найти %1. Завершение работы...").arg(CRYPTO_PATH));
         exit(EXIT_FAILURE);
     }
 
@@ -43,7 +43,11 @@ AppHandler::openFile(const QString &fileName)
 {
     LOG << "Открытие файла" << fileName << ENDL;
     FileEditor *editor = new FileEditor(fileName);
-    editor->show();
+    if (!editor->open()) {
+        delete editor;
+    } else {
+        editor->show();
+    }
 }
 
 void
@@ -71,8 +75,8 @@ void
 AppHandler::onLoginTry(const QString &userName, const QString &userPass)
 {
     LOG << "Попытка авторизации." <<
-                          "Пользователь:" << userName <<
-                          "Пароль:" << userPass;
+           "Пользователь:" << userName <<
+           "Пароль:" << userPass;
     int uid = AccessControl::getInstance().checkLogin(userName, userPass);
 
     if (uid == -1) {
