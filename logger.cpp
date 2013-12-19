@@ -52,10 +52,10 @@ operator << (Logger &out, Logger::CommandSymbol sym)
 {
     switch (sym) {
     case Logger::LOG_ENDL:
-        out.buff.append('\n');
 #ifdef DEBUG
-        qDebug() << out.buff;
+        qDebug() << out.buff.toStdString().c_str();
 #endif
+        out.buff.append('\n');
         out.unloadBuff();
         break;
     case Logger::LOG_DATESTAMP:

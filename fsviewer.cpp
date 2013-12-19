@@ -82,8 +82,6 @@ bool FileView::check()
 bool
 FileView::editFile(const QString &nameArg)
 {
-    qDebug() << "Здесь надо проверить на доступ к созданию файлов."; // TODO: log
-
     QString name = nameArg;
 
     if (name.isEmpty()) {
@@ -96,8 +94,7 @@ FileView::editFile(const QString &nameArg)
     if (name.isEmpty())
         return false;
     
-    QString newFilePath = pwd.absolutePath() + QDir::separator() + name;
-    emit openFile(newFilePath);
+    emit openFile(name);
     update();
     return true;
 }
@@ -112,7 +109,6 @@ void
 FileView::update()
 {
     pwd.refresh();
-    qDebug() << "Текущий каталог:" << pwd.absolutePath();
     QFileInfoList infoList = pwd.entryInfoList();
     int idx = 0;
     dirModel->setRowCount(infoList.size());
@@ -163,7 +159,6 @@ FSViewer::FSViewer(QWidget *parent)
     : QMainWindow(parent)
 {
     // Creating UI
-    qDebug() << "Инициализация пользовательского интерфейса.";
     // main Layout
     centralWidget = new QWidget;
     setCentralWidget(centralWidget);
@@ -200,7 +195,6 @@ FSViewer::FSViewer(QWidget *parent)
     setWindowIcon(QIcon(":/icons/dir.png"));
     setWindowTitle(tr("Просмотр файловой системы"));
     // UI created.
-    qDebug() << "Пользовательский интерфейс создан.";
     dirView->cd(Profile::getInstance().getPWD());
     connect(dirView, SIGNAL(openFile(QString)), this, SLOT(onOpenFile(QString)));
 }

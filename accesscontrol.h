@@ -83,8 +83,8 @@ public:
     int checkLogin(QString userName, QString userPass) const;
 
     // path can be relative with respect Profile::getPWD().
-    bool readFile(QString path, QString &to);
-    bool writeFile(QString path, QString data);
+    bool readFile(QString path, QByteArray &to);
+    bool writeFile(QString path, QByteArray &data);
 
     // path can be relative with respect Profile::getPWD().
     bool cd(QString path);
@@ -127,10 +127,10 @@ private:
     void setDefaultAccessFile(QString apath);
     void setDefaultAccessDir(QString apath);
 
-    bool readFileInt(QString apath, QString &to, QByteArray userKey);
-    bool readFileInt(QString apath, QString &to);   // use getUserKey().
-    bool writeFileInt(QString apath, QString data, QByteArray userKey);
-    bool writeFileInt(QString apath, QString data); // use getUserKey().
+    bool readFileInt(QString apath, QByteArray &to, QByteArray userKey);
+    bool readFileInt(QString apath, QByteArray &to);   // use getUserKey().
+    bool writeFileInt(QString apath, QByteArray &data, QByteArray userKey);
+    bool writeFileInt(QString apath, QByteArray &data); // use getUserKey().
 
     static QByteArray calcHashFile(QString apath);
 
