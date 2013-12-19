@@ -1,5 +1,4 @@
 #include "controlpanel.h"
-#include <QDebug>
 
 ControlPanel::ControlPanel(QWidget *parent) :
     QMainWindow(parent)
