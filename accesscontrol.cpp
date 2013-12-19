@@ -5,8 +5,14 @@
 #include "crypto.h"
 #include "profile.h"
 #include "accessadmin.h"
+#include "logger.h"
 
 #define DB_FILE "admin.db"
+
+inline QString tr(const char *srcText)
+{
+    return QObject::tr(srcText);
+}
 
 AccessObject::AccessObject(QString path)
 {
@@ -40,6 +46,7 @@ int AccessControl::checkLogin(QString userName, QString userPass) const
             return u.uid;
     }
 
+    LOG << tr("Failure try to login with user \"%1\".").arg(userName) << ENDL;
     return -1;
 }
 
@@ -54,11 +61,18 @@ bool AccessControl::readFile(QString path, QString &to)
     ok = ok && checkAccessFile(cpath, ACCESS_READ);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at reading file \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
-    return readFileInt(cpath, to);
+    ok = ok && readFileInt(cpath, to);
+
+    if (!ok) {
+        LOG << tr("Something went wrong at reading file \"%1\".").arg(cpath) << ENDL;
+        return false;
+    }
+
+    return true;
 }
 
 bool AccessControl::writeFile(QString path, QString data)
@@ -79,14 +93,14 @@ bool AccessControl::writeFile(QString path, QString data)
         ok = ok && checkAccessFile(cpath, ACCESS_WRITE);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at writing file \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     ok = ok && writeFileInt(cpath, data);
 
     if (!ok) {
-        // SomethingWrong message
+        LOG << tr("Something went wrong at writing file \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
@@ -106,12 +120,12 @@ bool AccessControl::cd(QString path)
     ok = ok && checkAccessDir(cpath, ACCESS_READ);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at cd \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     if (!info.isDir()) {
-        // SomethingWrong message
+        LOG << tr("Something went wrong at cd \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
@@ -132,12 +146,12 @@ bool AccessControl::mkdir(QString path)
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at mkdir \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     if (!QDir(cdir).mkdir(name)) {
-        // SomethingWrong message
+        LOG << tr("Something went wrong at mkdir \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
@@ -158,15 +172,16 @@ bool AccessControl::rmdir(QString path)
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at rmdir \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     ok = ok && info.isDir();
     ok = ok && QDir(cpath).entryList().isEmpty();
+    ok = ok && QDir(cdir).rmdir(name);
 
-    if (!ok || !QDir(cdir).rmdir(name)) {
-        // SomethingWrong message
+    if (!ok) {
+        LOG << tr("Something went wrong at rmdir \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
@@ -186,14 +201,15 @@ bool AccessControl::rm(QString path)
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at rm \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     ok = ok && info.isFile();
+    ok = ok && QDir(cdir).remove(name);
 
-    if (!ok || !QDir(cdir).remove(name)) {
-        // SomethingWrong message
+    if (!ok) {
+        LOG << tr("Something went wrong at rm \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
@@ -211,19 +227,20 @@ bool AccessControl::exec(QString path)
     ok = ok && checkAccessProgramExec(cpath);
 
     if (!ok) {
-        // AccessDenied message
+        LOG << tr("Access denied at exec \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
     ok = ok && info.isFile();
     ok = ok && info.isExecutable();
+    ok = ok && system(cpath.toStdString().c_str()) != -1;
 
     if (!ok) {
-        // SomethingWrong message
+        LOG << tr("Something went wrong at exec \"%1\".").arg(cpath) << ENDL;
         return false;
     }
 
-    return system(cpath.toStdString().c_str()) != -1;
+    return true;
 }
 
 // =================
