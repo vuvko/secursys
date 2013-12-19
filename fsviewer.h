@@ -42,11 +42,12 @@ public:
     explicit FileView(FSViewer *parent_);
     ~FileView();
 
-    void cd(QString path);
-    void mkdir();
-    void rmdir();
-    void rm();
-    void exec(QString path);
+    bool cd(QString path);
+    bool mkdir();
+    bool rmdir();
+    bool rm();
+    bool exec(QString path);
+
     bool check();
 
     bool editFile(const QString &name = QString());

@@ -23,42 +23,47 @@ FileView::FileView(FSViewer *parent_)
 FileView::~FileView()
 {}
 
-void FileView::cd(QString path)
+bool FileView::cd(QString path)
 {
-    AccessControl::getInstance().cd(path);
+    bool res = AccessControl::getInstance().cd(path);
     update();
+    return res;
 }
 
-void FileView::mkdir()
-{
-    int row = selectedIndexes()[0].row();
-    QFileInfo info = pwd.entryInfoList()[row];
-    AccessControl::getInstance().mkdir(info.canonicalPath());
-    update();
-}
-
-void FileView::rmdir()
+bool FileView::mkdir()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = pwd.entryInfoList()[row];
-    AccessControl::getInstance().rmdir(info.canonicalPath());
+    bool res = AccessControl::getInstance().mkdir(info.canonicalPath());
     update();
+    return res;
 }
 
-void FileView::rm()
+bool FileView::rmdir()
+{
+    int row = selectedIndexes()[0].row();
+    QFileInfo info = pwd.entryInfoList()[row];
+    bool res = AccessControl::getInstance().rmdir(info.canonicalPath());
+    update();
+    return res;
+}
+
+bool FileView::rm()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = pwd.entryInfoList()[row];
     if (info.suffix() != secret_suffix)
-        return;
-    AccessControl::getInstance().rmdir(info.canonicalPath());
+        return false;
+    bool res = AccessControl::getInstance().rmdir(info.canonicalPath());
     update();
+    return res;
 }
 
-void FileView::exec(QString path)
+bool FileView::exec(QString path)
 {
-    AccessControl::getInstance().exec(path);
+    bool res = AccessControl::getInstance().exec(path);
     update();
+    return res;
 }
 
 bool FileView::check()
@@ -92,47 +97,6 @@ FileView::editFile(const QString &nameArg)
     update();
     return true;
 }
-
-#if 0
-bool
-FileView::rm()
-{
-    qDebug() << "Здесь надо проверить право на удаление файлов."; // TODO: log
-
-    if (!tryAccessDir(ACCESS_WRITE))
-        return false;
-
-    QString fileCPath = fileInfo.canonicalPath();
-
-    if (!QFile::remove(fileCPath))
-        return false;
-
-    update();
-    return;
-}
-
-bool
-FileView::check()
-{
-    int row = selectedIndexes()[0].row();
-    QFileInfo info = pwd.entryInfoList()[row];
-    qDebug() << "Проверка целостности файла" << info.filePath(); // TODO: log
-//    qDebug() << "Hash of file" << info.filePath() << curHash.toHex().toUpper();
-    return ac->checkHashFile(info.canonicalPath());
-}
-
-bool
-FileView::exec(const QString &cpath)
-{
-    qDebug() << "Здесь нужно проверить на право запуска файла."; // TODO: log
-    if (!ac->checkAccessProgramExec(cpath))
-        return false;
-
-    return system(cpath.toStdString().c_str()) != -1;
-}
-
-#endif
-////// to //////
 
 void
 FileView::onUp()

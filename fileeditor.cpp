@@ -93,7 +93,11 @@ bool
 FileEditor::open()
 {
     qDebug() << "Открытие файла" << fileName;
-    QString text(AccessControl::getInstance().readFile(fileName));
+    QString text;
+    bool ok = AccessControl::getInstance().readFile(fileName, text);
+    if (!ok)
+        return false;
+
     textEdit->setPlainText(text);
     statusBar()->showMessage(tr("Файл загружен"), 2000);
     return true;
@@ -132,7 +136,9 @@ FileEditor::saveFile(const QString &fileName)
     qDebug() << "Сохранение файла" << fileName;
 
     QString msg = textEdit->toPlainText();
-    AccessControl::getInstance().writeFile(fileName, msg);
+    bool ok = AccessControl::getInstance().writeFile(fileName, msg);
+    if (!ok)
+        return false;
 
     textEdit->document()->setModified(false);
     setWindowModified(textEdit->document()->isModified());
