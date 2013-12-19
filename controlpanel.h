@@ -32,6 +32,7 @@ public slots:
 
 private slots:
     void onRegister();
+    void onAddGroup();
     void updateData();
     void onAbout();
 
@@ -79,6 +80,9 @@ private:
     QLabel *groupLabel;
     QComboBox *groupBox;
     QPushButton *regButton;
+    QLabel *group2Label;
+    QLineEdit *groupEdit;
+    QPushButton *addGButton;
 
     QPlainTextEdit *logEdit;
 

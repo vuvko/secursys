@@ -74,8 +74,10 @@ void AccessAdmin::setUser(const User &u)
         }
     }
 
-    if (found)
+    if (!found) {
+        AccessControl::getInstance().allUsers.append(u);
         AccessControl::getInstance().dbWrite();
+    }
 }
 
 QString AccessAdmin::getUserName(int uid)
@@ -99,8 +101,10 @@ void AccessAdmin::setGroup(const Group &g)
         }
     }
 
-    if (found)
+    if (!found) {
+        AccessControl::getInstance().allGroups.append(g);
         AccessControl::getInstance().dbWrite();
+    }
 }
 
 void AccessAdmin::setUser(int uid, int gid, QString name, QString pass)
@@ -133,10 +137,32 @@ const User *AccessAdmin::getUserByUID(int uid)
     return 0;
 }
 
+const Group *AccessAdmin::getGroupByGID(int gid)
+{
+    QListIterator<Group> i(AccessControl::getInstance().allGroups);
+    while (i.hasNext()) {
+        const Group &g = i.next();
+        if (g.gid == gid)
+            return &g;
+    }
+
+    return 0;
+}
+
 int AccessAdmin::getNewUID()
 {
     for (int i = 1; i <= INT_MAX; ++i) {
         if (getUserByUID(i) == 0)
+            return i;
+    }
+
+    return -1;
+}
+
+int AccessAdmin::getNewGID()
+{
+    for (int i = 1; i <= INT_MAX; ++i) {
+        if (getGroupByGID(i) == 0)
             return i;
     }
 

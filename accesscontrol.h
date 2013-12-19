@@ -102,6 +102,7 @@ public:
     void dbWrite();
 
     friend class ControlPanel;
+    friend class AccessAdmin;
 private:
     AccessControl();
 

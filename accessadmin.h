@@ -27,9 +27,11 @@ public:
     void setGroup(int gid, QString name);
 
     const User *getUserByUID(int uid);
+    const Group *getGroupByGID(int gid);
 
     // Return -1 on failure.
     int getNewUID();
+    int getNewGID();
     QString getUserName(int uid);
 
 private:

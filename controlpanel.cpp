@@ -1,4 +1,5 @@
 #include "controlpanel.h"
+#include <QDebug>
 
 ControlPanel::ControlPanel(QWidget *parent) :
     QMainWindow(parent)
@@ -61,12 +62,16 @@ ControlPanel::ControlPanel(QWidget *parent) :
     userLabel = new QLabel("Имя пользователя:");
     passLabel = new QLabel("Пароль:");
     groupLabel = new QLabel("Группа:");
+    group2Label = new QLabel("Название новой группы:");
     userEdit = new QLineEdit("Иван Сидоров");
     passEdit = new QLineEdit("");
     passEdit->setEchoMode(QLineEdit::Password);
     groupBox = new QComboBox();
+    groupEdit = new QLineEdit("Пользователи");
     regButton = new QPushButton("Зарегистрировать");
+    addGButton = new QPushButton("Добавить группу");
     connect(regButton, SIGNAL(clicked()), this, SLOT(onRegister()));
+    connect(addGButton, SIGNAL(clicked()), this, SLOT(onAddGroup()));
     regLayout->addWidget(regLabel, 0, 0, 1, 2);
     regLayout->addWidget(userLabel, 1, 0);
     regLayout->addWidget(userEdit, 1, 1);
@@ -75,12 +80,17 @@ ControlPanel::ControlPanel(QWidget *parent) :
     regLayout->addWidget(groupLabel, 3, 0);
     regLayout->addWidget(groupBox, 3, 1);
     regLayout->addWidget(regButton, 4, 0);
+    regLayout->addWidget(group2Label, 5, 0);
+    regLayout->addWidget(groupEdit, 5, 1);
+    regLayout->addWidget(addGButton, 6, 0);
     regLayout->setRowStretch(0, 0);
     regLayout->setRowStretch(1, 0);
     regLayout->setRowStretch(2, 0);
     regLayout->setRowStretch(3, 0);
     regLayout->setRowStretch(4, 0);
-    regLayout->setRowStretch(5, 1);
+    regLayout->setRowStretch(5, 0);
+    regLayout->setRowStretch(6, 0);
+    regLayout->setRowStretch(7, 1);
     regLayout->setColumnStretch(0, 0);
     regLayout->setColumnStretch(1, 1);
 
@@ -134,9 +144,20 @@ ControlPanel::createToolbars()
 void
 ControlPanel::onRegister()
 {
+    LOG << "Регистрация нового пользователя" << userEdit->text() << ENDL;
     AccessAdmin &aa = AccessAdmin::getInstance();
     int gid = AccessControl::getInstance().allGroups[groupBox->currentIndex()].gid;
     aa.setUser(aa.getNewUID(), gid, userEdit->text(), passEdit->text());
+    updateData();
+}
+
+void
+ControlPanel::onAddGroup()
+{
+    LOG << "Добавление новой группы" << groupEdit->text() << ENDL;
+    AccessAdmin &aa = AccessAdmin::getInstance();
+    aa.setGroup(aa.getNewGID(), groupEdit->text());
+    updateData();
 }
 
 void
@@ -149,6 +170,7 @@ ControlPanel::onAbout()
 void
 ControlPanel::updateData()
 {
+    groupBox->clear();
     for (auto group : AccessControl::getInstance().allGroups) {
         groupBox->addItem(group.name);
     }
