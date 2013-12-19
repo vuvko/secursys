@@ -30,7 +30,7 @@ int AccessControl::checkLogin(QString userName, QString userPass) const
     return -1;
 }
 
-QString AccessControl::readFile(QString path)
+bool AccessControl::readFile(QString path, QString &to)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
@@ -41,17 +41,18 @@ QString AccessControl::readFile(QString path)
     ok = ok && checkAccessFile(cpath, ACCESS_READ);
 
     if (!ok) {
-        // TODO AccessDenied message
-        return QString();
+        // AccessDenied message
+        return false;
     }
 
-    return readFileInt(cpath);
+    return readFileInt(cpath, to);
 }
 
-void AccessControl::writeFile(QString path, QString data)
+bool AccessControl::writeFile(QString path, QString data)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
+    QString cdir = info.canonicalPath();
     QString cpath = info.canonicalFilePath();
 
     bool ok = true;
@@ -59,67 +60,157 @@ void AccessControl::writeFile(QString path, QString data)
 
     bool newFile = info.exists();
 
-    if (!newFile)
-        ok = ok && checkAccessFile(cpath, ACCESS_WRITE);
+    if (newFile)
+        ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
     else
-        ok = ok && checkAccessDir(info.canonicalPath(), ACCESS_WRITE);
+        ok = ok && checkAccessFile(cpath, ACCESS_WRITE);
 
     if (!ok) {
-        // TODO AccessDenied message
-        return;
+        // AccessDenied message
+        return false;
     }
 
-    writeFileInt(cpath, data);
+    ok = ok && writeFileInt(cpath, data);
+
+    if (!ok) {
+        // SomethingWrong message
+        return false;
+    }
 
     if (newFile)
         setDefaultModeFile(cpath);
+    return true;
 }
 
-void AccessControl::cd(QString path)
+bool AccessControl::cd(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalPath();
+    QString cpath = info.canonicalFilePath();
 
     bool ok = true;
     //ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
     ok = ok && checkAccessDir(cpath, ACCESS_READ);
 
     if (!ok) {
-        // TODO AccessDenied message
-        return;
+        // AccessDenied message
+        return false;
     }
 
-    if (!info.isDir())
-        return;
+    if (!info.isDir()) {
+        // SomethingWrong message
+        return false;
+    }
 
     Profile::getInstance().pwd.cd(cpath);
+    return true;
 }
 
-void AccessControl::mkdir(QString path)
+bool AccessControl::mkdir(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalPath();
+    QString cdir = info.canonicalPath();
+    QString cpath = info.canonicalFilePath();
+    QString name = info.fileName();
 
     bool ok = true;
     //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
-    ok = ok && checkAccessDir(cpath, ACCESS_READ);
+    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
+    if (!ok) {
+        // AccessDenied message
+        return false;
+    }
 
-    /////// TODO!!!
+    if (!QDir(cdir).mkdir(name)) {
+        // SomethingWrong message
+        return false;
+    }
+
+    setDefaultModeDir(cpath);
+    return true;
 }
 
-void AccessControl::rmdir(QString path)
+bool AccessControl::rmdir(QString path)
 {
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cdir = info.canonicalPath();
+    QString cpath = info.canonicalFilePath();
+    QString name = info.fileName();
+
+    bool ok = true;
+    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+
+    if (!ok) {
+        // AccessDenied message
+        return false;
+    }
+
+    ok = ok && info.isDir();
+    ok = ok && QDir(cpath).entryList().isEmpty();
+
+    if (!ok || !QDir(cdir).rmdir(name)) {
+        // SomethingWrong message
+        return false;
+    }
+
+    return true;
 }
 
-void AccessControl::rm(QString path)
+bool AccessControl::rm(QString path)
 {
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cdir = info.canonicalPath();
+    QString cpath = info.canonicalFilePath();
+    QString name = info.fileName();
+
+    bool ok = true;
+    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+
+    if (!ok) {
+        // AccessDenied message
+        return false;
+    }
+
+    ok = ok && info.isFile();
+
+    if (!ok || !QDir(cdir).remove(name)) {
+        // SomethingWrong message
+        return false;
+    }
+
+    return true;
 }
 
-void AccessControl::exec(QString path)
+bool AccessControl::exec(QString path)
 {
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString cpath = info.canonicalFilePath();
+
+    bool ok = true;
+    //ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessProgramExec(cpath);
+
+    if (!ok) {
+        // AccessDenied message
+        return false;
+    }
+
+    ok = ok && info.isFile();
+    ok = ok && info.isExecutable();
+
+    if (!ok) {
+        // SomethingWrong message
+        return false;
+    }
+
+    return system(cpath.toStdString().c_str()) != -1;
 }
 
 // =================
@@ -239,16 +330,16 @@ void AccessControl::setDefaultModeFile(QString cpath)
     //setAccessFile(...); // TODO
 }
 
-QByteArray AccessControl::getUserKey()
+QByteArray AccessControl::getUserKey() const
 {
     return Profile::getInstance().getUser()->passHash;
 }
 
-QString AccessControl::readFileInt(QString cpath)
+bool AccessControl::readFileInt(QString cpath, QString &to)
 {
     QFile file(cpath);
     if (!file.open(QFile::ReadOnly)) {
-        return QString();
+        return false;
     }
 
 #ifndef QT_NO_CURSOR
@@ -262,14 +353,15 @@ QString AccessControl::readFileInt(QString cpath)
 #endif
 
     file.close();
-    return QString::fromUtf8(data, data.size());
+    to = QString::fromUtf8(data, data.size());
+    return true;
 }
 
-void AccessControl::writeFileInt(QString cpath, QString data)
+bool AccessControl::writeFileInt(QString cpath, QString data)
 {
     QFile file(cpath);
     if (!file.open(QFile::WriteOnly)) {
-        return;
+        return false;
     }
 
     QDataStream out(&file);
@@ -282,6 +374,7 @@ void AccessControl::writeFileInt(QString cpath, QString data)
     QApplication::restoreOverrideCursor();
 #endif
     file.close();
+    return true;
 }
 
 QByteArray AccessControl::get_hash_file(QString cpath)

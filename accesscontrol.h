@@ -91,15 +91,15 @@ public:
     int checkLogin(QString userName, QString userPass) const;
 
     // path can be relative with respect Profile::getPWD().
-    QString readFile(QString path);
-    void writeFile(QString path, QString data);
+    bool readFile(QString path, QString &to);
+    bool writeFile(QString path, QString data);
 
     // path can be relative with respect Profile::getPWD().
-    void cd(QString path);
-    void mkdir(QString path);
-    void rmdir(QString path);
-    void rm(QString path);
-    void exec(QString path);
+    bool cd(QString path);
+    bool mkdir(QString path);
+    bool rmdir(QString path);
+    bool rm(QString path);
+    bool exec(QString path);
 
     // Root only.
     // path can be relative with respect Profile::getPWD().
@@ -115,7 +115,7 @@ private:
     void dbRead();
     void dbWrite() const;
 
-    QByteArray getUserKey();
+    QByteArray getUserKey() const;
 
     void setAccess(QList<AccessObject> *collection, QString cpath,
         int uid, int gid,
@@ -148,8 +148,8 @@ private:
     void setDefaultModeFile(QString cpath);
     void setDefaultModeDir(QString cpath);
 
-    QString readFileInt(QString cpath);
-    void writeFileInt(QString cpath, QString data);
+    bool readFileInt(QString cpath, QString &to);
+    bool writeFileInt(QString cpath, QString data);
 
     static QByteArray get_hash_file(QString cpath);
 
