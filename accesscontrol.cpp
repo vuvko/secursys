@@ -92,9 +92,9 @@ bool AccessControl::writeFile(QString path, QString data)
     bool newFile = !info.exists();
 
     if (newFile)
-        ok = ok && checkAccessFile(apath, ACCESS_WRITE);
-    else
         ok = ok && checkAccessDir(adir, ACCESS_WRITE);
+    else
+        ok = ok && checkAccessFile(apath, ACCESS_WRITE);
 
     if (!ok) {
         LOG << tr("Access denied at writing file \"%1\".").arg(apath) << ENDL;
