@@ -21,6 +21,7 @@ class FileEditor : public QMainWindow
 public:
     explicit FileEditor(const QString &file,
                         QWidget *parent = 0);
+    bool open();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -35,8 +36,6 @@ private:
     void createMenus();
     void createToolBars();
     void createStatusBar();
-
-    bool open();
 
     bool maybeSave();
     bool saveFile(const QString &fileName);
