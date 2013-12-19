@@ -82,9 +82,9 @@ bool AccessControl::writeFile(QString path, QString data)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.absolutePath();
+    QString adir = info.absolutePath();
     QString name = info.fileName();
-    QString apath = cdir + QDir::separator() + name;
+    QString apath = adir + QDir::separator() + name;
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
@@ -92,7 +92,7 @@ bool AccessControl::writeFile(QString path, QString data)
     bool newFile = info.exists();
 
     if (newFile)
-        ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+        ok = ok && checkAccessDir(adir, ACCESS_WRITE);
     else
         ok = ok && checkAccessFile(apath, ACCESS_WRITE);
 
@@ -141,20 +141,20 @@ bool AccessControl::mkdir(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.absolutePath();
+    QString adir = info.absolutePath();
     QString apath = info.absoluteFilePath();
     QString name = info.fileName();
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
-    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+    ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
         LOG << tr("Access denied at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
-    if (!QDir(cdir).mkdir(name)) {
+    if (!QDir(adir).mkdir(name)) {
         LOG << tr("Something went wrong at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -167,13 +167,13 @@ bool AccessControl::rmdir(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.absolutePath();
+    QString adir = info.absolutePath();
     QString apath = info.absoluteFilePath();
     QString name = info.fileName();
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
-    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+    ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
         LOG << tr("Access denied at rmdir \"%1\".").arg(apath) << ENDL;
@@ -182,7 +182,7 @@ bool AccessControl::rmdir(QString path)
 
     ok = ok && info.isDir();
     ok = ok && QDir(apath).entryList().isEmpty();
-    ok = ok && QDir(cdir).rmdir(name);
+    ok = ok && QDir(adir).rmdir(name);
 
     if (!ok) {
         LOG << tr("Something went wrong at rmdir \"%1\".").arg(apath) << ENDL;
@@ -196,13 +196,13 @@ bool AccessControl::rm(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.absolutePath();
+    QString adir = info.absolutePath();
     QString apath = info.absoluteFilePath();
     QString name = info.fileName();
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
-    ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
+    ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
         LOG << tr("Access denied at rm \"%1\".").arg(apath) << ENDL;
@@ -210,7 +210,7 @@ bool AccessControl::rm(QString path)
     }
 
     ok = ok && info.isFile();
-    ok = ok && QDir(cdir).remove(name);
+    ok = ok && QDir(adir).remove(name);
 
     if (!ok) {
         LOG << tr("Something went wrong at rm \"%1\".").arg(apath) << ENDL;
