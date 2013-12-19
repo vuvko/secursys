@@ -24,24 +24,8 @@ typedef enum {
 
 struct AccessObject
 {
-    AccessObject(QString aPath)
-    {
-        path = aPath;
-    }
-
-    AccessObject(QString path,
-        int uid, int gid,
-        int userMode, int groupMode, int othersMode,
-        Role role)
-    {
-        this->path = path;
-        this->uid = uid;
-        this->gid = gid;
-        this->userMode = userMode;
-        this->groupMode = groupMode;
-        this->othersMode = othersMode;
-        this->role = role;
-    }
+    // default value
+    AccessObject(QString path);
 
     QString path;
 
@@ -133,8 +117,8 @@ private:
 
     // For admin or for newly created directories.
     // cpath -- canonical path to file.
-    void setDefaultModeFile(QString cpath);
-    void setDefaultModeDir(QString cpath);
+    void setDefaultAccessFile(QString cpath);
+    void setDefaultAccessDir(QString cpath);
 
     bool readFileInt(QString cpath, QString &to);
     bool writeFileInt(QString cpath, QString data);

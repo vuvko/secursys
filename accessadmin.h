@@ -10,17 +10,11 @@ class AccessAdmin
 public:
     static AccessAdmin &getInstance();
 
-    void setAccess(QList<AccessObject> *collection, QString cpath,
-        int uid, int gid,
-        int userMode, int groupMode, int othersMode,
-        Role role);
-
     // For root or for (via setDefault*) newly created files/dirs.
-    // path can be relative with respect Profile::getPWD().
-    void setAccessFile(QString path, int mode);
-    void setAccessDrive(QString path, int mode);
-    void setAccessDir(QString path, int mode);
-    void setAccessProgramExec(QString path);
+    void setAccessFile(const AccessObject &obj);
+    void setAccessDrive(const AccessObject &obj);
+    void setAccessDir(const AccessObject &obj);
+    void setAccessProgramExec(const AccessObject &obj);
 
     // For root only.
     // path can be relative with respect Profile::getPWD().
@@ -33,6 +27,7 @@ private:
     AccessAdmin(const AccessAdmin &);
     void operator=(const AccessAdmin &);
 
+    void setAccess(QList<AccessObject> *collection, const AccessObject &obj);
     static QByteArray calcHashFile(QString cpath);
 };
 

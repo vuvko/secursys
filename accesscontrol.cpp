@@ -4,8 +4,21 @@
 #include "accesscontrol.h"
 #include "crypto.h"
 #include "profile.h"
+#include "accessadmin.h"
 
 #define DB_FILE "admin.db"
+
+AccessObject::AccessObject(QString path)
+{
+    this->path = path;
+
+    uid = Profile::getInstance().getUID();
+    gid = Profile::getInstance().getGID();
+    userMode = ACCESS_READ | ACCESS_WRITE;
+    groupMode = ACCESS_READ | ACCESS_WRITE;
+    othersMode = ACCESS_READ;
+    role = ROLE_NOTHING;
+}
 
 AccessControl &AccessControl::getInstance()
 {
@@ -78,7 +91,7 @@ bool AccessControl::writeFile(QString path, QString data)
     }
 
     if (newFile)
-        setDefaultModeFile(cpath);
+        setDefaultAccessFile(cpath);
     return true;
 }
 
@@ -128,7 +141,7 @@ bool AccessControl::mkdir(QString path)
         return false;
     }
 
-    setDefaultModeDir(cpath);
+    setDefaultAccessDir(cpath);
     return true;
 }
 
@@ -278,14 +291,16 @@ bool AccessControl::check(QString cpath) const
     return allHashes.value(cpath) == hash;
 }
 
-void AccessControl::setDefaultModeDir(QString cpath)
+void AccessControl::setDefaultAccessDir(QString cpath)
 {
-    //setAccessDir(...); // TODO
+    AccessObject defObj(cpath);
+    AccessAdmin::getInstance().setAccessDir(defObj);
 }
 
-void AccessControl::setDefaultModeFile(QString cpath)
+void AccessControl::setDefaultAccessFile(QString cpath)
 {
-    //setAccessFile(...); // TODO
+    AccessObject defObj(cpath);
+    AccessAdmin::getInstance().setAccessFile(defObj);
 }
 
 QString AccessControl::getDrive(QString cpath)
