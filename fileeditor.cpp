@@ -17,10 +17,11 @@ FileEditor::FileEditor(const QString &fileN, QWidget *parent)
             this, SLOT(documentWasModified()));
 
     resize(640, 480);
-    setWindowTitle(tr("Редактор секретного файла"));
+    setWindowTitle(tr("[*] Редактор секретного файла"));
     setWindowIcon(QIcon(":/icons/secret.png"));
 
-    qDebug() << open();
+    if (!open())
+        close();
 }
 
 void
@@ -92,13 +93,13 @@ FileEditor::closeEvent(QCloseEvent *event)
 bool
 FileEditor::open()
 {
-    qDebug() << "Открытие файла" << fileName;
-    QString text;
-    bool ok = AccessControl::getInstance().readFile(fileName, text);
-    if (!ok)
-        return false;
+    QByteArray data;
+    if (QFileInfo(fileName).exists()) {
+        if (!AccessControl::getInstance().readFile(fileName, data))
+            return false;
+    }
 
-    textEdit->setPlainText(text);
+    textEdit->setPlainText(QString::fromUtf8(data));
     statusBar()->showMessage(tr("Файл загружен"), 2000);
     return true;
 }
@@ -133,10 +134,8 @@ FileEditor::maybeSave()
 bool
 FileEditor::saveFile(const QString &fileName)
 {
-    qDebug() << "Сохранение файла" << fileName;
-
-    QString msg = textEdit->toPlainText();
-    bool ok = AccessControl::getInstance().writeFile(fileName, msg);
+    QByteArray data = textEdit->toPlainText().toUtf8();
+    bool ok = AccessControl::getInstance().writeFile(fileName, data);
     if (!ok)
         return false;
 
