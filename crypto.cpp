@@ -1,8 +1,6 @@
 #include "crypto.h"
 
-#define CRYPTO_PATH "AES256.dll"
-
-Crypto &getInstance()
+Crypto &Crypto::getInstance()
 {
     static Crypto instance;
     return instance;

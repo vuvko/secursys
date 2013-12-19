@@ -16,7 +16,6 @@ class AppHandler : public QObject
     Q_OBJECT
 public:
     explicit AppHandler(QObject *parent = 0);
-    ~AppHandler();
 
     void startFS(const QString &path=".");
     void startLogin();

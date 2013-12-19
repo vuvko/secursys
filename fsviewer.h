@@ -42,6 +42,13 @@ public:
     explicit FileView(FSViewer *parent_);
     ~FileView();
 
+    void cd(QString path);
+    void mkdir();
+    void rmdir();
+    void rm();
+    void exec(QString path);
+    bool check();
+
     bool editFile(const QString &name = QString());
 
 public slots:
@@ -55,6 +62,7 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
 private:
+    const QDir &pwd;
     FSViewer *parent;
     QStandardItemModel *dirModel;
 };

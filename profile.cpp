@@ -1,4 +1,5 @@
 #include "profile.h"
+#include "accesscontrol.h"
 
 Profile &Profile::getInstance()
 {
@@ -6,19 +7,26 @@ Profile &Profile::getInstance()
     return instance;
 }
 
-void initialize(int uid, QString pwd)
+void Profile::initialize(int uid, QString pwd)
 {
     this->uid = uid;
-    this->pwd(pwd);
+    this->pwd = QDir(pwd);
 }
 
 Profile::Profile()
     : uid(-1), pwd(".")
-{}
+{
+    pwd.setSorting(QDir::DirsFirst | QDir::Name);
+}
 
 QString Profile::getPWD()
 {
     return pwd.canonicalPath();
+}
+
+QDir &Profile::getConstDirPWD()
+{
+    return pwd;
 }
 
 const User *

@@ -6,7 +6,10 @@
 #include <QHash>
 #include <QDir>
 
-#include "accesscontrol.h"
+class AccessObject;
+class User;
+class Group;
+class AccessControl;
 
 class Profile
 {
@@ -18,6 +21,8 @@ public:
 
     // Canonical path.
     QString getPWD();
+
+    QDir &getConstDirPWD();
 
     int getUID() const;
     int getGID() const;
