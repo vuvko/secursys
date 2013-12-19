@@ -98,7 +98,7 @@ ControlPanel::ControlPanel(QWidget *parent) :
     createMenus();
     createToolbars();
 
-    resize(640, 480);
+    resize(800, 800);
     setWindowIcon(QIcon(":/icons/user_info.png"));
     setWindowTitle("Панель администрирования");
 
@@ -112,13 +112,12 @@ ControlPanel::ControlPanel(QWidget *parent) :
     loadUsers();
     loadGroups();
     logEdit->setPlainText(Logger::getInstance().read());
-    qDebug() << "Here";
 }
 
 void
 ControlPanel::createActions()
 {
-    updateAct = new QAction("Обновить", this);
+    updateAct = new QAction(QIcon(":/icons/update.png"), "Обновить", this);
     updateAct->setShortcut(tr("F5"));
     connect(updateAct, SIGNAL(triggered()), this, SLOT(updateData()));
 
@@ -280,12 +279,14 @@ ControlPanel::unloadModel(QAbstractItemModel *model)
     int size = model->rowCount();
     for (int i = 0; i < size; ++i) {
         AccessObject ao(model->data(model->index(i, 0), Qt::EditRole).toString());
-        ao.uid = 0;
-        ao.gid = 0;
+        ao.uid = AccessAdmin::getInstance().getUID(model->data(model->index(i, 1)).toString());
+        ao.gid = AccessAdmin::getInstance().getGID(model->data(model->index(i, 2)).toString());
         ao.userMode = strToMode(model->data(model->index(i, 3), Qt::EditRole).toString());
         ao.groupMode = strToMode(model->data(model->index(i, 4), Qt::EditRole).toString());
         ao.othersMode = strToMode(model->data(model->index(i, 5), Qt::EditRole).toString());
         ao.role = strToRole(model->data(model->index(i, 6), Qt::EditRole).toString());
+        LOG << "Обновление данных об объекте" << ao.path << ENDL;
+        objects.append(ao);
     }
 
     return objects;
@@ -294,13 +295,13 @@ ControlPanel::unloadModel(QAbstractItemModel *model)
 void
 ControlPanel::loadModel(QStandardItemModel *model, const QList<AccessObject> &data)
 {
-    model->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
-    model->setHeaderData(1, Qt::Horizontal, QObject::tr("Владелец"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Группа"));
-    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Права владельца"));
-    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Права группы"));
-    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Права прочих"));
-    model->setHeaderData(6, Qt::Horizontal, QObject::tr("Гриф"));
+    model->setHeaderData(0, Qt::Horizontal, "Путь");
+    model->setHeaderData(1, Qt::Horizontal, "Владелец");
+    model->setHeaderData(2, Qt::Horizontal, "Группа");
+    model->setHeaderData(3, Qt::Horizontal, "Права владельца");
+    model->setHeaderData(4, Qt::Horizontal, "Права группы");
+    model->setHeaderData(5, Qt::Horizontal, "Права прочих");
+    model->setHeaderData(6, Qt::Horizontal, "Гриф");
     model->setRowCount(data.size());
     int idx = 0;
     for (auto obj : data) {
@@ -360,7 +361,7 @@ ControlPanel::loadUsers()
     for (auto user : data) {
         usersModel->setData(usersModel->index(idx, 0), user.name);
         usersModel->setData(usersModel->index(idx, 1), user.uid);
-        usersModel->setData(usersModel->index(idx, 2), user.gid);
+        usersModel->setData(usersModel->index(idx, 2), AccessAdmin::getInstance().getGroupName(user.gid));
         ++idx;
     }
     userLList->setModel(usersModel);
