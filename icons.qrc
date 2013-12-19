@@ -17,6 +17,6 @@
         <file>icons/secret_delete.png</file>
         <file>icons/up.png</file>
         <file>icons/exit.png</file>
-        <file>icons/save.png</file>
+        <file alias="icons/update.png">icons/save.png</file>
     </qresource>
 </RCC>
