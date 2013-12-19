@@ -2,40 +2,44 @@
 #include "accessadmin.h"
 #include "profile.h"
 
-void AccessAdmin::setAccess(QList<AccessObject> *collection, QString cpath,
-    int uid, int gid,
-    int userMode, int groupMode, int othersMode,
-    Role role)
+AccessAdmin &AccessAdmin::getInstance()
 {
-    AccessObject newObj(cpath, uid, gid, userMode, groupMode, othersMode, role);
+    static AccessAdmin instance;
+    return instance;
+}
 
-    int idx = collection->indexOf(cpath);
+AccessAdmin::AccessAdmin()
+{}
+
+void AccessAdmin::setAccess(QList<AccessObject> *collection, const AccessObject &obj)
+{
+    int idx = collection->indexOf(obj);
 
     if (idx < 0) {
-        collection->replace(idx, newObj);
+        collection->replace(idx, obj);
     } else {
-        collection->append(newObj);
+        collection->append(obj);
     }
 }
 
-void AccessAdmin::setAccessFile(QString cpath, int mode)
+void AccessAdmin::setAccessFile(const AccessObject &obj)
 {
-    //setAccess(&AccessControl::getInstance().allFiles, cpath, ); // TODO
+    setAccess(&AccessControl::getInstance().allFiles, obj);
 }
 
-void AccessAdmin::setAccessDrive(QString cpath, int mode)
+void AccessAdmin::setAccessDrive(const AccessObject &obj)
 {
-    // TODO
+    setAccess(&AccessControl::getInstance().allDrives, obj);
 }
 
-void AccessAdmin::setAccessDir(QString cpath, int mode)
+void AccessAdmin::setAccessDir(const AccessObject &obj)
 {
-    // TODO
+    setAccess(&AccessControl::getInstance().allDirs, obj);
 }
 
-void AccessAdmin::setAccessProgramExec(QString cpath)
+void AccessAdmin::setAccessProgramExec(const AccessObject &obj)
 {
-    // TODO
+    setAccess(&AccessControl::getInstance().allPrograms, obj);
 }
 
 bool AccessAdmin::setHashFile(QString path)
