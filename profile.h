@@ -5,11 +5,7 @@
 #include <QList>
 #include <QHash>
 #include <QDir>
-
-class AccessObject;
-class User;
-class Group;
-class AccessControl;
+#include "accesscontrol.h"
 
 class Profile
 {
@@ -36,6 +32,9 @@ public:
     QHash<QString, int> programs() const;
 
     bool isRoot() const;
+    Role curRole() const;
+    Role maxRole() const;
+    bool setCurRole(Role role);
 
 private:
     Profile();
@@ -51,6 +50,7 @@ private:
     // My little runtime information :-)
     int uid;
     QDir pwd;
+    Role fldCurRole;
 };
 
 #endif // PROFILE_H

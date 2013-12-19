@@ -55,6 +55,7 @@ struct User
     int gid;
     QString name;
     QByteArray passHash;
+    Role maxRole;
 };
 
 struct Group
@@ -76,6 +77,7 @@ class AccessControl
 {
     friend class Profile;
     friend class AccessAdmin;
+    friend class ControlPanel;
 
 public:
     static AccessControl &getInstance();
@@ -98,11 +100,15 @@ public:
     // path can be relative with respect Profile::getPWD().
     bool check(QString path) const;
 
+    // path can be relative with respect Profile::getPWD().
+    Role getRoleFile(QString path);
+    Role getRoleDrive(QString path);
+    Role getRoleDir(QString path);
+    Role getRoleProgram(QString path);
+
     void dbRead();
     void dbWrite();
 
-    friend class ControlPanel;
-    friend class AccessAdmin;
 private:
     AccessControl();
 
@@ -125,6 +131,9 @@ private:
     bool checkAccessDrive(QString apath, int mode) const;
     bool checkAccessDir(QString apath, int mode) const;
     bool checkAccessProgramExec(QString apath) const;
+
+    // path can be relative with respect Profile::getPWD().
+    Role getRole(const QList<AccessObject> *collection, QString path);
 
     // For admin or for newly created directories.
     // apath -- absolute path to file.
