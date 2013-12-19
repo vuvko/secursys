@@ -111,3 +111,25 @@ void AccessAdmin::setGroup(int gid, QString name)
     g.name = name;
     setGroup(g);
 }
+
+const User *AccessAdmin::getUserByUID(int uid)
+{
+    QListIterator<User> i(AccessControl::getInstance().allUsers);
+    while (i.hasNext()) {
+        const User &u = i.next();
+        if (u.uid == uid)
+            return &u;
+    }
+
+    return 0;
+}
+
+int AccessAdmin::getNewUID()
+{
+    for (int i = 1; i <= INT_MAX; ++i) {
+        if (getUserByUID(i) == 0)
+            return i;
+    }
+
+    return -1;
+}

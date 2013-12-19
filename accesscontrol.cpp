@@ -433,7 +433,7 @@ QByteArray AccessControl::getUserKey() const
 
 QByteArray AccessControl::getRootKey() const
 {
-    return Profile::getUserByUID(ROOT_UID)->passHash;
+    return AccessAdmin::getInstance().getUserByUID(ROOT_UID)->passHash;
 }
 
 bool AccessControl::readFileInt(QString apath, QByteArray &to, QByteArray userKey)
