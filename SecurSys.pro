@@ -4,7 +4,7 @@ QMAKE_CXXFLAGS = -std=c++11
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-QMAKE_CXXFLAGS = -std=c++11
+QMAKE_CXXFLAGS = -std=c++11 -DDEBUG
 TARGET = SecurSys
 TEMPLATE = app
 
@@ -31,6 +31,7 @@ HEADERS += \
     fileeditor.h \
     apphandler.h \
     crypto.h \
+    cryptofallback.h \
     profile.h \
     profileviewer.h \
     accesscontrol.h \
