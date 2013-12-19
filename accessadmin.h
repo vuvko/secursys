@@ -20,6 +20,12 @@ public:
     // path can be relative with respect Profile::getPWD().
     bool setHashFile(QString path);
 
+    void setUser(const User &u);
+    void setGroup(const Group &g);
+
+    void setUser(int uid, int gid, QString name, QString pass);
+    void setGroup(int gid, QString name);
+
 private:
     AccessAdmin();
 
