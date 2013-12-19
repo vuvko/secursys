@@ -91,6 +91,15 @@ QString AccessAdmin::getUserName(int uid)
     return QString();
 }
 
+QString AccessAdmin::getGroupName(int gid)
+{
+    for (auto ag : AccessControl::getInstance().allGroups) {
+        if (ag.gid == gid) {
+            return ag.name;
+        }
+    }
+}
+
 void AccessAdmin::setGroup(const Group &g)
 {
     bool found = false;

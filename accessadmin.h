@@ -36,6 +36,7 @@ public:
 
     // Return QString() on failure.
     QString getUserName(int uid);
+    QString getGroupName(int gid);
 
 private:
     AccessAdmin();

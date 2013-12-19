@@ -1,4 +1,5 @@
 #include "controlpanel.h"
+#include <QDebug>
 
 ControlPanel::ControlPanel(QWidget *parent) :
     QMainWindow(parent)
@@ -101,7 +102,17 @@ ControlPanel::ControlPanel(QWidget *parent) :
     setWindowIcon(QIcon(":/icons/user_info.png"));
     setWindowTitle("Панель администрирования");
 
-    updateData();
+    for (auto group : AccessControl::getInstance().allGroups) {
+        groupBox->addItem(group.name);
+    }
+    loadFiles();
+    loadDrives();
+    loadDirs();
+    loadPrograms();
+    loadUsers();
+    loadGroups();
+    logEdit->setPlainText(Logger::getInstance().read());
+    qDebug() << "Here";
 }
 
 void
@@ -169,6 +180,11 @@ ControlPanel::onAbout()
 void
 ControlPanel::updateData()
 {
+    AccessControl &ac = AccessControl::getInstance();
+    ac.allFiles = unloadModel(filesList->model());
+    ac.allDirs = unloadModel(dirsList->model());
+    ac.allDrives = unloadModel(drivesList->model());
+    ac.allPrograms = unloadModel(programsList->model());
     groupBox->clear();
     for (auto group : AccessControl::getInstance().allGroups) {
         groupBox->addItem(group.name);
@@ -187,15 +203,85 @@ ControlPanel::modeToStr(int mode)
 {
     QString str;
     if (mode & ACCESS_READ) {
-        str.append("Ч");
+        str.append("R");
     }
     if (mode & ACCESS_WRITE) {
-        str.append("З");
+        str.append("W");
     }
     if (mode & ACCESS_EXEC) {
-        str.append("В");
+        str.append("X");
     }
     return str;
+}
+
+int
+ControlPanel::strToMode(const QString &str)
+{
+    int mode = 0;
+    for (auto c : str) {
+        if (c == 'R') {
+            mode |= ACCESS_READ;
+        }
+        if (c == 'W') {
+            mode |= ACCESS_WRITE;
+        }
+        if (c == 'X') {
+            mode |= ACCESS_EXEC;
+        }
+    }
+}
+
+QString
+ControlPanel::roleToStr(int role)
+{
+    QString str;
+    switch (role) {
+    case ROLE_NOTHING:
+        str = "Не конфиденциально";
+        break;
+    case ROLE_CONFIDENTIAL:
+        str = "Конфиденциально";
+        break;
+    case ROLE_STRICT_CONFIDENTIAL:
+        str = "Строго конфиденциально";
+        break;
+    default:
+        str = "Что-то не так";
+        break;
+    }
+}
+
+Role
+ControlPanel::strToRole(const QString &str)
+{
+    if (str == "Не конфиденциально") {
+        return ROLE_NOTHING;
+    } else if (str == "Конфиденциально") {
+        return ROLE_CONFIDENTIAL;
+    } else if (str == "Строго конфиденциально") {
+        return ROLE_STRICT_CONFIDENTIAL;
+    } else {
+        return ROLE_NOTHING;
+    }
+}
+
+QList<AccessObject>
+ControlPanel::unloadModel(QAbstractItemModel *model)
+{
+    QList<AccessObject> objects;
+    if (!model) {
+        return objects;
+    }
+    int size = model->rowCount();
+    for (int i = 0; i < size; ++i) {
+        AccessObject ao(model->data(model->index(i, 0), Qt::EditRole).toString());
+        ao.uid = 0;
+        ao.gid = 0;
+        ao.userMode = strToMode(model->data(model->index(i, 3), Qt::EditRole).toString());
+        ao.groupMode = strToMode(model->data(model->index(i, 4), Qt::EditRole).toString());
+        ao.othersMode = strToMode(model->data(model->index(i, 5), Qt::EditRole).toString());
+        ao.role = strToRole(model->data(model->index(i, 6), Qt::EditRole).toString());
+    }
 }
 
 void
@@ -203,17 +289,21 @@ ControlPanel::loadModel(QStandardItemModel *model, const QList<AccessObject> &da
 {
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Владелец"));
-    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Права владельца"));
-    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Права группы"));
-    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Права прочих"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("Группа"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("Права владельца"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Права группы"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("Права прочих"));
+    model->setHeaderData(6, Qt::Horizontal, QObject::tr("Гриф"));
     model->setRowCount(data.size());
     int idx = 0;
     for (auto obj : data) {
         model->setData(model->index(idx, 0), obj.path);
         model->setData(model->index(idx, 1), AccessAdmin::getInstance().getUserName(obj.uid));
-        model->setData(model->index(idx, 2), modeToStr(obj.userMode));
-        model->setData(model->index(idx, 3), modeToStr(obj.groupMode));
-        model->setData(model->index(idx, 4), modeToStr(obj.othersMode));
+        model->setData(model->index(idx, 2), AccessAdmin::getInstance().getGroupName(obj.gid));
+        model->setData(model->index(idx, 3), modeToStr(obj.userMode));
+        model->setData(model->index(idx, 4), modeToStr(obj.groupMode));
+        model->setData(model->index(idx, 5), modeToStr(obj.othersMode));
+        model->setData(model->index(idx, 6), roleToStr(obj.role));
         ++idx;
     }
 }
@@ -221,7 +311,7 @@ ControlPanel::loadModel(QStandardItemModel *model, const QList<AccessObject> &da
 void
 ControlPanel::loadFiles()
 {
-    filesModel = new QStandardItemModel(0, 5, this);
+    filesModel = new QStandardItemModel(0, 7, this);
     loadModel(filesModel, AccessControl::getInstance().allFiles);
     filesList->setModel(filesModel);
 }
@@ -229,7 +319,7 @@ ControlPanel::loadFiles()
 void
 ControlPanel::loadDrives()
 {
-    drivesModel = new QStandardItemModel(0, 5, this);
+    drivesModel = new QStandardItemModel(0, 7, this);
     loadModel(drivesModel, AccessControl::getInstance().allDrives);
     drivesList->setModel(drivesModel);
 }
@@ -237,7 +327,7 @@ ControlPanel::loadDrives()
 void
 ControlPanel::loadDirs()
 {
-    dirsModel = new QStandardItemModel(0, 5, this);
+    dirsModel = new QStandardItemModel(0, 7, this);
     loadModel(dirsModel, AccessControl::getInstance().allDirs);
     dirsList->setModel(dirsModel);
 }
@@ -245,7 +335,7 @@ ControlPanel::loadDirs()
 void
 ControlPanel::loadPrograms()
 {
-    programsModel = new QStandardItemModel(0, 5, this);
+    programsModel = new QStandardItemModel(0, 7, this);
     loadModel(programsModel, AccessControl::getInstance().allPrograms);
     programsList->setModel(programsModel);
 }
