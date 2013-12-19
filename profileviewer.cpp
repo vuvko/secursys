@@ -87,7 +87,7 @@ void
 ProfileViewer::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("Файл"));
-    fileMenu->addAction(updateAct);
+    //fileMenu->addAction(updateAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -100,7 +100,7 @@ ProfileViewer::createToolBars()
 {
     fileBar = addToolBar(tr("Файл"));
     fileBar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
-    fileBar->addAction(updateAct);
+    //fileBar->addAction(updateAct);
 }
 
 void
@@ -148,8 +148,8 @@ ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &d
     model->setRowCount(data.size());
     int idx = 0;
     for (auto it = data.begin(); it != data.end(); ++it) {
-        model->setData(model->index(idx, 0), it.key());
-        model->setData(model->index(idx, 1), modeToStr(it.value()));
+        model->setData(model->index(idx, 0), it.key(), Qt::DisplayRole);
+        model->setData(model->index(idx, 1), modeToStr(it.value()), Qt::DisplayRole);
         ++idx;
     }
 }
