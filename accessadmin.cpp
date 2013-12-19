@@ -69,6 +69,7 @@ void AccessAdmin::setUser(const User &u)
             au.gid = u.gid;
             au.name = u.name;
             au.passHash = u.passHash;
+            au.maxRole = u.maxRole;
             found = true;
             break;
         }
@@ -107,13 +108,15 @@ void AccessAdmin::setGroup(const Group &g)
     }
 }
 
-void AccessAdmin::setUser(int uid, int gid, QString name, QString pass)
+void AccessAdmin::setUser(int uid, int gid, QString name, QString pass,
+    Role maxRole)
 {
     User u;
     u.uid = uid;
     u.gid = gid;
     u.name = name;
     u.passHash = Crypto::getInstance().hash_256(pass.toUtf8());
+    u.maxRole = maxRole;
     setUser(u);
 }
 

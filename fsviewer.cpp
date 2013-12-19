@@ -129,10 +129,25 @@ FileView::update()
         } else if (info.suffix() == secret_suffix) {
             type = QIcon(":/icons/secret.png");
         }
+
+        AccessControl &ac = AccessControl::getInstance();
+        Role role =
+            info.isExecutable() ? ac.getRoleProgram(info.fileName()) :
+            info.isDir()        ? ac.getRoleDir(    info.fileName()) :
+            info.isFile()       ? ac.getRoleFile(   info.fileName()) :
+            ROLE_NOTHING;
+        // TODO: drives
+
+        QString roleStr =
+            (role == ROLE_NOTHING) ? tr("Не конфиденциально") :
+            (role == ROLE_CONFIDENTIAL) ? tr("Конфиденциально") :
+            (role == ROLE_STRICT_CONFIDENTIAL) ? tr("Строго конфиденциально") :
+            tr("Битая метка конфиденциальности");
+
         dirModel->setData(dirModel->index(idx, 0), type, Qt::DecorationRole);
         dirModel->setData(dirModel->index(idx, 1), info.fileName());
         dirModel->setData(dirModel->index(idx, 2), info.lastModified());
-        dirModel->setData(dirModel->index(idx, 3), "Не секретно"); // TODO: заглушка
+        dirModel->setData(dirModel->index(idx, 3), roleStr);
         dirModel->setData(dirModel->index(idx, 4), info.size());
         ++idx;
     }

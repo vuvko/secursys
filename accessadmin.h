@@ -23,7 +23,8 @@ public:
 
     void setUser(const User &u);
     void setGroup(const Group &g);
-    void setUser(int uid, int gid, QString name, QString pass);
+    void setUser(int uid, int gid, QString name, QString pass,
+        Role maxRole);
     void setGroup(int gid, QString name);
 
     const User *getUserByUID(int uid);
