@@ -91,7 +91,11 @@ private:
     void createToolbars();
 
     QString modeToStr(int mode);
+    int strToMode(const QString &str);
+    QString roleToStr(int role);
+    Role strToRole(const QString &str);
 
+    QList<AccessObject> unloadModel(QAbstractItemModel *model);
     void loadModel(QStandardItemModel *model, const QList<AccessObject> &data);
     void loadFiles();
     void loadDrives();

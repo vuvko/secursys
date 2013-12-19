@@ -253,6 +253,7 @@ FSViewer::createActions()
 
     mnuPanel = new QAction(QIcon(":/icons/user_info.png"), "Панель администрирования", this);
     connect(mnuPanel, SIGNAL(triggered()), this, SLOT(onPanel()));
+    mnuPanel->setEnabled(Profile::getInstance().isRoot());
 }
 
 void
