@@ -38,8 +38,6 @@ void
 LoginDialog::loginResult(bool isCorrect)
 {
     if (isCorrect) {
-        QMessageBox::information(this, tr("Вход в систему защиты информации"),
-                                 tr("Вход успешен"));
         emit login();
     } else {
         QMessageBox::information(this, tr("Вход в систему защиты информации"),
