@@ -1,6 +1,7 @@
 #include <QDir>
 #include "accessadmin.h"
 #include "profile.h"
+#include "crypto.h"
 
 AccessAdmin &AccessAdmin::getInstance()
 {
@@ -57,4 +58,56 @@ bool AccessAdmin::setHashFile(QString path)
         AccessControl::getInstance().dbWrite();
     }
     return ok;
+}
+
+void AccessAdmin::setUser(const User &u)
+{
+    bool found = false;
+
+    for (auto au : AccessControl::getInstance().allUsers) {
+        if (au.uid == u.uid) {
+            au.gid = u.gid;
+            au.name = u.name;
+            au.passHash = u.passHash;
+            found = true;
+            break;
+        }
+    }
+
+    if (found)
+        AccessControl::getInstance().dbWrite();
+}
+
+void AccessAdmin::setGroup(const Group &g)
+{
+    bool found = false;
+
+    for (auto ag : AccessControl::getInstance().allGroups) {
+        if (ag.gid == g.gid) {
+            ag.name = g.name;
+            found = true;
+            break;
+        }
+    }
+
+    if (found)
+        AccessControl::getInstance().dbWrite();
+}
+
+void AccessAdmin::setUser(int uid, int gid, QString name, QString pass)
+{
+    User u;
+    u.uid = uid;
+    u.gid = gid;
+    u.name = name;
+    u.passHash = Crypto::getInstance().hash_256(pass.toUtf8());
+    setUser(u);
+}
+
+void AccessAdmin::setGroup(int gid, QString name)
+{
+    Group g;
+    g.gid = gid;
+    g.name = name;
+    setGroup(g);
 }

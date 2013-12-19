@@ -24,8 +24,6 @@
 #include <QDir>
 #include <QFile>
 
-#include <QDebug>
-
 class AccessControl;
 
 class AppHandler;

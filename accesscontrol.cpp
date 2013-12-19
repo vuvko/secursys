@@ -64,7 +64,7 @@ bool AccessControl::readFile(QString path, QByteArray &to)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка чтения файла",
-                             QString("Не достаточно прав для открытия файла \"%1\".").arg(apath));
+                             QString("Недостаточно прав для чтения файла \"%1\".").arg(apath));
         LOG << tr("Access denied at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -72,8 +72,8 @@ bool AccessControl::readFile(QString path, QByteArray &to)
     ok = ok && readFileInt(apath, to);
 
     if (!ok) {
-        QMessageBox::warning(NULL, "Попытка открытия файла",
-                             QString("Не удалось открыть файл \"%1\"").arg(apath));
+        QMessageBox::warning(NULL, "Попытка чтения файла",
+                             QString("Не удалось прочитать файл \"%1\"").arg(apath));
         LOG << tr("Something went wrong at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -86,8 +86,8 @@ bool AccessControl::writeFile(QString path, QByteArray &data)
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
     QString adir = info.absolutePath();
+    QString apath = info.absoluteFilePath();
     QString name = info.fileName();
-    QString apath = QDir::fromNativeSeparators(adir + QDir::separator() + name);
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
@@ -101,7 +101,7 @@ bool AccessControl::writeFile(QString path, QByteArray &data)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка записи файла",
-                             QString("Не достаточно прав для записи файла \"%1\".").arg(apath));
+                             QString("Недостаточно прав для записи файла \"%1\".").arg(apath));
         LOG << tr("Access denied at writing file \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -132,7 +132,7 @@ bool AccessControl::cd(QString path)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка сменить каталог",
-                             QString("Не достаточно прав для перехода в каталог \"%1\".").arg(apath));
+                             QString("Недостаточно прав для перехода в каталог \"%1\".").arg(apath));
         LOG << tr("Access denied at cd \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -162,7 +162,7 @@ bool AccessControl::mkdir(QString path)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка создания каталога",
-                             QString("Не достаточно прав для создания каталога \"%1\".").arg(apath));
+                             QString("Недостаточно прав для создания каталога \"%1\".").arg(apath));
         LOG << tr("Access denied at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -189,10 +189,11 @@ bool AccessControl::rmdir(QString path)
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
     ok = ok && checkAccessDir(adir, ACCESS_WRITE);
+    ok = ok && checkAccessDir(apath, ACCESS_WRITE);
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка удаления каталога",
-                             QString("Не достаточно прав для удаления каталога \"%1\".").arg(apath));
+                             QString("Недостаточно прав для удаления каталога \"%1\".").arg(apath));
         LOG << tr("Access denied at rmdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -226,7 +227,7 @@ bool AccessControl::rm(QString path)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка удаления файла",
-                             QString("Не достаточно прав для удаления файла \"%1\".").arg(apath));
+                             QString("Недостаточно прав для удаления файла \"%1\".").arg(apath));
         LOG << tr("Access denied at rm \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -256,7 +257,7 @@ bool AccessControl::exec(QString path)
 
     if (!ok) {
         QMessageBox::warning(NULL, "Попытка запуска программы",
-                             QString("Не достаточно прав для запуска программы \"%1\".").arg(apath));
+                             QString("Недостаточно прав для запуска программы \"%1\".").arg(apath));
         LOG << tr("Access denied at exec \"%1\".").arg(apath) << ENDL;
         return false;
     }
@@ -422,7 +423,7 @@ void AccessControl::setDefaultAccessFile(QString apath)
 
 QString AccessControl::getDrive(QString apath)
 {
-    return QString(apath.at(0));
+    return QString(apath.at(0)).toUpper();
 }
 
 QByteArray AccessControl::getUserKey() const

@@ -90,8 +90,10 @@ FileEditor::closeEvent(QCloseEvent *event)
 bool
 FileEditor::open()
 {
+    QDir pwd(Profile::getInstance().getPWD());
     QByteArray data;
-    if (QFileInfo(fileName).exists()) {
+
+    if (QFileInfo(pwd, fileName).exists()) {
         if (!AccessControl::getInstance().readFile(fileName, data))
             return false;
     }
