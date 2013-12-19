@@ -21,7 +21,7 @@ Profile::Profile()
 
 QString Profile::getPWD()
 {
-    return pwd.canonicalPath();
+    return pwd.absolutePath();
 }
 
 QDir &Profile::getConstDirPWD()

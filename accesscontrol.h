@@ -106,33 +106,33 @@ private:
     AccessControl(const AccessControl &);
     void operator=(const AccessControl &);
 
-    // cpath -- canonical path to file.
-    QString getDrive(QString cpath);
+    // apath -- absolute path to file.
+    QString getDrive(QString apath);
 
     QByteArray getUserKey() const;
     QByteArray getRootKey() const;
 
     bool checkAccess(const QList<AccessObject> *collection,
-        QString cpath, int mode) const;
+        QString apath, int mode) const;
 
     // Check access for current user.
-    // cpath -- canonical path to file.
-    bool checkAccessFile(QString cpath, int mode) const;
-    bool checkAccessDrive(QString cpath, int mode) const;
-    bool checkAccessDir(QString cpath, int mode) const;
-    bool checkAccessProgramExec(QString cpath) const;
+    // apath -- absolute path to file.
+    bool checkAccessFile(QString apath, int mode) const;
+    bool checkAccessDrive(QString apath, int mode) const;
+    bool checkAccessDir(QString apath, int mode) const;
+    bool checkAccessProgramExec(QString apath) const;
 
     // For admin or for newly created directories.
-    // cpath -- canonical path to file.
-    void setDefaultAccessFile(QString cpath);
-    void setDefaultAccessDir(QString cpath);
+    // apath -- absolute path to file.
+    void setDefaultAccessFile(QString apath);
+    void setDefaultAccessDir(QString apath);
 
-    bool readFileInt(QString cpath, QString &to, QByteArray userKey);
-    bool readFileInt(QString cpath, QString &to);   // use getUserKey().
-    bool writeFileInt(QString cpath, QString data, QByteArray userKey);
-    bool writeFileInt(QString cpath, QString data); // use getUserKey().
+    bool readFileInt(QString apath, QString &to, QByteArray userKey);
+    bool readFileInt(QString apath, QString &to);   // use getUserKey().
+    bool writeFileInt(QString apath, QString data, QByteArray userKey);
+    bool writeFileInt(QString apath, QString data); // use getUserKey().
 
-    static QByteArray calcHashFile(QString cpath);
+    static QByteArray calcHashFile(QString apath);
 
     // Fields
     // ======
