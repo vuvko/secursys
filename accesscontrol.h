@@ -112,8 +112,8 @@ private:
     AccessControl(const AccessControl &);
     void operator=(const AccessControl &);
 
-    bool dbRead();
-    bool dbWrite();
+    void dbRead();
+    void dbWrite() const;
 
     QByteArray getUserKey();
 
@@ -150,6 +150,8 @@ private:
 
     QString readFileInt(QString cpath);
     void writeFileInt(QString cpath, QString data);
+
+    static QByteArray get_hash_file(QString cpath);
 
     // Access objects.
     QList<AccessObject> allFiles;

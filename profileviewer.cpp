@@ -1,18 +1,17 @@
 #include "profileviewer.h"
+#include "accesscontrol.h"
 
-ProfileViewer::ProfileViewer(const Profile *profile_, AppHandler *handler_, QWidget *parent) :
+ProfileViewer::ProfileViewer(QWidget *parent) :
     QMainWindow(parent)
 {
-    handler = handler_;
-    profile = profile_;
     centralWidget = new QWidget;
     mainLayout = new QGridLayout;
     setCentralWidget(centralWidget);
     centralWidget->setLayout(mainLayout);
 
     userBox = new QGroupBox(tr("Информация о пользователе"));
-    userLabel = new QLabel(tr("Пользователь: ") + profile->userName());
-    groupLabel = new QLabel(tr("Группа: ") + profile->groupName());
+    userLabel = new QLabel(tr("Пользователь: ") + Profile::getInstance().userName());
+    groupLabel = new QLabel(tr("Группа: ") + Profile::getInstance().groupName());
     userLayout = new QGridLayout;
 
     permissionBox = new QGroupBox(tr("Права на доступ"));
@@ -154,7 +153,7 @@ ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &d
 void
 ProfileViewer::loadFiles()
 {
-    loadModel(filesModel, profile->files());
+    loadModel(filesModel, Profile::getInstance().files());
     filesList->setModel(filesModel);
     filesList->setColumnWidth(0, 500);
 }
@@ -162,7 +161,7 @@ ProfileViewer::loadFiles()
 void
 ProfileViewer::loadDrives()
 {
-    loadModel(drivesModel, profile->drives());
+    loadModel(drivesModel, Profile::getInstance().drives());
     drivesList->setModel(drivesModel);
     drivesList->setColumnWidth(0, 500);
 }
@@ -170,7 +169,7 @@ ProfileViewer::loadDrives()
 void
 ProfileViewer::loadDirs()
 {
-    loadModel(dirsModel, profile->dirs());
+    loadModel(dirsModel, Profile::getInstance().dirs());
     dirsList->setModel(dirsModel);
     dirsList->setColumnWidth(0, 500);
 }
@@ -178,7 +177,7 @@ ProfileViewer::loadDirs()
 void
 ProfileViewer::loadPrograms()
 {
-    loadModel(programsModel, profile->programs());
+    loadModel(programsModel, Profile::getInstance().programs());
     programsList->setModel(programsModel);
     programsList->setColumnWidth(0, 500);
 }

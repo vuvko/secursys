@@ -23,7 +23,7 @@ class ProfileViewer : public QMainWindow
 {
     Q_OBJECT
 public:
-    explicit ProfileViewer(const Profile *profile_, AppHandler *handler_ = 0, QWidget *parent = 0);
+    explicit ProfileViewer(QWidget *parent = 0);
     
 signals:
     void update();
@@ -36,9 +36,6 @@ private slots:
     void onAbout();
 
 private:
-    const Profile *profile;
-    AppHandler *handler;
-
     QMenu *fileMenu;
     QAction *updateAct;
     QAction *exitAct;

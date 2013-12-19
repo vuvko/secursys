@@ -1,6 +1,7 @@
 #include "apphandler.h"
 #include "accesscontrol.h"
 #include "profile.h"
+#include "crypto.h"
 
 AppHandler::AppHandler(QObject *parent)
     : QObject(parent)
@@ -12,7 +13,7 @@ void
 AppHandler::startFS(const QString &path)
 {
     Logger::getInstance() << "Открытие файлового менеджера. Текущий путь: " << path << Logger::ENDL;
-    FSViewer *viewer = new FSViewer(ac, path, this);
+    FSViewer *viewer = new FSViewer();
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
     connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
     viewer->show();
@@ -24,8 +25,7 @@ AppHandler::startLogin()
     Logger::getInstance() << "Запрос авторизации пользователя." << Logger::ENDL;
     LoginDialog *dialog = new LoginDialog;
 
-    // TODO: move this to ???
-    if (!_crypto.isReady()) {
+    if (!Crypto::getInstance().isReady()) {
         QMessageBox::critical(dialog, tr("Критическая ошибка"),
             tr("Не удалось найти %1. Завершение работы...").arg(CRYPTO_PATH));
         exit(EXIT_FAILURE);
@@ -44,14 +44,14 @@ void
 AppHandler::openFile(const QString &fileName)
 {
     Logger::getInstance() << "Открытие файла" << fileName << Logger::ENDL;
-    FileEditor *editor = new FileEditor(fileName, key, this); // TODO: заглушка
+    FileEditor *editor = new FileEditor(fileName);
     editor->show();
 }
 
 void
 AppHandler::openProfile()
 {
-    ProfileViewer *viewer = new ProfileViewer(_profile, this);
+    ProfileViewer *viewer = new ProfileViewer();
     connect(viewer, SIGNAL(update()), this, SLOT(onProfileUpdate()));
     connect(this, SIGNAL(updateResult(bool)), viewer, SLOT(updateResult(bool)));
     viewer->show();
@@ -74,12 +74,8 @@ AppHandler::onLoginTry(const QString &userName, const QString &userPass)
 {
     Logger::getInstance() << "Попытка авторизации." <<
                           "Пользователь:" << userName <<
-                          "Пароль:" << pass << Logger::ENDL;
-    QByteArray passHash = _crypto.hash_256(pass.toLocal8Bit());
+                          "Пароль:" << userPass << Logger::ENDL;
     int uid = AccessControl::getInstance().checkLogin(userName, userPass);
-
-    uid = 0;
-    _profile = new Profile(ac, uid);
 
     if (uid == -1) {
         Logger::getInstance() << "Авторизация пользователя неудачна." << Logger::ENDL;
@@ -102,41 +98,4 @@ void
 AppHandler::onProfileUpdate()
 {
     emit updateResult(true);
-}
-
-////////////////////////////////////////////
-
-QByteArray
-AppHandler::get_hash(const QByteArray &msg)
-{
-    return _crypto.hash_256(msg);
-}
-
-QByteArray
-AppHandler::get_hash_file(const QString path)
-{
-    QFile file(path);
-    file.open(QFile::ReadOnly);
-    QByteArray hash = get_hash(file.readAll());
-    file.close();
-    return hash;
-}
-
-QByteArray
-AppHandler::get_key(const QString &path)
-{
-    qDebug() << "Запрос ключа шифрования файла" << path;
-    return key; // TODO: заглушка
-}
-
-QString
-AppHandler::decode(const QByteArray &msg, const QByteArray &key_)
-{
-    return _crypto.decrypt(msg, key);
-}
-
-QByteArray
-AppHandler::encode(const QString &msg, const QByteArray &key_)
-{
-    return _crypto.encrypt(msg.toLocal8Bit(), key);
 }

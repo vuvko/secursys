@@ -1,10 +1,9 @@
 #include "fileeditor.h"
+#include "accesscontrol.h"
 
-FileEditor::FileEditor(const QString &fileN, const QByteArray key_, AppHandler *handler_, QWidget *parent)
+FileEditor::FileEditor(const QString &fileN, QWidget *parent)
     : QMainWindow(parent)
 {
-    handler = handler_;
-    key = key_;
     fileName = fileN;
     textEdit = new QPlainTextEdit;
     setCentralWidget(textEdit);
@@ -94,22 +93,8 @@ bool
 FileEditor::open()
 {
     qDebug() << "Открытие файла" << fileName;
-    QFile file(fileName);
-    if (!file.open(QFile::ReadOnly)) {
-        return false;
-    }
-
-#ifndef QT_NO_CURSOR
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-#endif
-    QByteArray encr = QByteArray::fromHex(file.readAll());
-    textEdit->setPlainText(handler->decode(encr, key));
-#ifndef QT_NO_CURSOR
-    QApplication::restoreOverrideCursor();
-#endif
-
-    file.close();
-
+    QString text(AccessControl::getInstance().readFile(fileName));
+    textEdit->setPlainText(text);
     statusBar()->showMessage(tr("Файл загружен"), 2000);
     return true;
 }
@@ -145,9 +130,9 @@ bool
 FileEditor::saveFile(const QString &fileName)
 {
     qDebug() << "Сохранение файла" << fileName;
-    QFile file(fileName);
 
     QString msg = textEdit->toPlainText();
+    AccessControl::getInstance().writeFile(fileName, msg);
 
     textEdit->document()->setModified(false);
     setWindowModified(textEdit->document()->isModified());

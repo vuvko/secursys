@@ -14,18 +14,12 @@
 
 #include <QDebug>
 
-#include "apphandler.h"
-
-class AppHandler;
-
 class FileEditor : public QMainWindow
 {
     Q_OBJECT
 
 public:
     explicit FileEditor(const QString &file,
-                        const QByteArray key,
-                        AppHandler *handler_ = 0,
                         QWidget *parent = 0);
 
 protected:
@@ -60,9 +54,6 @@ private:
     QAction *aboutAct;
 
     QToolBar *fileToolBar;
-
-    AppHandler *handler;
-    QByteArray key;
 };
 
 #endif // FILEEDITOR_H

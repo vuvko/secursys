@@ -2,6 +2,7 @@
 #define CRYPTO_H
 
 #include <QLibrary>
+#define CRYPTO_PATH "AES256.dll"
 
 class Crypto
 {
