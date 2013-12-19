@@ -11,8 +11,7 @@
 #include <QMessageBox>
 #include <QStatusBar>
 #include <QFileInfo>
-
-#include <QDebug>
+#include "profile.h"
 
 class FileEditor : public QMainWindow
 {
