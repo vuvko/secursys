@@ -145,6 +145,7 @@ bool AccessControl::mkdir(QString path)
     QString name = info.fileName();
     QString cpath = cdir + QDir::separator() + name;
 
+    qDebug() << "mkdir cpath" << cpath;
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
