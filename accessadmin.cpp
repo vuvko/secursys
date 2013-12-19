@@ -182,3 +182,27 @@ int AccessAdmin::getNewGID()
 
     return -1;
 }
+
+int AccessAdmin::getUID(const QString &name)
+{
+    int uid = -1;
+    for (auto user : AccessControl::getInstance().allUsers) {
+        if (user.name == name) {
+            return user.uid;
+        }
+    }
+
+    return uid;
+}
+
+int AccessAdmin::getGID(const QString &name)
+{
+    int gid = -1;
+    for (auto group : AccessControl::getInstance().allGroups) {
+        if (group.name == name) {
+            return group.gid;
+        }
+    }
+
+    return gid;
+}
