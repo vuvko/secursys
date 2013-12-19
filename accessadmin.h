@@ -33,6 +33,7 @@ public:
     // Return -1 on failure.
     int getNewUID();
     int getNewGID();
+
     QString getUserName(int uid);
 
 private:

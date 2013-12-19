@@ -75,10 +75,9 @@ void AccessAdmin::setUser(const User &u)
         }
     }
 
-    if (!found) {
+    if (!found)
         AccessControl::getInstance().allUsers.append(u);
-        AccessControl::getInstance().dbWrite();
-    }
+    AccessControl::getInstance().dbWrite();
 }
 
 QString AccessAdmin::getUserName(int uid)
@@ -102,10 +101,9 @@ void AccessAdmin::setGroup(const Group &g)
         }
     }
 
-    if (!found) {
+    if (!found)
         AccessControl::getInstance().allGroups.append(g);
-        AccessControl::getInstance().dbWrite();
-    }
+    AccessControl::getInstance().dbWrite();
 }
 
 void AccessAdmin::setUser(int uid, int gid, QString name, QString pass,
