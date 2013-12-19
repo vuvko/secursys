@@ -13,8 +13,10 @@ LoginDialog::LoginDialog(QWidget *parent) :
     userEdit = new QLineEdit(tr("root"));
     passEdit = new QLineEdit(tr("password"));
     passEdit->setEchoMode(QLineEdit::Password);
+
     tryButton = new QPushButton(QIcon(":/icons/enter.png"), tr("Войти"), this);
     cancelButton = new QPushButton(QIcon(":/icons/cancel.png"), tr("Выйти"), this);
+    tryButton->setDefault(true);
 
     connect(tryButton, SIGNAL(clicked()), this, SLOT(onTryButton()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButton()));

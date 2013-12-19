@@ -1,5 +1,6 @@
 #include "profile.h"
 #include "accesscontrol.h"
+#include "accessadmin.h"
 
 Profile &Profile::getInstance()
 {
@@ -30,22 +31,9 @@ QDir &Profile::getConstDirPWD()
 }
 
 const User *
-Profile::getUserByUID(int uid)
-{
-    QListIterator<User> i(AccessControl::getInstance().allUsers);
-    while (i.hasNext()) {
-        const User &u = i.next();
-        if (u.uid == uid)
-            return &u;
-    }
-
-    return 0;
-}
-
-const User *
 Profile::getUser() const
 {
-    return getUserByUID(uid);
+    return AccessAdmin::getInstance().getUserByUID(uid);
 }
 
 const Group *

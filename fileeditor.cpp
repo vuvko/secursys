@@ -99,6 +99,8 @@ FileEditor::open()
     }
 
     textEdit->setPlainText(QString::fromUtf8(data));
+    textEdit->document()->setModified(false);
+    setWindowModified(textEdit->document()->isModified());
     statusBar()->showMessage(tr("Файл загружен"), 2000);
     return true;
 }

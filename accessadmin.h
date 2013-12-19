@@ -10,21 +10,26 @@ class AccessAdmin
 public:
     static AccessAdmin &getInstance();
 
+    // Most of fuctions for root usage only.
+
     // For root or for (via setDefault*) newly created files/dirs.
     void setAccessFile(const AccessObject &obj);
     void setAccessDrive(const AccessObject &obj);
     void setAccessDir(const AccessObject &obj);
     void setAccessProgramExec(const AccessObject &obj);
 
-    // For root only.
     // path can be relative with respect Profile::getPWD().
     bool setHashFile(QString path);
 
     void setUser(const User &u);
     void setGroup(const Group &g);
-
     void setUser(int uid, int gid, QString name, QString pass);
     void setGroup(int gid, QString name);
+
+    const User *getUserByUID(int uid);
+
+    // Return -1 on failure.
+    int getNewUID();
 
 private:
     AccessAdmin();
