@@ -74,14 +74,14 @@ AppHandler::onLoginTry(const QString &userName, const QString &userPass)
 {
     LOG << "Попытка авторизации." <<
                           "Пользователь:" << userName <<
-                          "Пароль:" << userPass << ENDL;
+                          "Пароль:" << userPass;
     int uid = AccessControl::getInstance().checkLogin(userName, userPass);
 
     if (uid == -1) {
-        LOG << "Авторизация пользователя неудачна." << ENDL;
+        LOG << ": отказано." << ENDL;
         emit login(false);
     } else {
-        LOG << "Авторизация пользователя прошла успешно." << ENDL;
+        LOG << ": успешно." << ENDL;
         Profile::getInstance().initialize(uid);
         emit login(true);
     }
