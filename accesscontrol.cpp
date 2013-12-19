@@ -307,6 +307,7 @@ void AccessControl::dbRead()
     root.gid = 0;
     root.name = "root";
     root.passHash = Crypto::getInstance().hash_256(QString("password").toUtf8());
+    root.maxRole = ROLE_NOTHING;
 
     allUsers.append(root);
 
@@ -361,6 +362,10 @@ void AccessControl::dbWrite()
 bool AccessControl::checkAccess(const QList<AccessObject> *collection,
     QString apath, int mode) const
 {
+    if (Profile::getInstance().isRoot()) {
+        return true;
+    }
+
     int idx = collection->indexOf(apath);
 
     if (idx < 0)
@@ -378,7 +383,11 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
         ok = ok && (obj.othersMode & mode) != 0;
     }
 
-    ok = ok && obj.role == ROLE_NOTHING; // TODO
+    ok = ok && obj.role <= Profile::getInstance().curRole();
+
+    if (ok && (mode & ACCESS_WRITE)) {
+        obj.role = Profile::getInstance().curRole();
+    }
 
     return ok;
 }
@@ -407,6 +416,41 @@ bool AccessControl::check(QString apath) const
 {
     QByteArray hash = calcHashFile(apath);
     return allHashes.value(apath) == hash;
+}
+
+Role AccessControl::getRole(const QList<AccessObject> *collection,
+    QString path)
+{
+    QDir pwd(Profile::getInstance().getPWD());
+    QFileInfo info(pwd, path);
+    QString apath = info.absoluteFilePath();
+
+    int idx = collection->indexOf(apath);
+
+    if (idx < 0)
+        return ROLE_NOTHING;
+
+    return collection->at(idx).role;
+}
+
+Role AccessControl::getRoleFile(QString path)
+{
+    return getRole(&allFiles, path);
+}
+
+Role AccessControl::getRoleDrive(QString path)
+{
+    return getRole(&allDrives, path);
+}
+
+Role AccessControl::getRoleDir(QString path)
+{
+    return getRole(&allDirs, path);
+}
+
+Role AccessControl::getRoleProgram(QString path)
+{
+    return getRole(&allPrograms, path);
 }
 
 void AccessControl::setDefaultAccessDir(QString apath)
@@ -527,13 +571,17 @@ QDataStream &operator>>(QDataStream &in, AccessObject &obj)
 
 QDataStream &operator<<(QDataStream &out, const User &obj)
 {
-    out << obj.uid << obj.gid << obj.name << obj.passHash;
+    out << obj.uid << obj.gid << obj.name << obj.passHash
+        << static_cast<int>(obj.maxRole);
     return out;
 }
 
 QDataStream &operator>>(QDataStream &in, User &obj)
 {
-    in >> obj.uid >> obj.gid >> obj.name >> obj.passHash;
+    int tmpInt;
+    in >> obj.uid >> obj.gid >> obj.name >> obj.passHash
+        >> tmpInt;
+    obj.maxRole = static_cast<Role>(tmpInt);
     return in;
 }
 
