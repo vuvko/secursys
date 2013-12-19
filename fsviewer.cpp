@@ -87,13 +87,17 @@ FileView::editFile(const QString &nameArg)
     if (name.isEmpty()) {
         name = QInputDialog::getText(this, tr("Создание секретного файла"),
             tr("Название нового файла:"));
-    } else if (QFileInfo(name).suffix() != secret_suffix) {
+
+        if (name.isNull())
+            return false;
+    }
+
+    if (name.isEmpty() || QFileInfo(name).suffix() != secret_suffix) {
+        QMessageBox::warning(NULL, tr("Недопустимое имя"),
+            tr("Имя секретного файла не должно быть пустым и должно оканчиваться на \".sf\"."));
         return false;
     }
 
-    if (name.isEmpty())
-        return false;
-    
     emit openFile(name);
     update();
     return true;
@@ -147,7 +151,7 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
     } else if (info.isExecutable()) {
         exec(info.absoluteFilePath());
     } else {
-        editFile(info.absoluteFilePath());
+        editFile(info.fileName());
     }
 }
 
@@ -340,10 +344,10 @@ FSViewer::onProfile()
 void
 FSViewer::onPathChange()
 {
-    QDir dir;
+    QDir pwd(Profile::getInstance().getPWD());
     QString path = pathEdit->text();
-    if (dir.exists(path)) {
-        AccessControl::getInstance().cd(path);
+    if (QFileInfo(pwd, path).exists()) {
+        dirView->cd(path);
     } else {
         QMessageBox::warning(this, tr("Ошибка перехода в каталог"), tr("Не существует каталога ") + path);
     }
