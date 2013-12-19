@@ -158,6 +158,7 @@ ControlPanel::onRegister()
     int gid = AccessControl::getInstance().allGroups[groupBox->currentIndex()].gid;
     aa.setUser(aa.getNewUID(), gid, userEdit->text(), passEdit->text(), ROLE_NOTHING); // TODO
     updateData();
+    QMessageBox::information(this, "Добавление пользователя", "Пользователь " + userEdit->text() + " успешно добавлен.");
 }
 
 void
@@ -167,6 +168,7 @@ ControlPanel::onAddGroup()
     AccessAdmin &aa = AccessAdmin::getInstance();
     aa.setGroup(aa.getNewGID(), groupEdit->text());
     updateData();
+    QMessageBox::information(this, "Добавление группы", "Группа " + groupEdit->text() + " успешно добавлена.");
 }
 
 void
