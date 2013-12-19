@@ -100,6 +100,8 @@ public:
 
     void dbRead();
     void dbWrite();
+
+    friend class ControlPanel;
 private:
     AccessControl();
 

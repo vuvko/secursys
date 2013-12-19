@@ -30,6 +30,7 @@ public:
 
     // Return -1 on failure.
     int getNewUID();
+    QString getUserName(int uid);
 
 private:
     AccessAdmin();
