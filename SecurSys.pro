@@ -22,7 +22,8 @@ SOURCES += \
     profile.cpp \
     profileviewer.cpp \
     accesscontrol.cpp \
-    accessadmin.cpp
+    accessadmin.cpp \
+    controlpanel.cpp
 
 HEADERS += \
     logindialog.h \
@@ -35,5 +36,6 @@ HEADERS += \
     profile.h \
     profileviewer.h \
     accesscontrol.h \
-    accessadmin.h
+    accessadmin.h \
+    controlpanel.h
 

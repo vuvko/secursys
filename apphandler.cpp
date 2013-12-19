@@ -16,6 +16,7 @@ AppHandler::startFS(const QString &path)
     FSViewer *viewer = new FSViewer();
     connect(viewer, SIGNAL(openFile(QString)), this, SLOT(openFile(QString)));
     connect(viewer, SIGNAL(openProfile()), this, SLOT(openProfile()));
+    connect(viewer, SIGNAL(openPanel()), this, SLOT(openPanel()));
     viewer->show();
 }
 
@@ -57,6 +58,13 @@ AppHandler::openProfile()
     connect(viewer, SIGNAL(update()), this, SLOT(onProfileUpdate()));
     connect(this, SIGNAL(updateResult(bool)), viewer, SLOT(updateResult(bool)));
     viewer->show();
+}
+
+void
+AppHandler::openPanel()
+{
+    ControlPanel *panel = new ControlPanel;
+    panel->show();
 }
 
 void

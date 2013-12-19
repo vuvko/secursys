@@ -10,6 +10,7 @@
 #include "logindialog.h"
 #include "profileviewer.h"
 #include "logger.h"
+#include "controlpanel.h"
 
 class AppHandler : public QObject
 {
@@ -30,6 +31,7 @@ public slots:
     void openFS(const QString &path = ".");
     void openProfile();
     void openLogin();
+    void openPanel();
     void onLoginTry(const QString &userName, const QString &pass);
     void onLogin();
     void onProfileUpdate();
