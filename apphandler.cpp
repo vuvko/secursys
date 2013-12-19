@@ -31,8 +31,6 @@ AppHandler::startLogin()
         exit(EXIT_FAILURE);
     }
 
-    // здесь надо перевести сигналы в надлежащий модуль
-     // TODO: заглушка
     connect(dialog, SIGNAL(loginTry(QString,QString)), this, SLOT(onLoginTry(QString,QString)));
     connect(this, SIGNAL(login(bool)), dialog, SLOT(loginResult(bool)));
     connect(dialog, SIGNAL(login()), this, SLOT(onLogin()));
