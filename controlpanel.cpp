@@ -24,7 +24,7 @@ ControlPanel::ControlPanel(QWidget *parent) :
     passLabel = new QLabel("Пароль:");
     userEdit = new QLineEdit("Иван Сидоров");
     passEdit = new QLineEdit("");
-    passEdit->setEchoMode(QLineEdit::PasswordEchoOnEdit);
+    passEdit->setEchoMode(QLineEdit::Password);
     regButton = new QPushButton("Зарегистрировать");
     regLayout->addWidget(regLabel, 0, 0, 1, 2);
     regLayout->addWidget(userLabel, 1, 0);
