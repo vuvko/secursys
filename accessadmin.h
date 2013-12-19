@@ -38,6 +38,9 @@ public:
     QString getUserName(int uid);
     QString getGroupName(int gid);
 
+    int getUID(const QString &name);
+    int getGID(const QString &name);
+
 private:
     AccessAdmin();
 
