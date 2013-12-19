@@ -124,13 +124,15 @@ ProfileViewer::modeToStr(int mode)
         strMode = tr("Запись");
         break;
     case ACCESS_EXEC:
+    case ACCESS_WRITE | ACCESS_EXEC:
+    case ACCESS_READ | ACCESS_EXEC:
         strMode = tr("Выполнение");
         break;
     case ACCESS_READ | ACCESS_WRITE:
         strMode = tr("Полный доступ (rw)");
         break;
     case ACCESS_READ | ACCESS_WRITE | ACCESS_EXEC:
-        strMode = tr("Полный доступ");
+        strMode = tr("Полный доступ (rwx)");
         break;
     default:
         strMode = tr("Битые права доступа");
