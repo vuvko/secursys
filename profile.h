@@ -44,6 +44,8 @@ private:
     Profile(const Profile &);
     void operator=(const Profile &);
 
+    static const User *getUserByUID(int uid);
+
     const User *getUser() const;
     const Group *getGroup() const;
     QHash<QString, int> accessibleObjects(QList<AccessObject> *collection) const;

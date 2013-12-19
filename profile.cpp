@@ -30,7 +30,7 @@ QDir &Profile::getConstDirPWD()
 }
 
 const User *
-Profile::getUser() const
+Profile::getUserByUID(int uid)
 {
     QListIterator<User> i(AccessControl::getInstance().allUsers);
     while (i.hasNext()) {
@@ -40,6 +40,12 @@ Profile::getUser() const
     }
 
     return 0;
+}
+
+const User *
+Profile::getUser() const
+{
+    return getUserByUID(uid);
 }
 
 const Group *

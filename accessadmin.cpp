@@ -20,6 +20,8 @@ void AccessAdmin::setAccess(QList<AccessObject> *collection, const AccessObject 
     } else {
         collection->append(obj);
     }
+
+    AccessControl::getInstance().dbWrite();
 }
 
 void AccessAdmin::setAccessFile(const AccessObject &obj)
@@ -50,7 +52,9 @@ bool AccessAdmin::setHashFile(QString path)
 
     QByteArray hash = AccessControl::calcHashFile(cpath);
     bool ok = !hash.isEmpty();
-    if (ok)
+    if (ok) {
         AccessControl::getInstance().allHashes.insert(cpath, hash);
+        AccessControl::getInstance().dbWrite();
+    }
     return ok;
 }

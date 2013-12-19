@@ -62,6 +62,13 @@ struct Group
     QString name;
 };
 
+QDataStream &operator<<(QDataStream &out, const AccessObject &obj);
+QDataStream &operator>>(QDataStream &in, AccessObject &obj);
+QDataStream &operator<<(QDataStream &out, const User &obj);
+QDataStream &operator>>(QDataStream &in, User &obj);
+QDataStream &operator<<(QDataStream &out, const Group &obj);
+QDataStream &operator>>(QDataStream &in, Group &obj);
+
 class AppHandler;
 
 class AccessControl
@@ -98,12 +105,13 @@ private:
     void operator=(const AccessControl &);
 
     void dbRead();
-    void dbWrite() const;
+    void dbWrite();
 
     // cpath -- canonical path to file.
     QString getDrive(QString cpath);
 
     QByteArray getUserKey() const;
+    QByteArray getRootKey() const;
 
     bool checkAccess(const QList<AccessObject> *collection,
         QString cpath, int mode) const;
@@ -120,10 +128,15 @@ private:
     void setDefaultAccessFile(QString cpath);
     void setDefaultAccessDir(QString cpath);
 
-    bool readFileInt(QString cpath, QString &to);
-    bool writeFileInt(QString cpath, QString data);
+    bool readFileInt(QString cpath, QString &to, QByteArray userKey);
+    bool readFileInt(QString cpath, QString &to);   // use getUserKey().
+    bool writeFileInt(QString cpath, QString data, QByteArray userKey);
+    bool writeFileInt(QString cpath, QString data); // use getUserKey().
 
     static QByteArray calcHashFile(QString cpath);
+
+    // Fields
+    // ======
 
     // Access objects.
     QList<AccessObject> allFiles;

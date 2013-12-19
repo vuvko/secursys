@@ -247,14 +247,81 @@ bool AccessControl::exec(QString path)
 
 void AccessControl::dbRead()
 {
-    // TODO
+#if 0
+    QString str;
+    bool ok = readFileInt(DB_FILE, str, getRootKey());
+
+    if (!ok) {
+        LOG << tr("Something went wrong at db read from \"%1\".").arg(DB_FILE) << ENDL;
+        return;
+    }
+
+    QDataStream data(str);
+    data.setVersion(QDataStream::Qt_5_0);
+
+    data >> allFiles
+         >> allDrives
+         >> allDirs
+         >> allPrograms
+         >> allHashes
+         >> allUsers
+         >> allGrours;
+    // TODO: read logs
+#else
+    // For initial tests.
+    User root;
+    root.uid = 0;
+    root.gid = 0;
+    root.name = "root";
+    root.passHash = Crypto::getInstance().hash_256(QString("password").toUtf8());
+    allUsers.append(root);
+
+    Group gRoot;
+    gRoot.gid = 0;
+    gRoot.name = "root";
+    allGroups.append(gRoot);
+
+    QDir pwd(Profile::getInstance().getPWD());
+    QString cpwd = pwd.canonicalPath();
+
+    AccessObject obj(cpwd);
+    obj.uid = 0;
+    obj.gid = 0;
+    obj.userMode = 7;
+    obj.groupMode = 7;
+    obj.othersMode = 7;
+    obj.role = ROLE_NOTHING;
+
+    AccessAdmin::getInstance().setAccessDir(obj);
+    obj.path = getDrive(cpwd);
+    AccessAdmin::getInstance().setAccessDrive(obj);
+#endif
 }
 
-
-void AccessControl::dbWrite() const
+void AccessControl::dbWrite()
 {
-    // TODO
-    return;
+    QDataStream data;
+    data.setVersion(QDataStream::Qt_5_0);
+
+    data << allFiles
+         << allDrives
+         << allDirs
+         << allPrograms
+         << allHashes
+         << allUsers
+         << allGroups;
+
+    QString str;
+    data >> str;
+
+    bool ok = writeFileInt(DB_FILE, str, getRootKey());
+
+    if (!ok) {
+        LOG << tr("Something went wrong at db write to \"%1\".").arg(DB_FILE) << ENDL;
+        return;
+    }
+
+    // TODO: write logs
 }
  
 bool AccessControl::checkAccess(const QList<AccessObject> *collection,
@@ -330,7 +397,12 @@ QByteArray AccessControl::getUserKey() const
     return Profile::getInstance().getUser()->passHash;
 }
 
-bool AccessControl::readFileInt(QString cpath, QString &to)
+QByteArray AccessControl::getRootKey() const
+{
+    return Profile::getUserByUID(ROOT_UID)->passHash;
+}
+
+bool AccessControl::readFileInt(QString cpath, QString &to, QByteArray userKey)
 {
     QFile file(cpath);
     if (!file.open(QFile::ReadOnly)) {
@@ -342,7 +414,7 @@ bool AccessControl::readFileInt(QString cpath, QString &to)
 #endif
 //    QByteArray encr = QByteArray::fromHex(file.readAll());
     QByteArray encr(file.readAll());
-    QByteArray data = Crypto::getInstance().decrypt(encr, getUserKey());
+    QByteArray data = Crypto::getInstance().decrypt(encr, userKey);
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
@@ -352,7 +424,7 @@ bool AccessControl::readFileInt(QString cpath, QString &to)
     return true;
 }
 
-bool AccessControl::writeFileInt(QString cpath, QString data)
+bool AccessControl::writeFileInt(QString cpath, QString data, QByteArray userKey)
 {
     QFile file(cpath);
     if (!file.open(QFile::WriteOnly)) {
@@ -364,12 +436,22 @@ bool AccessControl::writeFileInt(QString cpath, QString data)
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     QByteArray outData(data.toUtf8());
-    out << Crypto::getInstance().encrypt(outData, getUserKey());//.toHex().toUpper();
+    out << Crypto::getInstance().encrypt(outData, userKey);//.toHex().toUpper();
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
     file.close();
     return true;
+}
+
+bool AccessControl::readFileInt(QString cpath, QString &to)
+{
+    return readFileInt(cpath, to, getUserKey());
+}
+
+bool AccessControl::writeFileInt(QString cpath, QString data)
+{
+    return writeFileInt(cpath, data, getUserKey());
 }
 
 QByteArray AccessControl::calcHashFile(QString cpath)
@@ -379,4 +461,46 @@ QByteArray AccessControl::calcHashFile(QString cpath)
     QByteArray hash = Crypto::getInstance().hash_256(file.readAll());
     file.close();
     return hash;
+}
+
+QDataStream &operator<<(QDataStream &out, const AccessObject &obj)
+{
+    out << obj.path << obj.uid << obj.gid
+        << obj.userMode << obj.groupMode << obj.othersMode
+        << static_cast<int>(obj.role);
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, AccessObject &obj)
+{
+    int tmpInt;
+    in >> obj.path >> obj.uid >> obj.gid
+        >> obj.userMode >> obj.groupMode >> obj.othersMode
+        >> tmpInt;
+    obj.role = static_cast<Role>(tmpInt);
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const User &obj)
+{
+    out << obj.uid << obj.gid << obj.name << obj.passHash;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, User &obj)
+{
+    in >> obj.uid >> obj.gid >> obj.name >> obj.passHash;
+    return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const Group &obj)
+{
+    out << obj.gid << obj.name;
+    return out;
+}
+
+QDataStream &operator>>(QDataStream &in, Group &obj)
+{
+    in >> obj.gid >> obj.name;
+    return in;
 }
