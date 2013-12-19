@@ -40,6 +40,7 @@ private:
     Logger(const Logger &);
     void operator=(const Logger &);
 
+    static QString getTimestamp();
     void unloadBuff();
 
     QString log;

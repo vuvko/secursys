@@ -15,10 +15,17 @@ Logger::read()
     return log;
 }
 
+QString
+Logger::getTimestamp()
+{
+    const QDateTime &t = QDateTime::currentDateTime();
+    return "[" + t.toString("MMM dd hh:mm:ss") + "] ";
+}
+
 void
 Logger::unloadBuff()
 {
-    log.append("[" + QDateTime::currentDateTime().toString(Qt::TextDate) + "] " + buff);
+    log.append(getTimestamp() + buff);
     buff.clear();
 }
 
@@ -59,7 +66,7 @@ operator << (Logger &out, Logger::CommandSymbol sym)
         out.unloadBuff();
         break;
     case Logger::LOG_DATESTAMP:
-        out.buff.append(QDateTime::currentDateTime().toString(Qt::TextDate));
+        out.buff.append(Logger::getTimestamp());
         break;
     case Logger::LOG_TIMESTAMP:
         out.buff.append(QTime::currentTime().toString(Qt::TextDate));
