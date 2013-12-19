@@ -15,7 +15,7 @@ int encrypt_func_fallback(unsigned char *f, unsigned long c, unsigned char *, un
 {
     memcpy(out, f, c);
     if (c % 16)
-        memset(out + c, 0, c % 16);
+        memset(out + c, 0, 16 - c % 16);
     return c;
 }
 
@@ -27,7 +27,7 @@ int decrypt_func_fallback(unsigned char *f, unsigned long c, unsigned char *, un
 
 int gen_func_fallback(unsigned char *out, unsigned long c)
 {
-    memset(out, 1, c);
+    memset(out, 2, c);
     return c;
 }
 
