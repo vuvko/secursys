@@ -134,6 +134,8 @@ private:
 
     static QByteArray calcHashFile(QString apath);
 
+    bool isDirEmpty(QString apath) const;
+
     // Fields
     // ======
 

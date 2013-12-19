@@ -58,7 +58,7 @@ bool FileView::rm()
     QFileInfo info = pwd.entryInfoList()[row];
     if (info.suffix() != secret_suffix)
         return false;
-    bool res = AccessControl::getInstance().rmdir(info.absoluteFilePath());
+    bool res = AccessControl::getInstance().rm(info.absoluteFilePath());
     update();
     return res;
 }

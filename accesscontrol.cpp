@@ -92,9 +92,9 @@ bool AccessControl::writeFile(QString path, QString data)
     bool newFile = info.exists();
 
     if (newFile)
-        ok = ok && checkAccessDir(adir, ACCESS_WRITE);
-    else
         ok = ok && checkAccessFile(apath, ACCESS_WRITE);
+    else
+        ok = ok && checkAccessDir(adir, ACCESS_WRITE);
 
     if (!ok) {
         LOG << tr("Access denied at writing file \"%1\".").arg(apath) << ENDL;
@@ -181,7 +181,7 @@ bool AccessControl::rmdir(QString path)
     }
 
     ok = ok && info.isDir();
-    ok = ok && QDir(apath).entryList().isEmpty();
+    ok = ok && isDirEmpty(apath);
     ok = ok && QDir(adir).rmdir(name);
 
     if (!ok) {
@@ -465,6 +465,15 @@ QByteArray AccessControl::calcHashFile(QString apath)
     QByteArray hash = Crypto::getInstance().hash_256(file.readAll());
     file.close();
     return hash;
+}
+
+bool AccessControl::isDirEmpty(QString apath) const
+{
+    int cnt = 0;
+    for (auto e : QDir(apath).entryList()) {
+        cnt += (e != "." && e != "..");
+    }
+    return cnt == 0;
 }
 
 QDataStream &operator<<(QDataStream &out, const AccessObject &obj)
