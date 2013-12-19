@@ -37,7 +37,7 @@ bool AccessControl::readFile(QString path, QString &to)
     QString cpath = info.canonicalFilePath();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
     ok = ok && checkAccessFile(cpath, ACCESS_READ);
 
     if (!ok) {
@@ -56,7 +56,7 @@ bool AccessControl::writeFile(QString path, QString data)
     QString cpath = info.canonicalFilePath();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
 
     bool newFile = info.exists();
 
@@ -89,7 +89,7 @@ bool AccessControl::cd(QString path)
     QString cpath = info.canonicalFilePath();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
     ok = ok && checkAccessDir(cpath, ACCESS_READ);
 
     if (!ok) {
@@ -115,7 +115,7 @@ bool AccessControl::mkdir(QString path)
     QString name = info.fileName();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
@@ -141,7 +141,7 @@ bool AccessControl::rmdir(QString path)
     QString name = info.fileName();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
@@ -169,7 +169,7 @@ bool AccessControl::rm(QString path)
     QString name = info.fileName();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_WRITE); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
@@ -194,7 +194,7 @@ bool AccessControl::exec(QString path)
     QString cpath = info.canonicalFilePath();
 
     bool ok = true;
-    //ok = ok && checkAccessDrive(..., ACCESS_READ); // TODO
+    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
     ok = ok && checkAccessProgramExec(cpath);
 
     if (!ok) {
@@ -227,22 +227,6 @@ void AccessControl::dbWrite() const
     return;
 }
  
-void AccessControl::setAccess(QList<AccessObject> *collection, QString cpath,
-    int uid, int gid,
-    int userMode, int groupMode, int othersMode,
-    Role role)
-{
-    AccessObject newObj(cpath, uid, gid, userMode, groupMode, othersMode, role);
-
-    int idx = collection->indexOf(cpath);
-
-    if (idx < 0) {
-        collection->replace(idx, newObj);
-    } else {
-        collection->append(newObj);
-    }
-}
-
 bool AccessControl::checkAccess(const QList<AccessObject> *collection,
     QString cpath, int mode) const
 {
@@ -268,26 +252,6 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
     return ok;
 }
 
-void AccessControl::setAccessFile(QString cpath, int mode)
-{
-    //setAccess(&allFiles, cpath, ); // TODO
-}
-
-void AccessControl::setAccessDrive(QString cpath, int mode)
-{
-    // TODO
-}
-
-void AccessControl::setAccessDir(QString cpath, int mode)
-{
-    // TODO
-}
-
-void AccessControl::setAccessProgramExec(QString cpath)
-{
-    // TODO
-}
-
 bool AccessControl::checkAccessFile(QString cpath, int mode) const
 {
     return checkAccess(&allFiles, cpath, mode);
@@ -308,15 +272,9 @@ bool AccessControl::checkAccessProgramExec(QString cpath) const
     return checkAccess(&allPrograms, cpath, ACCESS_EXEC);
 }
 
-void AccessControl::setHashFile(QString cpath)
-{
-    QByteArray hash = get_hash_file(cpath);
-    allHashes.insert(cpath, hash);
-}
-
 bool AccessControl::check(QString cpath) const
 {
-    QByteArray hash = get_hash_file(cpath);
+    QByteArray hash = calcHashFile(cpath);
     return allHashes.value(cpath) == hash;
 }
 
@@ -328,6 +286,11 @@ void AccessControl::setDefaultModeDir(QString cpath)
 void AccessControl::setDefaultModeFile(QString cpath)
 {
     //setAccessFile(...); // TODO
+}
+
+QString AccessControl::getDrive(QString cpath)
+{
+    return QString(cpath.at(0));
 }
 
 QByteArray AccessControl::getUserKey() const
@@ -377,7 +340,7 @@ bool AccessControl::writeFileInt(QString cpath, QString data)
     return true;
 }
 
-QByteArray AccessControl::get_hash_file(QString cpath)
+QByteArray AccessControl::calcHashFile(QString cpath)
 {
     QFile file(cpath);
     file.open(QFile::ReadOnly);
