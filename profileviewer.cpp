@@ -129,6 +129,9 @@ ProfileViewer::modeToStr(int mode)
     case ACCESS_READ | ACCESS_WRITE:
         strMode = tr("Полный доступ (rw)");
         break;
+    case ACCESS_READ | ACCESS_WRITE | ACCESS_EXEC:
+        strMode = tr("Полный доступ");
+        break;
     default:
         strMode = tr("Битые права доступа");
     }
@@ -138,7 +141,6 @@ ProfileViewer::modeToStr(int mode)
 void
 ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &data)
 {
-    model = new QStandardItemModel(0, 2, this);
     model->setHeaderData(0, Qt::Horizontal, QObject::tr("Путь"));
     model->setHeaderData(1, Qt::Horizontal, QObject::tr("Права"));
     model->setRowCount(data.size());
@@ -153,6 +155,7 @@ ProfileViewer::loadModel(QStandardItemModel *model, const QHash<QString, int> &d
 void
 ProfileViewer::loadFiles()
 {
+    filesModel = new QStandardItemModel(0, 2, this);
     loadModel(filesModel, Profile::getInstance().files());
     filesList->setModel(filesModel);
     filesList->setColumnWidth(0, 500);
@@ -161,6 +164,7 @@ ProfileViewer::loadFiles()
 void
 ProfileViewer::loadDrives()
 {
+    drivesModel = new QStandardItemModel(0, 2, this);
     loadModel(drivesModel, Profile::getInstance().drives());
     drivesList->setModel(drivesModel);
     drivesList->setColumnWidth(0, 500);
@@ -169,6 +173,7 @@ ProfileViewer::loadDrives()
 void
 ProfileViewer::loadDirs()
 {
+    dirsModel = new QStandardItemModel(0, 2, this);
     loadModel(dirsModel, Profile::getInstance().dirs());
     dirsList->setModel(dirsModel);
     dirsList->setColumnWidth(0, 500);
@@ -177,6 +182,7 @@ ProfileViewer::loadDirs()
 void
 ProfileViewer::loadPrograms()
 {
+    programsModel = new QStandardItemModel(0, 2, this);
     loadModel(programsModel, Profile::getInstance().programs());
     programsList->setModel(programsModel);
     programsList->setColumnWidth(0, 500);

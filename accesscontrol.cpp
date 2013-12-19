@@ -89,7 +89,7 @@ bool AccessControl::writeFile(QString path, QString data)
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
 
-    bool newFile = info.exists();
+    bool newFile = !info.exists();
 
     if (newFile)
         ok = ok && checkAccessFile(apath, ACCESS_WRITE);
