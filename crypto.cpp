@@ -1,4 +1,7 @@
 #include "crypto.h"
+#ifdef DEBUG
+#include "cryptofallback.h"
+#endif
 
 Crypto &Crypto::getInstance()
 {
@@ -20,6 +23,12 @@ Crypto::Crypto()
         encrypt_func != 0 &&
         decrypt_func != 0 &&
         gen_func != 0;
+
+#ifdef DEBUG
+    if (!ready) {
+        loadFallback();
+    }
+#endif
 }
 
 bool Crypto::isReady() const
@@ -79,3 +88,16 @@ Crypto::generate_next()
     gen_func((unsigned char *)key.data(), key.size());
     return key;
 }
+
+#ifdef DEBUG
+void Crypto::loadFallback()
+{
+    hash_256_func = hash_func_256_fallback;
+    hash_512_func = hash_func_512_fallback;
+    encrypt_func = encrypt_func_fallback;
+    decrypt_func = decrypt_func_fallback;
+    gen_func = gen_func_fallback;
+
+    ready = true;
+}
+#endif

@@ -97,15 +97,14 @@ public:
     // path can be relative with respect Profile::getPWD().
     bool check(QString path) const;
 
+    void dbRead();
+    void dbWrite();
 private:
     AccessControl();
 
     // Not implement, forbid usage.
     AccessControl(const AccessControl &);
     void operator=(const AccessControl &);
-
-    void dbRead();
-    void dbWrite();
 
     // cpath -- canonical path to file.
     QString getDrive(QString cpath);

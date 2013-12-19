@@ -30,6 +30,10 @@ private:
     typedef int (*decrypt_func_t) (unsigned char *, unsigned long, unsigned char *, unsigned char *, unsigned long *);
     typedef int (*gen_func_t) (unsigned char *, unsigned long);
 
+#ifdef DEBUG
+    void loadFallback();
+#endif
+
     bool ready;
 
     QLibrary lib;

@@ -16,9 +16,9 @@ void AccessAdmin::setAccess(QList<AccessObject> *collection, const AccessObject 
     int idx = collection->indexOf(obj);
 
     if (idx < 0) {
-        collection->replace(idx, obj);
-    } else {
         collection->append(obj);
+    } else {
+        collection->replace(idx, obj);
     }
 
     AccessControl::getInstance().dbWrite();

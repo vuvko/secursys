@@ -53,6 +53,9 @@ Profile::getGroup() const
 {
     const User *u = getUser();
 
+    if (!u)
+        return 0;
+
     QListIterator<Group> i(AccessControl::getInstance().allGroups);
     while (i.hasNext()) {
         const Group &g = i.next();

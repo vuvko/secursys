@@ -7,9 +7,7 @@ Logger &Logger::getInstance()
 }
 
 Logger::Logger()
-{
-    log = "[" + QDateTime::currentDateTime().toString(Qt::TextDate) + "] Новая сессия.\n";
-}
+{}
 
 QString
 Logger::read()
@@ -45,12 +43,19 @@ operator << (Logger &out, int val)
     return out;
 }
 
+#ifdef DEBUG
+#include <QtDebug>
+#endif
+
 Logger &
 operator << (Logger &out, Logger::CommandSymbol sym)
 {
     switch (sym) {
     case Logger::LOG_ENDL:
         out.buff.append('\n');
+#ifdef DEBUG
+        qDebug() << out.buff;
+#endif
         out.unloadBuff();
         break;
     case Logger::LOG_DATESTAMP:

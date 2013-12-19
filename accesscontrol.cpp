@@ -7,7 +7,12 @@
 #include "accessadmin.h"
 #include "logger.h"
 
+#ifdef DEBUG
+#include <QtDebug>
+#define DB_FILE "admin-debug.db"
+#else
 #define DB_FILE "admin.db"
+#endif
 
 inline QString tr(const char *srcText)
 {
@@ -33,9 +38,7 @@ AccessControl &AccessControl::getInstance()
 }
 
 AccessControl::AccessControl()
-{
-    dbRead();
-}
+{}
 
 int AccessControl::checkLogin(QString userName, QString userPass) const
 {
@@ -80,7 +83,8 @@ bool AccessControl::writeFile(QString path, QString data)
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
     QString cdir = info.canonicalPath();
-    QString cpath = info.canonicalFilePath();
+    QString name = info.fileName();
+    QString cpath = cdir + QDir::separator() + name;
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
@@ -138,8 +142,8 @@ bool AccessControl::mkdir(QString path)
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
     QString cdir = info.canonicalPath();
-    QString cpath = info.canonicalFilePath();
     QString name = info.fileName();
+    QString cpath = cdir + QDir::separator() + name;
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);

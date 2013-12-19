@@ -32,9 +32,13 @@ bool FileView::cd(QString path)
 
 bool FileView::mkdir()
 {
-    int row = selectedIndexes()[0].row();
-    QFileInfo info = pwd.entryInfoList()[row];
-    bool res = AccessControl::getInstance().mkdir(info.canonicalPath());
+    QString name = QInputDialog::getText(this, tr("Создание каталога"),
+            tr("Название нового каталога:"));
+
+    if (name.isEmpty())
+        return false;
+
+    bool res = AccessControl::getInstance().mkdir(name);
     update();
     return res;
 }
