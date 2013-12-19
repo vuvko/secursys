@@ -98,6 +98,8 @@ QString AccessAdmin::getGroupName(int gid)
             return ag.name;
         }
     }
+
+    return QString();
 }
 
 void AccessAdmin::setGroup(const Group &g)
