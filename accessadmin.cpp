@@ -48,12 +48,12 @@ bool AccessAdmin::setHashFile(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalFilePath();
+    QString apath = info.absoluteFilePath();
 
-    QByteArray hash = AccessControl::calcHashFile(cpath);
+    QByteArray hash = AccessControl::calcHashFile(apath);
     bool ok = !hash.isEmpty();
     if (ok) {
-        AccessControl::getInstance().allHashes.insert(cpath, hash);
+        AccessControl::getInstance().allHashes.insert(apath, hash);
         AccessControl::getInstance().dbWrite();
     }
     return ok;

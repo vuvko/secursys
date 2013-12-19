@@ -28,7 +28,7 @@ private:
     void operator=(const AccessAdmin &);
 
     void setAccess(QList<AccessObject> *collection, const AccessObject &obj);
-    static QByteArray calcHashFile(QString cpath);
+    static QByteArray calcHashFile(QString apath);
 };
 
 #endif // AccessAdmin_H

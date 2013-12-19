@@ -47,7 +47,7 @@ bool FileView::rmdir()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = pwd.entryInfoList()[row];
-    bool res = AccessControl::getInstance().rmdir(info.canonicalPath());
+    bool res = AccessControl::getInstance().rmdir(info.absoluteFilePath());
     update();
     return res;
 }
@@ -58,7 +58,7 @@ bool FileView::rm()
     QFileInfo info = pwd.entryInfoList()[row];
     if (info.suffix() != secret_suffix)
         return false;
-    bool res = AccessControl::getInstance().rmdir(info.canonicalPath());
+    bool res = AccessControl::getInstance().rmdir(info.absoluteFilePath());
     update();
     return res;
 }
@@ -74,7 +74,7 @@ bool FileView::check()
 {
     int row = selectedIndexes()[0].row();
     QFileInfo info = pwd.entryInfoList()[row];
-    bool res = AccessControl::getInstance().check(info.canonicalPath());
+    bool res = AccessControl::getInstance().check(info.absoluteFilePath());
     update();
     return res;
 }
@@ -96,7 +96,7 @@ FileView::editFile(const QString &nameArg)
     if (name.isEmpty())
         return false;
     
-    QString newFilePath = pwd.canonicalPath() + QDir::separator() + name;
+    QString newFilePath = pwd.absolutePath() + QDir::separator() + name;
     emit openFile(newFilePath);
     update();
     return true;
@@ -112,7 +112,7 @@ void
 FileView::update()
 {
     pwd.refresh();
-    qDebug() << "Текущий каталог:" << pwd.canonicalPath();
+    qDebug() << "Текущий каталог:" << pwd.absolutePath();
     QFileInfoList infoList = pwd.entryInfoList();
     int idx = 0;
     dirModel->setRowCount(infoList.size());
@@ -137,7 +137,7 @@ FileView::update()
         ++idx;
     }
     setModel(dirModel);
-    parent->changePath(pwd.canonicalPath());
+    parent->changePath(pwd.absolutePath());
     QTreeView::update();
 }
 
@@ -149,9 +149,9 @@ FileView::mouseDoubleClickEvent(QMouseEvent *)
     if (info.isDir()) {
         cd(info.fileName());
     } else if (info.isExecutable()) {
-        exec(info.canonicalFilePath());
+        exec(info.absoluteFilePath());
     } else {
-        editFile(info.canonicalFilePath());
+        editFile(info.absoluteFilePath());
     }
 }
 
@@ -175,7 +175,7 @@ FSViewer::FSViewer(QWidget *parent)
 
     driveBox = new QComboBox;
     for(auto info : QDir::drives()) {
-        driveBox->addItem(info.canonicalPath());
+        driveBox->addItem(info.absolutePath());
     }
     connect(driveBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(onDriveChange(QString)));
 

@@ -29,7 +29,7 @@ public:
     QString userName() const;
     QString groupName() const;
 
-    // File canonical path, access mode.
+    // File absolute path, access mode.
     QHash<QString, int> files() const;
     QHash<QString, int> drives() const;
     QHash<QString, int> dirs() const;

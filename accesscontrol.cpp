@@ -57,21 +57,21 @@ bool AccessControl::readFile(QString path, QString &to)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalFilePath();
+    QString apath = info.absoluteFilePath();
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
-    ok = ok && checkAccessFile(cpath, ACCESS_READ);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_READ);
+    ok = ok && checkAccessFile(apath, ACCESS_READ);
 
     if (!ok) {
-        LOG << tr("Access denied at reading file \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
-    ok = ok && readFileInt(cpath, to);
+    ok = ok && readFileInt(apath, to);
 
     if (!ok) {
-        LOG << tr("Something went wrong at reading file \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at reading file \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
@@ -82,34 +82,34 @@ bool AccessControl::writeFile(QString path, QString data)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.canonicalPath();
+    QString cdir = info.absolutePath();
     QString name = info.fileName();
-    QString cpath = cdir + QDir::separator() + name;
+    QString apath = cdir + QDir::separator() + name;
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
 
     bool newFile = info.exists();
 
     if (newFile)
         ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
     else
-        ok = ok && checkAccessFile(cpath, ACCESS_WRITE);
+        ok = ok && checkAccessFile(apath, ACCESS_WRITE);
 
     if (!ok) {
-        LOG << tr("Access denied at writing file \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at writing file \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
-    ok = ok && writeFileInt(cpath, data);
+    ok = ok && writeFileInt(apath, data);
 
     if (!ok) {
-        LOG << tr("Something went wrong at writing file \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at writing file \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     if (newFile)
-        setDefaultAccessFile(cpath);
+        setDefaultAccessFile(apath);
     return true;
 }
 
@@ -117,23 +117,23 @@ bool AccessControl::cd(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalFilePath();
+    QString apath = info.absoluteFilePath();
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
-    ok = ok && checkAccessDir(cpath, ACCESS_READ);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_READ);
+    ok = ok && checkAccessDir(apath, ACCESS_READ);
 
     if (!ok) {
-        LOG << tr("Access denied at cd \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at cd \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     if (!info.isDir()) {
-        LOG << tr("Something went wrong at cd \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at cd \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
-    Profile::getInstance().pwd.cd(cpath);
+    Profile::getInstance().pwd.cd(apath);
     return true;
 }
 
@@ -141,26 +141,25 @@ bool AccessControl::mkdir(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.canonicalPath();
+    QString cdir = info.absolutePath();
+    QString apath = info.absoluteFilePath();
     QString name = info.fileName();
-    QString cpath = cdir + QDir::separator() + name;
 
-    qDebug() << "mkdir cpath" << cpath;
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        LOG << tr("Access denied at mkdir \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     if (!QDir(cdir).mkdir(name)) {
-        LOG << tr("Something went wrong at mkdir \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at mkdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
-    setDefaultAccessDir(cpath);
+    setDefaultAccessDir(apath);
     return true;
 }
 
@@ -168,25 +167,25 @@ bool AccessControl::rmdir(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.canonicalPath();
-    QString cpath = info.canonicalFilePath();
+    QString cdir = info.absolutePath();
+    QString apath = info.absoluteFilePath();
     QString name = info.fileName();
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        LOG << tr("Access denied at rmdir \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at rmdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     ok = ok && info.isDir();
-    ok = ok && QDir(cpath).entryList().isEmpty();
+    ok = ok && QDir(apath).entryList().isEmpty();
     ok = ok && QDir(cdir).rmdir(name);
 
     if (!ok) {
-        LOG << tr("Something went wrong at rmdir \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at rmdir \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
@@ -197,16 +196,16 @@ bool AccessControl::rm(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cdir = info.canonicalPath();
-    QString cpath = info.canonicalFilePath();
+    QString cdir = info.absolutePath();
+    QString apath = info.absoluteFilePath();
     QString name = info.fileName();
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_WRITE);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
     ok = ok && checkAccessDir(cdir, ACCESS_WRITE);
 
     if (!ok) {
-        LOG << tr("Access denied at rm \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at rm \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
@@ -214,7 +213,7 @@ bool AccessControl::rm(QString path)
     ok = ok && QDir(cdir).remove(name);
 
     if (!ok) {
-        LOG << tr("Something went wrong at rm \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at rm \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
@@ -225,23 +224,23 @@ bool AccessControl::exec(QString path)
 {
     QDir pwd(Profile::getInstance().getPWD());
     QFileInfo info(pwd, path);
-    QString cpath = info.canonicalFilePath();
+    QString apath = info.absoluteFilePath();
 
     bool ok = true;
-    ok = ok && checkAccessDrive(getDrive(cpath), ACCESS_READ);
-    ok = ok && checkAccessProgramExec(cpath);
+    ok = ok && checkAccessDrive(getDrive(apath), ACCESS_READ);
+    ok = ok && checkAccessProgramExec(apath);
 
     if (!ok) {
-        LOG << tr("Access denied at exec \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Access denied at exec \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
     ok = ok && info.isFile();
     ok = ok && info.isExecutable();
-    ok = ok && system(cpath.toStdString().c_str()) != -1;
+    ok = ok && system(apath.toStdString().c_str()) != -1;
 
     if (!ok) {
-        LOG << tr("Something went wrong at exec \"%1\".").arg(cpath) << ENDL;
+        LOG << tr("Something went wrong at exec \"%1\".").arg(apath) << ENDL;
         return false;
     }
 
@@ -287,7 +286,7 @@ void AccessControl::dbRead()
     allGroups.append(gRoot);
 
     QDir pwd(Profile::getInstance().getPWD());
-    QString cpwd = pwd.canonicalPath();
+    QString cpwd = pwd.absolutePath();
 
     AccessObject obj(cpwd);
     obj.uid = 0;
@@ -330,9 +329,9 @@ void AccessControl::dbWrite()
 }
  
 bool AccessControl::checkAccess(const QList<AccessObject> *collection,
-    QString cpath, int mode) const
+    QString apath, int mode) const
 {
-    int idx = collection->indexOf(cpath);
+    int idx = collection->indexOf(apath);
 
     if (idx < 0)
         return false;
@@ -354,47 +353,47 @@ bool AccessControl::checkAccess(const QList<AccessObject> *collection,
     return ok;
 }
 
-bool AccessControl::checkAccessFile(QString cpath, int mode) const
+bool AccessControl::checkAccessFile(QString apath, int mode) const
 {
-    return checkAccess(&allFiles, cpath, mode);
+    return checkAccess(&allFiles, apath, mode);
 }
 
-bool AccessControl::checkAccessDrive(QString cpath, int mode) const
+bool AccessControl::checkAccessDrive(QString apath, int mode) const
 {
-    return checkAccess(&allDrives, cpath, mode);
+    return checkAccess(&allDrives, apath, mode);
 }
 
-bool AccessControl::checkAccessDir(QString cpath, int mode) const
+bool AccessControl::checkAccessDir(QString apath, int mode) const
 {
-    return checkAccess(&allDirs, cpath, mode);
+    return checkAccess(&allDirs, apath, mode);
 }
 
-bool AccessControl::checkAccessProgramExec(QString cpath) const
+bool AccessControl::checkAccessProgramExec(QString apath) const
 {
-    return checkAccess(&allPrograms, cpath, ACCESS_EXEC);
+    return checkAccess(&allPrograms, apath, ACCESS_EXEC);
 }
 
-bool AccessControl::check(QString cpath) const
+bool AccessControl::check(QString apath) const
 {
-    QByteArray hash = calcHashFile(cpath);
-    return allHashes.value(cpath) == hash;
+    QByteArray hash = calcHashFile(apath);
+    return allHashes.value(apath) == hash;
 }
 
-void AccessControl::setDefaultAccessDir(QString cpath)
+void AccessControl::setDefaultAccessDir(QString apath)
 {
-    AccessObject defObj(cpath);
+    AccessObject defObj(apath);
     AccessAdmin::getInstance().setAccessDir(defObj);
 }
 
-void AccessControl::setDefaultAccessFile(QString cpath)
+void AccessControl::setDefaultAccessFile(QString apath)
 {
-    AccessObject defObj(cpath);
+    AccessObject defObj(apath);
     AccessAdmin::getInstance().setAccessFile(defObj);
 }
 
-QString AccessControl::getDrive(QString cpath)
+QString AccessControl::getDrive(QString apath)
 {
-    return QString(cpath.at(0));
+    return QString(apath.at(0));
 }
 
 QByteArray AccessControl::getUserKey() const
@@ -407,9 +406,9 @@ QByteArray AccessControl::getRootKey() const
     return Profile::getUserByUID(ROOT_UID)->passHash;
 }
 
-bool AccessControl::readFileInt(QString cpath, QString &to, QByteArray userKey)
+bool AccessControl::readFileInt(QString apath, QString &to, QByteArray userKey)
 {
-    QFile file(cpath);
+    QFile file(apath);
     if (!file.open(QFile::ReadOnly)) {
         return false;
     }
@@ -429,9 +428,9 @@ bool AccessControl::readFileInt(QString cpath, QString &to, QByteArray userKey)
     return true;
 }
 
-bool AccessControl::writeFileInt(QString cpath, QString data, QByteArray userKey)
+bool AccessControl::writeFileInt(QString apath, QString data, QByteArray userKey)
 {
-    QFile file(cpath);
+    QFile file(apath);
     if (!file.open(QFile::WriteOnly)) {
         return false;
     }
@@ -449,19 +448,19 @@ bool AccessControl::writeFileInt(QString cpath, QString data, QByteArray userKey
     return true;
 }
 
-bool AccessControl::readFileInt(QString cpath, QString &to)
+bool AccessControl::readFileInt(QString apath, QString &to)
 {
-    return readFileInt(cpath, to, getUserKey());
+    return readFileInt(apath, to, getUserKey());
 }
 
-bool AccessControl::writeFileInt(QString cpath, QString data)
+bool AccessControl::writeFileInt(QString apath, QString data)
 {
-    return writeFileInt(cpath, data, getUserKey());
+    return writeFileInt(apath, data, getUserKey());
 }
 
-QByteArray AccessControl::calcHashFile(QString cpath)
+QByteArray AccessControl::calcHashFile(QString apath)
 {
-    QFile file(cpath);
+    QFile file(apath);
     file.open(QFile::ReadOnly);
     QByteArray hash = Crypto::getInstance().hash_256(file.readAll());
     file.close();
