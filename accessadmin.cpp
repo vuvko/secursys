@@ -87,6 +87,8 @@ QString AccessAdmin::getUserName(int uid)
             return au.name;
         }
     }
+
+    return QString();
 }
 
 void AccessAdmin::setGroup(const Group &g)

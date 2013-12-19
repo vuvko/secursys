@@ -146,7 +146,7 @@ ControlPanel::onRegister()
     LOG << "Регистрация нового пользователя" << userEdit->text() << ENDL;
     AccessAdmin &aa = AccessAdmin::getInstance();
     int gid = AccessControl::getInstance().allGroups[groupBox->currentIndex()].gid;
-    aa.setUser(aa.getNewUID(), gid, userEdit->text(), passEdit->text());
+    aa.setUser(aa.getNewUID(), gid, userEdit->text(), passEdit->text(), ROLE_NOTHING); // TODO
     updateData();
 }
 

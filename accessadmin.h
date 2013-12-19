@@ -34,6 +34,7 @@ public:
     int getNewUID();
     int getNewGID();
 
+    // Return QString() on failure.
     QString getUserName(int uid);
 
 private:
