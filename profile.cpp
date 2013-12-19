@@ -12,6 +12,7 @@ void Profile::initialize(int uid, QString pwd)
 {
     this->uid = uid;
     this->pwd = QDir(pwd);
+    fldCurRole = ROLE_NOTHING;
 }
 
 Profile::Profile()
@@ -127,6 +128,32 @@ QHash<QString, int> Profile::dirs() const
 QHash<QString, int> Profile::programs() const
 {
     return accessibleObjects(&AccessControl::getInstance().allPrograms);
+}
+
+Role Profile::curRole() const
+{
+    return fldCurRole;
+}
+
+Role Profile::maxRole() const
+{
+    const User *u = getUser();
+
+    if (u)
+        return u->maxRole;
+    else
+        return ROLE_NOTHING;
+
+}
+
+bool Profile::setCurRole(Role role)
+{
+    if (role <= maxRole()) {
+        fldCurRole = role;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool Profile::isRoot() const
