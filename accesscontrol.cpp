@@ -13,6 +13,8 @@
 #define DB_FILE "admin.db"
 #endif
 
+#define DB_PASS "Qozmv49F0kFejf4Ffj9sdfF4fFJEk493rSfkksfkr49FEJ"
+
 inline QString tr(const char *srcText)
 {
     return QObject::tr(srcText);
@@ -278,30 +280,10 @@ bool AccessControl::exec(QString path)
 
 // =================
 
-void AccessControl::dbRead()
+void AccessControl::dbInit()
 {
-#if 0
-    QByteArray data;
-    bool ok = readFileInt(DB_FILE, data, getRootKey());
+    LOG << tr("Initialize new database at \"%1\".").arg(DB_FILE) << ENDL;
 
-    if (!ok) {
-        LOG << tr("Something went wrong at db read from \"%1\".").arg(DB_FILE) << ENDL;
-        return;
-    }
-
-    QDataStream out(&data, QIODevice::ReadOnly);
-    data.setVersion(QDataStream::Qt_5_0);
-
-    out >> allFiles
-        >> allDrives
-        >> allDirs
-        >> allPrograms
-        >> allHashes
-        >> allUsers
-        >> allGrours;
-    // TODO: read logs
-#else
-    // For initial tests.
     User root;
     root.uid = 0;
     root.gid = 0;
@@ -330,7 +312,32 @@ void AccessControl::dbRead()
     AccessAdmin::getInstance().setAccessDir(obj);
     obj.path = getDrive(cpwd);
     AccessAdmin::getInstance().setAccessDrive(obj);
-#endif
+
+    dbWrite();
+}
+
+void AccessControl::dbRead()
+{
+    QByteArray data;
+    bool ok = readFileInt(DB_FILE, data, getDBKey());
+
+    if (!ok) {
+        LOG << tr("Something went wrong at db read from \"%1\".").arg(DB_FILE) << ENDL;
+        dbInit();
+        return;
+    }
+
+    QDataStream out(&data, QIODevice::ReadOnly);
+    out.setVersion(QDataStream::Qt_5_0);
+
+    out >> allFiles
+        >> allDrives
+        >> allDirs
+        >> allPrograms
+        >> allHashes
+        >> allUsers
+        >> allGroups;
+    // TODO: read logs
 }
 
 void AccessControl::dbWrite()
@@ -468,6 +475,11 @@ void AccessControl::setDefaultAccessFile(QString apath)
 QString AccessControl::getDrive(QString apath)
 {
     return QString(apath.at(0)).toUpper();
+}
+
+QByteArray AccessControl::getDBKey() const
+{
+    return Crypto::getInstance().hash_256(QString(DB_PASS).toUtf8());
 }
 
 QByteArray AccessControl::getUserKey() const

@@ -26,7 +26,7 @@ typedef enum {
 struct AccessObject
 {
     // default value
-    AccessObject(QString path);
+    AccessObject(QString path = QString());
 
     QString path;
 
@@ -106,6 +106,7 @@ public:
     Role getRoleDir(QString path);
     Role getRoleProgram(QString path);
 
+    void dbInit();
     void dbRead();
     void dbWrite();
 
@@ -119,6 +120,7 @@ private:
     // apath -- absolute path to file.
     QString getDrive(QString apath);
 
+    QByteArray getDBKey() const;
     QByteArray getUserKey() const;
     QByteArray getRootKey() const;
 
