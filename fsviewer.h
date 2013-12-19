@@ -87,11 +87,13 @@ private slots:
     void onCheckHash();
     void onOpenFile(const QString &fileName);
     void onProfile();
+    void onPanel();
     void onPathChange();
 
 signals:
     void openFile(const QString &fileName);
     void openProfile();
+    void openPanel();
 
 private:
     void accessDeniedMessage(const QString path) const;
@@ -114,6 +116,7 @@ private:
 
     QMenu *userMenu;
     QAction *mnuUser;
+    QAction *mnuPanel;
 
     QMenu *helpMenu;
     QAction *mnuAbout;

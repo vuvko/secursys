@@ -2,6 +2,7 @@
 #include "crypto.h"
 #include "profileviewer.h"
 #include "accesscontrol.h"
+#include "controlpanel.h"
 
 #include <QApplication>
 
@@ -16,6 +17,9 @@ int main(int argc, char *argv[])
 
     AppHandler *ah = new AppHandler();
     ah->startLogin();
+
+    //ControlPanel *cp = new ControlPanel;
+    //cp->show();
     
     return a.exec();
 }

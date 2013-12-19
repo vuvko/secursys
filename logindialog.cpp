@@ -20,14 +20,20 @@ LoginDialog::LoginDialog(QWidget *parent) :
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(onCancelButton()));
 
     mainLayout->addWidget(userLabel, 1, 0);
-    mainLayout->addWidget(userEdit, 1, 1, 1, 2);
+    mainLayout->addWidget(userEdit, 1, 1, 1, 3);
     mainLayout->addWidget(passLabel, 2, 0);
-    mainLayout->addWidget(passEdit, 2, 1, 1, 2);
-    mainLayout->addWidget(tryButton, 3, 1);
-    mainLayout->addWidget(cancelButton, 3, 2);
+    mainLayout->addWidget(passEdit, 2, 1, 1, 3);
+    mainLayout->addWidget(tryButton, 3, 2);
+    mainLayout->addWidget(cancelButton, 3, 3);
     mainLayout->setColumnStretch(0, 0);
-    mainLayout->setColumnStretch(1, 1);
+    mainLayout->setColumnStretch(1, 2);
     mainLayout->setColumnStretch(2, 1);
+    mainLayout->setColumnStretch(3, 1);
+    mainLayout->setRowStretch(0, 0);
+    mainLayout->setRowStretch(1, 0);
+    mainLayout->setRowStretch(2, 0);
+    mainLayout->setRowStretch(3, 0);
+    mainLayout->setRowStretch(4, 1);
 
     setWindowTitle(tr("Вход в систему защиты информации."));
     setWindowIcon(QIcon(":/icons/user.png"));

@@ -231,6 +231,9 @@ FSViewer::createActions()
 
     mnuUser = new QAction(QIcon(":/icons/user.png"), tr("Профиль"), this);
     connect(mnuUser, SIGNAL(triggered()), this, SLOT(onProfile()));
+
+    mnuPanel = new QAction(QIcon(":/icons/user_info.png"), "Панель администрирования", this);
+    connect(mnuPanel, SIGNAL(triggered()), this, SLOT(onPanel()));
 }
 
 void
@@ -248,6 +251,7 @@ FSViewer::createMenu()
 
     userMenu = menuBar()->addMenu(tr("Пользователь"));
     userMenu->addAction(mnuUser);
+    userMenu->addAction(mnuPanel);
 
     helpMenu = menuBar()->addMenu(tr("Помощь"));
     helpMenu->addAction(mnuAbout);
@@ -335,6 +339,12 @@ void
 FSViewer::onProfile()
 {
     emit openProfile();
+}
+
+void
+FSViewer::onPanel()
+{
+    emit openPanel();
 }
 
 void

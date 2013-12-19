@@ -63,7 +63,7 @@ bool AccessControl::readFile(QString path, QByteArray &to)
     ok = ok && checkAccessFile(apath, ACCESS_READ);
 
     if (!ok) {
-        QMessageBox::warning(NULL, "Попытка открытия файла",
+        QMessageBox::warning(NULL, "Попытка чтения файла",
                              QString("Не достаточно прав для открытия файла \"%1\".").arg(apath));
         LOG << tr("Access denied at reading file \"%1\".").arg(apath) << ENDL;
         return false;
@@ -87,7 +87,7 @@ bool AccessControl::writeFile(QString path, QByteArray &data)
     QFileInfo info(pwd, path);
     QString adir = info.absolutePath();
     QString name = info.fileName();
-    QString apath = adir + QDir::separator() + name;
+    QString apath = QDir::fromNativeSeparators(adir + QDir::separator() + name);
 
     bool ok = true;
     ok = ok && checkAccessDrive(getDrive(apath), ACCESS_WRITE);
