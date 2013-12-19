@@ -218,6 +218,7 @@ int
 ControlPanel::strToMode(const QString &str)
 {
     int mode = 0;
+
     for (auto c : str) {
         if (c == 'R') {
             mode |= ACCESS_READ;
@@ -229,6 +230,8 @@ ControlPanel::strToMode(const QString &str)
             mode |= ACCESS_EXEC;
         }
     }
+
+    return mode;
 }
 
 QString
@@ -249,6 +252,8 @@ ControlPanel::roleToStr(int role)
         str = "Что-то не так";
         break;
     }
+
+    return str;
 }
 
 Role
@@ -282,6 +287,8 @@ ControlPanel::unloadModel(QAbstractItemModel *model)
         ao.othersMode = strToMode(model->data(model->index(i, 5), Qt::EditRole).toString());
         ao.role = strToRole(model->data(model->index(i, 6), Qt::EditRole).toString());
     }
+
+    return objects;
 }
 
 void
