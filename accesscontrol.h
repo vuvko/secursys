@@ -83,6 +83,7 @@ class AppHandler;
 class AccessControl
 {
     friend class Profile;
+    friend class AccessAdmin;
 
 public:
     static AccessControl &getInstance();
@@ -115,43 +116,30 @@ private:
     void dbRead();
     void dbWrite() const;
 
-    QByteArray getUserKey() const;
+    // cpath -- canonical path to file.
+    QString getDrive(QString cpath);
 
-    void setAccess(QList<AccessObject> *collection, QString cpath,
-        int uid, int gid,
-        int userMode, int groupMode, int othersMode,
-        Role role);
+    QByteArray getUserKey() const;
 
     bool checkAccess(const QList<AccessObject> *collection,
         QString cpath, int mode) const;
 
-    // For admin or for newly created files.
-    // path -- canonical path to file.
-    void setAccessFile(QString path, int mode);
-    void setAccessDrive(QString path, int mode);
-    void setAccessDir(QString path, int mode);
-    void setAccessProgramExec(QString path);
-
     // Check access for current user.
-    // path -- canonical path to file.
+    // cpath -- canonical path to file.
     bool checkAccessFile(QString cpath, int mode) const;
     bool checkAccessDrive(QString cpath, int mode) const;
     bool checkAccessDir(QString cpath, int mode) const;
     bool checkAccessProgramExec(QString cpath) const;
 
-    // For admin only.
-    // path -- canonical path to file.
-    void setHashFile(QString cpath);
-
     // For admin or for newly created directories.
-    // path -- canonical path to file.
+    // cpath -- canonical path to file.
     void setDefaultModeFile(QString cpath);
     void setDefaultModeDir(QString cpath);
 
     bool readFileInt(QString cpath, QString &to);
     bool writeFileInt(QString cpath, QString data);
 
-    static QByteArray get_hash_file(QString cpath);
+    static QByteArray calcHashFile(QString cpath);
 
     // Access objects.
     QList<AccessObject> allFiles;

@@ -21,7 +21,8 @@ SOURCES += \
     crypto.cpp \
     profile.cpp \
     profileviewer.cpp \
-    accesscontrol.cpp
+    accesscontrol.cpp \
+    accessadmin.cpp
 
 HEADERS += \
     logindialog.h \
@@ -32,5 +33,6 @@ HEADERS += \
     crypto.h \
     profile.h \
     profileviewer.h \
-    accesscontrol.h
+    accesscontrol.h \
+    accessadmin.h
 
