@@ -414,8 +414,9 @@ bool AccessControl::readFileInt(QString apath, QByteArray &to, QByteArray userKe
 #ifndef QT_NO_CURSOR
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
-//    QByteArray encr = QByteArray::fromHex(file.readAll()); // TODO: remove
-    QByteArray encr = file.readAll();
+    // TODO: remove fromHex
+    QByteArray encr = QByteArray::fromHex(file.readAll());
+//    QByteArray encr = file.readAll();
     to = Crypto::getInstance().decrypt(encr, userKey);
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
@@ -437,8 +438,8 @@ bool AccessControl::writeFileInt(QString apath, QByteArray &data, QByteArray use
     QApplication::setOverrideCursor(Qt::WaitCursor);
 #endif
     QByteArray encr = Crypto::getInstance().encrypt(data, userKey);
-    out << encr;
-    //.toHex().toUpper(); // TODO: remove
+    // TODO: remove toHex
+    out << encr.toHex().toUpper();
 #ifndef QT_NO_CURSOR
     QApplication::restoreOverrideCursor();
 #endif
